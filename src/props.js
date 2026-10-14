@@ -52,6 +52,22 @@ export const laptop = () => p => {
   L([[2, 10, 'N'], [2, 11, 'N'], [3, 11, 'C'], [3, 12, 'C'], [19, 10, 'N'], [19, 11, 'N'], [18, 11, 'C'], [18, 12, 'C']])(p);
 };
 
+/** Laptop beim Aufklappen/Zuklappen (Deckel zu uns, Scharnier unten bei y 15): h = Deckelhöhe 0 (zu, Platte) … 8 (offen, wie laptop()).
+ *  Hände greifen mit wachsendem Deckel höher. Kein Laptop bei h < 0 (nur die Platte als Strich, für das Herausholen/Verstauen). */
+export const laptopOpen = (h) => p => {
+  clrL(p); clrR(p);
+  if (h < 0) { for (let x = 4; x <= 17; x++) p(x, 15, 'w'); return; }
+  const top = h === 0 ? 14 : 15 - h;
+  for (let y = top; y <= 14; y++) for (let x = 4; x <= 17; x++) p(x, y, 'G');
+  for (let x = 4; x <= 17; x++) p(x, top, 'g'); for (let y = top; y <= 14; y++) p(4, y, 'g');
+  if (top < 14) { for (let x = 5; x <= 17; x++) p(x, 14, 'k'); for (let y = top + 1; y <= 14; y++) p(17, y, 'k'); }
+  for (let x = 4; x <= 17; x++) p(x, 15, 'w');
+  if (top <= 9) { p(10, 10, 'H'); p(11, 10, 'H'); p(10, 11, 'H'); p(11, 11, 'H'); }
+  const hy = h < 3 ? 13 : h < 6 ? 12 : 11;
+  for (let y = 10; y <= hy; y++) { p(2, y, 'N'); p(19, y, 'N'); }
+  p(3, hy, 'C'); p(3, hy + 1, 'C'); p(18, hy, 'C'); p(18, hy + 1, 'C');
+};
+
 // ---------- Kaffee ----------
 const cupAt = (S, x0, y0, steam) => {
   for (let y = y0 - 1; y <= y0 + 3; y++) for (let x = x0 - 1; x <= x0 + 4; x++) S(x, y, 'O');

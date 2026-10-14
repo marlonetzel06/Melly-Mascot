@@ -24,7 +24,7 @@ Quelle der Wahrheit: Repo **`C:\Users\MEtzel\Melly-Mascot`** (GitHub `marlonetze
 2. Nur mit Bausteinen + Deltas arbeiten: `frame(mods, ms, { view, dx, dy, headDy, pal })`. Baustein = `(p, S) => …`; `p(x,y,token)` Körper/Objekte, `S` folgt dem nickenden Kopf (Gesicht). Fehlt ein Baustein/Objekt → in `core.js`/`props.js` ergänzen, nicht in der Pose kopieren. Koordinaten siehe unten.
 3. **Selbstprüfung (Pflicht):** `node tools/preview.mjs <id>` und das PNG ansehen (bei vielen Frames zusätzlich `--scale 10 --out out/detail`). Gegen die Checkliste in `BRAND.md` prüfen, Probleme selbst beheben, erneut prüfen. Erst dann dem Nutzer zeigen (PNG + Galerie-Link).
 4. Feedback umsetzen, bis der Nutzer „passt“ sagt.
-5. Export: nur die gewünschte Kombi, sonst alle (`node tools/export.mjs <id>`). Commit/PR nur auf Zuruf: eigener Branch (`feat: Pose <id>` / `fix: Pose <id> …`), PR auf GitHub, **nie selbst mergen**, `dist/` mit committen. Die globalen Regeln des Nutzers (Entwicklungszyklus, Test im frischen Subagent) gelten zusätzlich.
+5. Export: nur die gewünschte Kombi, sonst alle (`node tools/export.mjs <id>`). Bei neuer/geänderter Pose danach `npm run catalog` (aktualisiert den Bild-Katalog im README; braucht den Export in Mittelblau · Messing). Commit/PR nur auf Zuruf: eigener Branch (`feat: Pose <id>` / `fix: Pose <id> …`), PR auf GitHub, **nie selbst mergen**, `dist/` mit committen. Die globalen Regeln des Nutzers (Entwicklungszyklus, Test im frischen Subagent) gelten zusätzlich.
 
 ## Koordinaten & Eigenheiten
 - Figur 0..21 × 0..18, Arbeitsfläche erlaubt x −7..28 und y −10..21 (alles außerhalb wird abgeschnitten).

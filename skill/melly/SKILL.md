@@ -5,7 +5,7 @@ description: "Melly – Marlons Pixel-Maskottchen (Creme-Blob im Anzug). Liefert
 
 # Melly
 
-Quelle der Wahrheit: Repo **`C:\Users\MEtzel\Melly-Mascot`** (GitHub `marlonetzel06/Melly-Mascot`). Alle Befehle dort ausführen. Vorher `BRAND.md` lesen – sie ist verbindlich.
+Quelle der Wahrheit: Repo **`C:\Users\MEtzel\Melly-Mascot`** (GitHub `marlonetzel06/Melly-Mascot`). Alle Befehle im Repo-Root ausführen (bei Worktree/Klon: dessen Root). Vorher `BRAND.md` lesen – sie ist verbindlich.
 
 ## Begriffe
 - **Modell** = die Figur selbst (fix) · **Kombi** = Anzug- + Akzentfarbe (6 Stück) · **Outfit** = Kostüm über dem Modell (eigene Farben + Accessoires, z. B. `weihnachten`) · **Pose** = Animation.
@@ -32,17 +32,17 @@ Quelle der Wahrheit: Repo **`C:\Users\MEtzel\Melly-Mascot`** (GitHub `marlonetze
 
 ## C · Neues Outfit / Outfit anpassen
 1. In `src/outfits.js` Eintrag anlegen: `{ id, title, desc, pal, layers }`.
-   - `pal`: überschreibt Kombi-Farben (Anzug `N/n/l`, Akzent `A/a`) und darf eigene Tokens definieren. Token, die auch Posen brauchen (z. B. Jute `J/j` für den Sack), gehören in `BASE_PX` (`src/model.js`).
+   - `pal`: überschreibt Kombi-Farben (Anzug `N/n/l`, Akzent `A/a`) und darf eigene Tokens definieren (belegt sind die Tokens in `BASE_PX` + `N n l A a`; freie Buchstaben per grep prüfen). Overrides wirken auf alles im Frame, auch auf Arme/Objekte mit diesen Tokens. Token, die auch Posen brauchen (z. B. Jute `J/j` für den Sack), gehören in `BASE_PX` (`src/model.js`).
    - `layers`: `{ <Ansicht>: (opt) => [Bausteine] }`, gezeichnet **vor** den Posen-Bausteinen (Arme/Objekte liegen darüber). `opt` = Frame-Optionen der Pose (z. B. `opt.wobble` für Wippen). Kopfschmuck mit `S`, damit er beim Nicken mitgeht.
    - Eine Pose passt zum Outfit, wenn das Outfit für **alle** ihre Ansichten `layers` hat. Erst `F` bauen; weitere Ansichten nur, wenn gewünscht.
-2. Selbstprüfung: `node tools/preview.mjs winken --outfit <id>` plus 2–3 Posen mit Armen vor dem Körper / Objekten (`kaffee`, `laptop`, `jubeln`). Checkliste in `BRAND.md` gilt.
+2. Selbstprüfung: `node tools/preview.mjs winken --outfit <id>` plus `jubeln` (Sprung, Höhe), `schulterzucken` (Nicken: Kopfschmuck muss mitgehen) und 1–2 Posen mit Armen/Objekten vor dem Körper (`kaffee`, `laptop`). Checkliste in `BRAND.md` gilt.
 3. Optional eigene Pose mit `outfit: '<id>'` (wie `weihnachtsmann.js`), sonst reicht das Outfit.
-4. Export `node tools/export.mjs all --combo none --outfit <id>` → `dist/<version>/outfit-<id>/`, danach `npm run catalog`. Commit/PR wie in B.
+4. Export immer für alle passenden Posen: `node tools/export.mjs all --combo none --outfit <id>` → `dist/<version>/outfit-<id>/` (der Katalog verlinkt feste Beispielposen), danach `npm run catalog`. Commit/PR wie in B.
 
 ## Koordinaten & Eigenheiten
 - Figur 0..21 × 0..18, Arbeitsfläche erlaubt x −7..28 und y −10..21 (alles außerhalb wird abgeschnitten).
 - Augen: vorne x 7–8/13–14 · `Q` 9–10/14–15 · `QL` 6–7/11–12 · Profil `S` 14–15 (jeweils y 5–6). Brauen y 3–4 (`effort` vorne, `qEffort(left)` in 3/4).
-- Kopfschmuck: Kopf beginnt bei y 0; Mützen/Hüte liegen auf y −6..1. Weiß (`W`) direkt auf Creme braucht eine Kontur-Zeile `O` dazwischen (sonst verschwimmt es).
+- Kopfschmuck: Kopf beginnt bei y 0; Mützen/Hüte liegen auf y −6..1 (höher nicht: `jubeln` springt mit `dy −3`, oberhalb y −9 wird abgeschnitten). Trennung zum Kopf: eine Zeile Abstand lassen (automatische Kontur) oder bei Krempe direkt auf dem Kopf (Pelzband) eine Zeile `O` setzen – sonst verschwimmt Weiß mit Creme.
 - Arme vorne x 2 und 19 (y 10–12), Hände y 13 · Schuhe y 17 · Sakko y 9–15.
 - `headDy` (Nicken) wirkt **nur in Ansicht `F`**; in anderen Ansichten Kopfbewegung über Augen/Brauen ausdrücken.
 - Die automatische Kontur umrandet **jedes** Pixel, auch Effekte: dünne helle Linien werden auf Weiß zu Ringen → Effekte in Grau/Farbe und mit 1 px Abstand zur Figur.

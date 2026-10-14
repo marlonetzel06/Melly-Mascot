@@ -10,7 +10,7 @@ export default {
     frame(n, 260),
     frame([], 90, { headDy: 1 }),                                   // Ausholen: Kopf sinkt ein
     frame([laptopOpen(-1), puff(19, 14), puff(1, 14)], 80),         // Platte erscheint, Puff an den Seiten
-    frame([focus, laptopOpen(0)], 140),                             // zugeklappt in beiden Händen
+    frame([focus, laptopOpen(0)], 300),                             // zugeklappt in beiden Händen
     frame([focus, laptopOpen(2)], 70),
     frame([focus, laptopOpen(4)], 70),
     frame([look(0), laptopOpen(6)], 80),

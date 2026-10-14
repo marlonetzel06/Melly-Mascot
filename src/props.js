@@ -55,8 +55,8 @@ export const laptop = () => p => {
 /** Laptop beim Aufklappen/Zuklappen (Deckel zu uns, Scharnier unten bei y 15): h = Deckelhöhe 0 (zu, Platte) … 8 (offen, wie laptop()).
  *  Hände greifen mit wachsendem Deckel höher. Kein Laptop bei h < 0 (nur die Platte als Strich, für das Herausholen/Verstauen). */
 export const laptopOpen = (h) => p => {
-  clrL(p); clrR(p);
   if (h < 0) { for (let x = 4; x <= 17; x++) p(x, 15, 'w'); return; }
+  clrL(p); clrR(p);
   const top = h === 0 ? 14 : 15 - h;
   for (let y = top; y <= 14; y++) for (let x = 4; x <= 17; x++) p(x, y, 'G');
   for (let x = 4; x <= 17; x++) p(x, top, 'g'); for (let y = top; y <= 14; y++) p(4, y, 'g');

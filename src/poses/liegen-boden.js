@@ -6,5 +6,5 @@ export default {
   category: 'Alltag',
   desc: 'Liegt frontal auf der Seite direkt auf dem Boden, Augen zu, Z steigen über dem Kopf auf.',
   still: 1,
-  frames: ({ frame, lying, zSlot }) => [[0], [0, 1], [1], []].map(zs => frame([lying(-1, 3, 'zu'), ...zs.map(s => zSlot(s, -10, -3))], 600))
+  frames: ({ frame, lying, zSlot }) => [[[0], 520], [[0, 1], 700], [[1], 460], [[], 880]].map(([zs, ms]) => frame([lying(-1, 3, 'zu'), ...zs.map(s => zSlot(s, -10, -3))], ms))
 };

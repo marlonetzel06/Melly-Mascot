@@ -44,6 +44,7 @@ Quelle der Wahrheit: Repo **`C:\Users\MEtzel\Melly-Mascot`** (GitHub `marlonetze
 - Augen: vorne x 7–8/13–14 · `Q` 9–10/14–15 · `QL` 6–7/11–12 · Profil `S` 14–15 (jeweils y 5–6). Brauen y 3–4 (`effort` vorne, `qEffort(left)` in 3/4).
 - Kopfschmuck: Kopf beginnt bei y 0; Mützen/Hüte liegen auf y −6..1 (höher nicht: `jubeln` springt mit `dy −3`, oberhalb y −9 wird abgeschnitten). Trennung zum Kopf: eine Zeile Abstand lassen (automatische Kontur) oder bei Krempe direkt auf dem Kopf (Pelzband) eine Zeile `O` setzen – sonst verschwimmt Weiß mit Creme.
 - Arme vorne x 2 und 19 (y 10–12), Hände y 13 · Schuhe y 17 · Sakko y 9–15.
+- Bewegte Arme mit `arm(side, oberarm°, unterarm°, { sh, view })` (Schulter-Pivot, 0° hängt, 90° waagerecht, 135° hoch, negativ = vor den Körper); Hände/Arme vor Kopf oder Körper als Stufen mit `limb(side, bodyPixel, headPixel)` (Beispiele `facepalm(stage)`, `chin(stage)` in `props.js`). Regeln für Bögen und Timing: `BRAND.md` → Animation.
 - `headDy` (Nicken) wirkt **nur in Ansicht `F`**; in anderen Ansichten Kopfbewegung über Augen/Brauen ausdrücken.
 - Die automatische Kontur umrandet **jedes** Pixel, auch Effekte: dünne helle Linien werden auf Weiß zu Ringen → Effekte in Grau/Farbe und mit 1 px Abstand zur Figur.
 - Richtungsangaben („rechts“) sind **Bildseite**, außer der Nutzer sagt ausdrücklich „seine rechte Hand“. Im Zweifel kurz nachfragen.

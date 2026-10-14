@@ -4,7 +4,29 @@ export default {
   id: 'denken',
   title: 'Denken',
   category: 'Arbeit',
-  desc: 'Blick nach oben, Gedankenblasen wachsen nacheinander.',
-  still: 3,
-  frames: ({ frame, look, blink, dot }) => [frame([look(0,-1)],500), frame([look(0,-1),dot(19,1,1)],380), frame([look(0,-1),dot(19,1,1),dot(20,-2,2)],380), frame([look(0,-1),dot(19,1,1),dot(20,-2,2),dot(22,-6,3)],1500), frame([look(0,-1),blink],110), frame([look(0,-1),dot(19,1,1),dot(20,-2,2),dot(22,-6,3)],700)]
+  desc: 'Führt die Hand über eine Zwischenposition ans Kinn, Zeigefinger tippt, Blick wandert zur Seite (Braue hoch) und nach oben, Denkpunkte steigen nacheinander auf, Hand geht zurück.',
+  still: 11,
+  frames: ({ frame, n, look, blink, skep1, chin, dot }) => {
+    const d1 = dot(19, 1, 1), d2 = dot(20, -2, 2), d3 = dot(22, -6, 3);
+    return [
+      frame(n, 400),
+      frame([chin(1)], 80),                                    // Hand über Zwischenpositionen ans Kinn
+      frame([chin(2)], 70),
+      frame([chin(3)], 300),
+      frame([chin(3), look(1), skep1], 450),                   // Blick zur Seite, Braue hoch
+      frame([chin(3, true), look(1), skep1], 140),             // Finger tippt
+      frame([chin(3), look(1), skep1], 140),
+      frame([chin(3, true), look(1), skep1], 140),
+      frame([chin(3), look(1), skep1], 300),
+      frame([chin(3), look(0, -1), d1], 380),                  // Blick nach oben, Denkpunkte steigen auf
+      frame([chin(3), look(0, -1), d1, d2], 380),
+      frame([chin(3), look(-1, -1), d1, d2, d3], 1100),
+      frame([chin(3), blink, d1, d2, d3], 110),
+      frame([chin(3, true), look(-1, -1), d1, d2, d3], 160),
+      frame([chin(3), look(-1, -1), d1, d2, d3], 500),
+      frame([chin(2)], 70),                                    // Hand zurück
+      frame([chin(1)], 80),
+      frame(n, 300)
+    ];
+  }
 };

@@ -1,0 +1,6 @@
+{
+  "name": "melly-mascot",
+  "version": "0.1.0",
+  "description": "Melly, das Pixel-Maskottchen, lebt über der Prompt-Leiste und reagiert auf Claude, Tippen und Inaktivität.",
+  "types": "./types/index.d.ts"
+}

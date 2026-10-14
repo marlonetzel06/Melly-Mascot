@@ -1,5 +1,5 @@
 // Melly – Objekte & Effekte. Gleiche Baustein-Signatur wie in core.js: (p, S) => void.
-import { L, sprite, clrL, clrR, caret } from './core.js';
+import { L, sprite, clrL, clrR, caret, limb, arm } from './core.js';
 
 // ---------- Effekte ----------
 export const spark = (x, y, big) => p => { p(x, y, 'H'); if (big) { p(x - 1, y, 'H'); p(x + 1, y, 'H'); p(x, y - 1, 'H'); p(x, y + 1, 'H'); } };
@@ -95,6 +95,49 @@ export const palm = (on) => (p, S) => {
   L([[15, 8, 'l'], [16, 8, 'l'], [16, 9, 'l'], [17, 9, 'l'], [17, 10, 'l'], [18, 10, 'l'], [15, 9, 'O'], [16, 10, 'O'], [17, 11, 'O']])(S); p(19, 10, 'N');
   S(7, 5, 'C'); S(8, 5, 'C');
 };
+/** Facepalm in Stufen (rechte Hand, Handgröße bleibt klein): 1 = Hand an der Wange, 2 = auf dem Weg zum Auge,
+ *  3 = Handfläche über dem rechten Auge, 4 = 1 px heruntergerutscht. */
+export const facepalm = (stage) => {
+  const root = [[19, 10, 'N'], [20, 10, 'N'], [19, 9, 'N'], [20, 9, 'N']];
+  if (stage === 1 || stage === 2) {
+    const hx = stage === 1 ? 17 : 15, arm1 = stage === 1 ? [[19, 8], [20, 8], [18, 7], [19, 7]] : [[18, 8], [19, 8], [17, 7], [18, 7]];
+    return (p, S) => {
+      limb('R', root, arm1.map(([x, y]) => [x, y, 'N']))(p, S);
+      const tone = stage === 1 ? 'C' : 'c'; // Kontrast zum Untergrund: Wange rechts ist schattiert (c), Gesichtsmitte hell (C)
+      [[0, 5], [1, 5], [0, 6], [1, 6]].forEach(([i, y]) => S(hx + i, y, tone)); S(hx, 7, 'O'); S(hx + 1, 7, 'O');
+      if (stage === 1) { S(hx - 1, 5, 'O'); S(hx - 1, 6, 'O'); } // Wange: Kontur links + unten, oben offen (kein geschlossener Ring)
+    };
+  }
+  const d = stage === 4 ? 1 : 0, up = [[18, 8], [19, 8], [17, 7], [18, 7], [16, 6], [17, 6]].map(([x, y]) => [x, y + d, 'N']);
+  // Flache Hand liegt auf dem Gesicht: Schattenton c, Kontur nur unten und an den Fingerspitzen (ein geschlossener Ring läse sich als Lupe)
+  return (p, S) => {
+    limb('R', root, up)(p, S);
+    for (let x = 11; x <= 15; x++) { S(x, 5 + d, 'c'); S(x, 6 + d, 'c'); S(x, 7 + d, 'O'); }
+    S(10, 5 + d, 'O'); S(10, 6 + d, 'O'); S(16, 7 + d, 'O');
+    S(7, 5, 'C'); S(8, 5, 'C');
+  };
+};
+/** Hand ans Kinn (rechts, vorne): 1 = Unterarm hebt sich vor der Brust, 2 = auf halbem Weg, 3 = Hand unterm Kinn auf dem Revers;
+ *  tap = Hand löst sich 1 px vom Kinn (Tippen, nur 3). */
+export const chin = (stage, tap = false) => {
+  const upper = [[19, 10, 'N'], [19, 11, 'N'], [19, 12, 'N']];
+  if (stage === 1) return limb('R', [...upper, [18, 12, 'N'], [17, 10, 'C'], [18, 10, 'C'], [17, 11, 'C'], [18, 11, 'C']]);
+  if (stage === 2) return limb('R', [...upper, [17, 12, 'N'], [18, 12, 'N'], [17, 11, 'N'], [18, 11, 'N'], [15, 10, 'C'], [16, 10, 'C'], [15, 11, 'C'], [16, 11, 'C']]);
+  const t = tap ? 1 : 0; // Tippen: Hand löst sich 1 px vom Kinn
+  return limb('R', [...upper, [17, 12, 'N'], [18, 12, 'N'], [16, 11, 'N'], [17, 11, 'N'], [15, 10 + t, 'N'], [16, 10 + t, 'N'], [13, 9 + t, 'C'], [14, 9 + t, 'C'], [13, 10 + t, 'C'], [14, 10 + t, 'C']]);
+};
+/** Klatsch-Striche beim Facepalm (hellgrau, folgen dem Kopf): k = 1 nah, 2 weiter außen. */
+export const slap = (k) => (p, S) => {
+  const o = k - 1;
+  L([[18 + o, -1 - o, 'w'], [19 + o, -2 - o, 'w'], [21 + o, 3, 'w'], [22 + o, 3, 'w'], [23 + o, 5 + o, 'w'], [24 + o, 6 + o, 'w']])(S); // drei Striche strahlenförmig
+};
+/** Blick auf die Uhr (linker Arm, vorne): Unterarm hebt sich über Zwischenstufen neben den Kopf, 3 = Uhr am Handgelenk
+ *  frei vor dem Hintergrund (graues Band, Ziffernblatt Messing). Blick dazu: look(-1). */
+export const watch = (stage) => {
+  if (stage === 1) return arm('L', 0, 90);
+  if (stage === 2) return arm('L', 26.5, 116.5);
+  return (p, S) => { arm('L', 45, 180)(p, S); p(0, 10, 'H'); p(1, 10, 'G'); p(0, 11, 'G'); p(1, 11, 'G'); }; // Uhr 2×2: Messing-Ziffernblatt, graues Band
+};
 export const yawn = (size) => (p, S) => {
   [7, 8, 13, 14].forEach(x => { S(x, 5, 'C'); S(x, 6, 'E'); });
   S(6, 5, 'E'); S(9, 5, 'E'); S(12, 5, 'E'); S(15, 5, 'E');
@@ -140,9 +183,9 @@ export const phoneEar = p => {
   p(2, 3, 'g');
   L([[0, 8, 'N'], [1, 8, 'n'], [0, 9, 'N'], [1, 9, 'n'], [1, 10, 'N'], [2, 10, 'N'], [0, 6, 'C'], [1, 6, 'C'], [0, 7, 'C'], [1, 7, 'c']])(p);
 };
-/** Schallwellen vor dem Gesicht (3/4 rechts): k = 1 klein, 2 klein + groß */
+/** Schallwellen vor dem Gesicht (3/4 rechts): k = 1 klein, 2 klein + groß, 3 nur groß (Welle läuft nach außen) */
 export const talk = (k) => p => {
-  L([[22, 4, 'g'], [23, 5, 'g'], [23, 6, 'g'], [22, 7, 'g']])(p);
+  if (k < 3) L([[22, 4, 'g'], [23, 5, 'g'], [23, 6, 'g'], [22, 7, 'g']])(p);
   if (k > 1) L([[26, 2, 'g'], [27, 3, 'g'], [27, 4, 'g'], [27, 5, 'g'], [27, 6, 'g'], [27, 7, 'g'], [26, 8, 'g']])(p);
 };
 

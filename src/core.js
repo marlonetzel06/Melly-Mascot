@@ -76,35 +76,95 @@ export const fingerUp = p => { clrR(p); L([[19, 10, 'N'], [20, 10, 'N'], [20, 9,
 export const shrugArms = p => { clrL(p); clrR(p); L([[2, 10, 'N'], [1, 10, 'N'], [0, 10, 'N'], [-1, 9, 'C'], [-2, 9, 'C'], [-1, 10, 'C'], [-2, 10, 'C'], [19, 10, 'N'], [20, 10, 'N'], [21, 10, 'N'], [22, 9, 'C'], [23, 9, 'C'], [22, 10, 'C'], [23, 10, 'C']])(p); };
 export const signArm = (lift) => p => { clrR(p); L([[19, 10, 'N'], [20, 10, 'N'], [20, 9, 'N'], [21, 9, 'N'], [20, 8 - lift, 'N'], [21, 8 - lift, 'N'], [21, 7 - lift, 'C'], [22, 7 - lift, 'C'], [21, 6 - lift, 'C'], [22, 6 - lift, 'C']])(p); };
 
+// ---------- Arm mit Gelenk (vorne/3/4): Winkel statt Pixelliste, für Bögen und Zwischenstufen ----------
+// Winkel in Grad, von der Schulter aus: 0 = hängt, 90 = waagerecht nach außen, 180 = senkrecht hoch,
+// negativ = nach innen vor den Körper. a1 = Oberarm, a2 = Unterarm (absolut, Standard = a1 → gestreckt).
+// opt: { up = 2 (Oberarm), fore = 2 (Unterarm), sh = 0 (Schulter hoch, px), view = 'F', head = false (folgt headDy) }
+// Ärmel 2 px (N, waagerecht unten n), Hand 2×2 C. Liegt der Arm vor Körper/Kopf: Ärmel l + eigene Kontur O.
+const SHOULDER = { L: 2, R: 19 };
+const mask = view => { const rows = view === 'F' ? [...HEAD, ...BODY] : VIEWS[view]; return (x, y) => (rows[y]?.[x] ?? '.') !== '.'; };
+export const arm = (side, a1, a2 = a1, opt = {}) => (p, S) => {
+  const { up = 2, fore = 2, sh = 0, view = 'F', head = false } = opt;
+  const put = head ? S : p, sx = SHOULDER[side], sgn = side === 'R' ? 1 : -1;
+  (side === 'R' ? clrR : clrL)(p);
+  const dir = a => [sgn * Math.sin(a * Math.PI / 180), Math.cos(a * Math.PI / 180)];
+  const P0 = [sx, 10 - sh], [ux, uy] = dir(a1), [fx, fy] = dir(a2);
+  const P1 = [P0[0] + ux * up, P0[1] + uy * up], P2 = [P1[0] + fx * fore, P1[1] + fy * fore];
+  const px = new Map(), add = (x, y, c) => { const k = `${x},${y}`; if (!px.has(k) || px.get(k) === 'n') px.set(k, c); };
+  // Segment als 2-px-Band: steil → zwei Pixel nebeneinander (zur Außenseite), flach → zwei übereinander (unten n)
+  const seg = ([x0, y0], [x1, y1]) => {
+    const dx = x1 - x0, dy = y1 - y0, steps = Math.max(1, Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) * 2));
+    for (let i = 0; i <= steps; i++) {
+      const x = x0 + dx * i / steps, y = y0 + dy * i / steps;
+      if (Math.abs(dy) >= Math.abs(dx)) { const X = side === 'R' ? Math.floor(x) : Math.ceil(x) - 1; add(X, Math.round(y), 'N'); add(X + 1, Math.round(y), 'N'); }
+      else { const Y = Math.floor(y); add(Math.round(x), Y, 'N'); add(Math.round(x), Y + 1, 'n'); }
+    }
+  };
+  seg(P0, P1); seg(P1, P2);
+  // Hand 2×2 eine Einheit hinter dem Handgelenk
+  const [hx, hy] = [P2[0] + fx, P2[1] + fy], X0 = Math.round(hx - .5), Y0 = Math.round(hy - .5);
+  [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(([i, j]) => px.set(`${X0 + i},${Y0 + j}`, 'C'));
+  // Schulterspalte zählt als außen (wurde geräumt)
+  drawLimb([...px].map(([k, c]) => [...k.split(',').map(Number), c, put]), view, (x, y) => x === sx && y >= 9 && y <= 13);
+};
+
+// Gliedmaße aus Pixeln [x, y, Token, zeichner?] (zeichner p oder S, Standard p). Liegt ein Pixel vor Körper/Kopf:
+// Ärmel N/n → l und eigene Kontur O zu den Figur-Pixeln (Auto-Kontur umrandet nur leere Pixel); am Kopf (y ≤ 8) immer Kontur.
+function drawLimb(cells, view, outside = () => false) {
+  const solid = mask(view), front = (x, y) => solid(x, y) && !outside(x, y), key = new Set(cells.map(([x, y]) => `${x},${y}`));
+  cells.forEach(([x, y, , d]) => [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([a, b]) => {
+    const X = x + a, Y = y + b; if (!key.has(`${X},${Y}`) && front(X, Y) && (front(x, y) || Y <= 8)) d(X, Y, 'O');
+  }));
+  cells.forEach(([x, y, c, d]) => d(x, y, (c === 'N' || c === 'n') && front(x, y) ? 'l' : c));
+}
+/** Handgezeichnete Arm-/Handstufe mit automatischer Kontur: body = [[x,y,c]] über p, head = [[x,y,c]] über S (folgt headDy).
+ *  side: 'L'|'R' räumt die Standard-Armspalte. */
+export const limb = (side, body, head = [], view = 'F') => (p, S) => {
+  if (side) (side === 'R' ? clrR : clrL)(p);
+  drawLimb([...body.map(c => [...c, p]), ...head.map(c => [...c, S])], view, (x, y) => x === SHOULDER[side] && y >= 9 && y <= 13);
+};
+
+// ---------- Timing: Easing über Abstände (kleine Schritte an den Enden) ----------
+export const ease = t => t * t * (3 - 2 * t);
+export const easeIn = t => t * t;
+export const easeOut = t => 1 - (1 - t) * (1 - t);
+/** n Werte von a nach b (inkl. beider Enden), verteilt nach Easing-Kurve. */
+export const tween = (a, b, n, fn = ease) => Array.from({ length: n }, (_, i) => a + (b - a) * fn(n === 1 ? 1 : i / (n - 1)));
+
 // Profil rechts: Arm nach vorn (hält etwas vor sich) bzw. schwingender Arm beim Laufen
 export const sArmFwd = p => {
   for (let y = 9; y <= 15; y++) for (let x = 6; x <= 11; x++) p(x, y, 'N');
   for (let x = 8; x <= 16; x++) { const y = x < 13 ? 10 : 9; p(x, y, 'l'); p(x, y + 1, 'l'); p(x, y + 2, 'O'); }
   p(17, 9, 'C'); p(17, 10, 'C');
 };
-export const sideArm = (o) => p => {
+/** Profil-Arm, o = Versatz nach vorn (+) / hinten (−). lift hebt die Hand an (Pendelbogen an den Umkehrpunkten). */
+export const sideArm = (o, lift = 0) => p => {
   for (let y = 9; y <= 15; y++) for (let x = 6; x <= 11; x++) p(x, y, 'N');
   p(8 + o, 9, 'l'); p(9 + o, 9, 'l');
-  for (let y = 10; y <= 12; y++) { p(7 + o, y, 'O'); p(8 + o, y, 'l'); p(9 + o, y, 'l'); p(10 + o, y, 'O'); }
-  for (let y = 13; y <= 14; y++) { p(7 + o, y, 'O'); p(8 + o, y, 'C'); p(9 + o, y, 'C'); p(10 + o, y, 'O'); }
-  p(8 + o, 15, 'O'); p(9 + o, 15, 'O');
+  for (let y = 10; y <= 12 - lift; y++) { p(7 + o, y, 'O'); p(8 + o, y, 'l'); p(9 + o, y, 'l'); p(10 + o, y, 'O'); }
+  for (let y = 13 - lift; y <= 14 - lift; y++) { p(7 + o, y, 'O'); p(8 + o, y, 'C'); p(9 + o, y, 'C'); p(10 + o, y, 'O'); }
+  p(8 + o, 15 - lift, 'O'); p(9 + o, 15 - lift, 'O');
 };
 
 // ---------- Füße ----------
 export const sideFeet = (mode) => p => {
   for (let x = 0; x < 22; x++) p(x, 17, '.');
   if (mode === 'pass') { for (let x = 7; x <= 13; x++) p(x, 17, 'W'); p(14, 17, 'w'); }
-  else { const back = mode === 'a' ? 'x' : 'W', front = mode === 'a' ? 'W' : 'x'; for (let x = 4; x <= 7; x++) p(x, 17, back); p(8, 17, 'w'); for (let x = 12; x <= 15; x++) p(x, 17, front); p(16, 17, 'w'); }
+  else { // a/b = voller Schritt, a1/b1 = halber Schritt (Füße auf dem Weg zueinander)
+    const half = mode.length > 1 ? 1 : 0, back = mode[0] === 'a' ? 'x' : 'W', front = mode[0] === 'a' ? 'W' : 'x';
+    for (let x = 4 + half; x <= 7 + half; x++) p(x, 17, back); p(8 + half, 17, 'w'); for (let x = 12 - half; x <= 15 - half; x++) p(x, 17, front); p(16 - half, 17, 'w');
+  }
 };
 export const kickR = p => { for (let x = 12; x <= 19; x++) p(x, 17, '.'); for (let x = 15; x <= 18; x++) p(x, 16, 'W'); p(19, 16, 'w'); };
 export const kickL = p => { for (let x = 2; x <= 9; x++) p(x, 17, '.'); for (let x = 3; x <= 6; x++) p(x, 16, 'W'); p(2, 16, 'w'); };
 export const toeUp = p => { p(16, 17, '.'); p(17, 17, '.'); };
 export const tapMark = p => { p(19, 17, 'w'); p(20, 16, 'w'); };
 
-/** Lauf-Zyklus im Profil (rechts). Liefert n Frames, dx wächst pro Frame um step. */
+/** Lauf-Zyklus im Profil (rechts), 8 Phasen: Kontakt, halber Schritt, Passieren (hoch), halber Schritt, … – Arm pendelt gegenläufig im Bogen.
+ *  Liefert n Frames, dx wächst pro Frame um step. */
 export function walkFrames(count, { x0 = 0, step = 2, ms = 130 } = {}) {
-  const seq = [['a', 1, 0], ['pass', 0, -1], ['b', -1, 0], ['pass', 0, -1]];
-  return Array.from({ length: count }, (_, i) => { const [m, arm, dy] = seq[i % 4]; return frame([sideFeet(m), sideArm(arm)], ms, { view: 'S', dx: x0 + step * i, dy }); });
+  const seq = [['a', 2, 1, 0], ['a1', 1, 0, 0], ['pass', 0, 0, -1], ['b1', -1, 0, 0], ['b', -2, 1, 0], ['b1', -1, 0, 0], ['pass', 0, 0, -1], ['a1', 1, 0, 0]];
+  return Array.from({ length: count }, (_, i) => { const [m, arm, lift, dy] = seq[i % 8]; return frame([sideFeet(m), sideArm(arm, lift)], ms, { view: 'S', dx: x0 + step * i, dy }); });
 }
 
 // ---------- Sitzen auf einer Kante (vorne): Schoß auf der Sitzfläche y 16, Unterschenkel hängen vor dem Element ----------

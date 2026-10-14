@@ -196,3 +196,15 @@ export const sitLegs = (liftL = 0, liftR = 0) => p => {
   px.forEach(([x, y]) => [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([a, b]) => { const X = x + a, Y = y + b; if (Y >= 16 && !key.has(`${X},${Y}`)) p(X, Y, 'O'); }));
   px.forEach(([x, y, c]) => p(x, y, c));
 };
+
+/** Dreht das Pixel-Raster eines Frames um (px, py) (Rasterkoordinaten); positive Grad kippen die Oberseite nach links (Bildschirm, gegen den Uhrzeigersinn).
+ *  Nächster Nachbar, die Kontur setzt der Renderer danach neu. Für Kipp-Zwischenstufen (Sitzen ↔ Liegen). */
+export function rotateFrame(fr, deg, px, py, ms = fr.ms) {
+  const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a), H = fr.g.length, W = fr.g[0].length;
+  const g = Array.from({ length: H }, () => Array(W).fill('.'));
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const dx = x - px, dy = y - py, sx = Math.round(px + dx * c - dy * s), sy = Math.round(py + dx * s + dy * c);
+    if (sx >= 0 && sy >= 0 && sx < W && sy < H) g[y][x] = fr.g[sy][sx];
+  }
+  return { ...fr, g, ms };
+}

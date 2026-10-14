@@ -7,7 +7,7 @@ import p4 from './poses/reinlaufen-hallo.js';
 import p5 from './poses/tschuess.js';
 import p6 from './poses/winken.js';
 import p7 from './poses/jubeln.js';
-import p8 from './poses/zeigen.js';
+import zeigen from './poses/zeigen-varianten.js'; // 24 Varianten (Winkel × Ansicht × Seite)
 import p9 from './poses/schild.js';
 import p10 from './poses/schild-platzhalter.js';
 import p11 from './poses/checkliste.js';
@@ -41,8 +41,8 @@ import * as model from './model.js';
 import { OUTFITS, getOutfit } from './outfits.js';
 
 export const LIB = { ...model, ...core, ...props };
-export const POSES = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32, p33, p34, p35];
-export const CATEGORIES = ['Bewegung', 'Arbeit', 'Reaktion', 'Alltag', 'Kante'];
+export const POSES = [p0, p1, p2, p3, p4, p5, p6, p7, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32, p33, p34, p35, ...zeigen];
+export const CATEGORIES = ['Bewegung', 'Arbeit', 'Reaktion', 'Alltag', 'Kante', 'Zeigen'];
 export { OUTFITS, getOutfit };
 export const getPose = id => POSES.find(p => p.id === id);
 

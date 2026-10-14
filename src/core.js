@@ -79,7 +79,7 @@ export const signArm = (lift) => p => { clrR(p); L([[19, 10, 'N'], [20, 10, 'N']
 // ---------- Arm mit Gelenk (vorne/3/4): Winkel statt Pixelliste, für Bögen und Zwischenstufen ----------
 // Winkel in Grad, von der Schulter aus: 0 = hängt, 90 = waagerecht nach außen, 180 = senkrecht hoch,
 // negativ = nach innen vor den Körper. a1 = Oberarm, a2 = Unterarm (absolut, Standard = a1 → gestreckt).
-// opt: { up = 2 (Oberarm), fore = 2 (Unterarm), sh = 0 (Schulter hoch, px), view = 'F', head = false (folgt headDy) }
+// opt: { up = 2 (Oberarm), fore = 2 (Unterarm), sh = 0 (Schulter hoch, px), view = 'F', head = false (folgt headDy), finger = false (Zeigefinger) }
 // Ärmel 2 px (N, waagerecht unten n), Hand 2×2 C. Liegt der Arm vor Körper/Kopf: Ärmel l + eigene Kontur O.
 const SHOULDER = { L: 2, R: 19 };
 const mask = view => { const rows = view === 'F' ? [...HEAD, ...BODY] : VIEWS[view]; return (x, y) => (rows[y]?.[x] ?? '.') !== '.'; };
@@ -104,6 +104,13 @@ export const arm = (side, a1, a2 = a1, opt = {}) => (p, S) => {
   // Hand 2×2 eine Einheit hinter dem Handgelenk
   const [hx, hy] = [P2[0] + fx, P2[1] + fy], X0 = Math.round(hx - .5), Y0 = Math.round(hy - .5);
   [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(([i, j]) => px.set(`${X0 + i},${Y0 + j}`, 'C'));
+  // Zeigefinger (opt.finger): 1 px vor der Hand in Unterarmrichtung; waagerecht an der oberen Handzeile, senkrecht an der Außenspalte
+  if (opt.finger) {
+    let tx = Math.round(X0 + .5 + fx * 1.5), ty = Math.round(Y0 + .5 + fy * 1.5);
+    if (Math.abs(fy) < .3) ty = Y0;
+    if (Math.abs(fx) < .3) tx = side === 'R' ? X0 + 1 : X0;
+    px.set(`${tx},${ty}`, 'C');
+  }
   // Schulterspalte zählt als außen (wurde geräumt)
   drawLimb([...px].map(([k, c]) => [...k.split(',').map(Number), c, put]), view, (x, y) => x === sx && y >= 9 && y <= 13);
 };

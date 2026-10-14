@@ -6,6 +6,8 @@ export const spark = (x, y, big) => p => { p(x, y, 'H'); if (big) { p(x - 1, y, 
 export const star = (x, y) => spark(x, y, true);
 export const dot = (x, y, s) => p => { for (let i = 0; i < s; i++) for (let j = 0; j < s; j++) p(x + i, y + j, 'C'); };
 export const puff = (x, y, c = 'Z') => L([[x, y, c], [x + 1, y, c], [x, y - 1, c]]);
+/** Staubwolke (3 breit, gewölbt): liest sich mit Kontur als Wolke statt als Strich. */
+export const cloud = (x, y, c = 'Z') => L([[x, y, c], [x + 1, y, c], [x + 2, y, c], [x, y - 1, c], [x + 1, y - 1, c], [x + 1, y - 2, c]]);
 export const sweat = L([[19, 2, 'B'], [19, 3, 'B'], [18, 3, 'B']]);
 export const sweatL = L([[2, 2, 'B'], [2, 3, 'B'], [3, 3, 'B']]);
 export const bang = L([[22, -3, 'A'], [22, -2, 'A'], [22, -1, 'A'], [22, 1, 'A']]);
@@ -50,6 +52,23 @@ export const laptop = () => p => {
   for (let x = 4; x <= 17; x++) p(x, 15, 'w');
   p(10, 10, 'H'); p(11, 10, 'H'); p(10, 11, 'H'); p(11, 11, 'H');
   L([[2, 10, 'N'], [2, 11, 'N'], [3, 11, 'C'], [3, 12, 'C'], [19, 10, 'N'], [19, 11, 'N'], [18, 11, 'C'], [18, 12, 'C']])(p);
+};
+
+/** Laptop beim Aufklappen/Zuklappen (Deckel zu uns, Scharnier unten bei y 15): h = Deckelhöhe 0 (zu, Platte) … 8 (offen, wie laptop()).
+ *  Hände greifen mit wachsendem Deckel höher. Kein Laptop bei h < 0 (nur die Platte als Strich, für das Herausholen/Verstauen). */
+export const laptopOpen = (h) => p => {
+  if (h === -1) { for (let x = 8; x <= 13; x++) p(x, 15, 'w'); return; }                       // erste Andeutung der Platte
+  if (h === -2) { for (let x = 6; x <= 15; x++) { p(x, 14, 'g'); p(x, 15, 'w'); } return; }    // Platte wächst
+  clrL(p); clrR(p);
+  const top = h === 0 ? 14 : 15 - h;
+  for (let y = top; y <= 14; y++) for (let x = 4; x <= 17; x++) p(x, y, 'G');
+  for (let x = 4; x <= 17; x++) p(x, top, 'g'); for (let y = top; y <= 14; y++) p(4, y, 'g');
+  if (top < 14) { for (let x = 5; x <= 17; x++) p(x, 14, 'k'); for (let y = top + 1; y <= 14; y++) p(17, y, 'k'); }
+  for (let x = 4; x <= 17; x++) p(x, 15, 'w');
+  if (top <= 9) { p(10, 10, 'H'); p(11, 10, 'H'); p(10, 11, 'H'); p(11, 11, 'H'); }
+  const hy = h < 3 ? 13 : h < 6 ? 12 : 11;
+  for (let y = 10; y <= hy; y++) { p(2, y, 'N'); p(19, y, 'N'); }
+  p(3, hy, 'C'); p(3, hy + 1, 'C'); p(18, hy, 'C'); p(18, hy + 1, 'C');
 };
 
 // ---------- Kaffee ----------

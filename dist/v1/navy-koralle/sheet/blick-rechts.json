@@ -1,0 +1,13 @@
+{
+ "pose": "blick-rechts",
+ "title": "Blick rechts",
+ "frameWidth": 36,
+ "frameHeight": 32,
+ "frames": [
+  {
+   "x": 0,
+   "y": 0,
+   "ms": 400
+  }
+ ]
+}

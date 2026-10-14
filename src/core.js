@@ -6,7 +6,7 @@
 
 import { GW, GH, OX, OY, HEAD, BODY, VIEWS } from './model.js';
 
-/** Baut einen Frame. opt: { view:'F'|'Q'|'QL'|'S'|'SL'|'QB'|'QBL'|'B', dx, dy, headDy, pal, outfit, … }
+/** Baut einen Frame. opt: { view:'F'|'Q'|'QL'|'S'|'SL'|'QB'|'QBL'|'B'|'-' (ohne Figur), dx, dy, headDy, pal, outfit, … }
  *  outfit (aus outfits.js) wird vor den Posen-Bausteinen gezeichnet; seine Farben liegen über der Kombi. */
 export function frame(mods, ms, opt = {}) {
   const g = Array.from({ length: GH }, () => Array(GW).fill('.'));
@@ -16,7 +16,7 @@ export function frame(mods, ms, opt = {}) {
   if (view === 'F') {
     BODY.forEach((r, y) => [...r].forEach((c, x) => { if (c !== '.') put(x, y + 9, c); }));
     HEAD.forEach((r, y) => [...r].forEach((c, x) => { if (c !== '.') put(x, y + hd, c); }));
-  } else {
+  } else if (view !== '-') {
     VIEWS[view].forEach((r, y) => [...r].forEach((c, x) => { if (c !== '.') put(x, y, c); }));
   }
   const S = (x, y, c) => put(x, y + hd, c);
@@ -106,3 +106,26 @@ export function walkFrames(count, { x0 = 0, step = 2, ms = 130 } = {}) {
   const seq = [['a', 1, 0], ['pass', 0, -1], ['b', -1, 0], ['pass', 0, -1]];
   return Array.from({ length: count }, (_, i) => { const [m, arm, dy] = seq[i % 4]; return frame([sideFeet(m), sideArm(arm)], ms, { view: 'S', dx: x0 + step * i, dy }); });
 }
+
+// ---------- Sitzen auf einer Kante (vorne): Schoß auf der Sitzfläche y 16, Unterschenkel hängen vor dem Element ----------
+// Reihenfolge: Element (rect ab y 16), sitLap, sitLegs. lift je Bein: 0 = hängt, 1 = halb nach vorn, 2 = ganz nach vorn (Sohle sichtbar).
+const LAP = [
+  '.CCOOOOOOOOOOOOOOOOCC.',
+  'OCCNNNNNNnOONNNNNNnCCO',
+  'OnnnnnnnnnOOnnnnnnnnnO'
+];
+export const sitLap = p => { for (let x = 0; x < 22; x++) p(x, 17, '.'); LAP.forEach((r, j) => [...r].forEach((c, i) => { if (c !== '.') p(i, 13 + j, c); })); };
+// Unterschenkel liegen über dem Element → eigene Kontur, da die Auto-Kontur nur leere Pixel umrandet.
+export const sitLegs = (liftL = 0, liftR = 0) => p => {
+  const px = [];
+  // Fuß von vorn (Spitze zur Kamera): 3 × 2, leicht nach außen versetzt; ganz vorn geschwungen zeigt die untere Reihe die Sohle.
+  [[5, liftL, -1], [15, liftR, 0]].forEach(([x0, lift, out]) => {
+    const sy = 19 - lift, fx = x0 + out;
+    for (let y = 16; y < sy; y++) px.push([x0, y, 'N'], [x0 + 1, y, 'n']);
+    px.push([fx, sy, 'W'], [fx + 1, sy, 'W'], [fx + 2, sy, 'w']);
+    px.push(...(lift === 2 ? [[fx, sy + 1, 'x'], [fx + 1, sy + 1, 'x'], [fx + 2, sy + 1, 'x']] : [[fx, sy + 1, 'W'], [fx + 1, sy + 1, 'w'], [fx + 2, sy + 1, 'w']]));
+  });
+  const key = new Set(px.map(([x, y]) => `${x},${y}`));
+  px.forEach(([x, y]) => [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([a, b]) => { const X = x + a, Y = y + b; if (Y >= 16 && !key.has(`${X},${Y}`)) p(X, Y, 'O'); }));
+  px.forEach(([x, y, c]) => p(x, y, c));
+};

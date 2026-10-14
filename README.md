@@ -6,7 +6,7 @@ Hier wird das Private Mascot von Marlon abelegt und dient als Basis zur erstellu
 
 <p align="center"><img src="dist/v1/mittelblau-messing/gif/winken.gif" width="288" alt="Melly winkt"></p>
 
-**Melly** ist ein Pixel-Maskottchen als Code: Creme-Blob im Einreiher, Name aus dem Kürzel MEL. 32 Posen · 6 Anzug-Kombis · 1 Outfit(s) · 8 Ansichten · 10 Gesichtsausdrücke. Asset-Stand: `v1`.
+**Melly** ist ein Pixel-Maskottchen als Code: Creme-Blob im Einreiher, Name aus dem Kürzel MEL. 36 Posen · 6 Anzug-Kombis · 1 Outfit(s) · 8 Ansichten · 10 Gesichtsausdrücke. Asset-Stand: `v1`.
 
 ## Anzug-Kombis
 Krawatte und Einstecktuch haben immer die Akzentfarbe.
@@ -19,7 +19,7 @@ Krawatte und Einstecktuch haben immer die Akzentfarbe.
 Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoires). Ordner: `dist/v1/outfit-<id>/`.
 
 ### Weihnachtsmann (`weihnachten`)
-Roter Anzug mit Gürtel und Pelzsaum, Weihnachtsmütze mit Bommel. Krawatte/Einstecktuch bleiben Messing. Läuft mit 20 Posen.
+Roter Anzug mit Gürtel und Pelzsaum, Weihnachtsmütze mit Bommel. Krawatte/Einstecktuch bleiben Messing. Läuft mit 23 Posen.
 
 <table>
 <tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/weihnachtsmann.gif" width="144" alt="Weihnachtsmann"><br><b>Weihnachtsmann</b><br><code>weihnachtsmann</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td></tr>
@@ -66,6 +66,12 @@ Alle als animiertes GIF (transparent), Standbild-PNG und Sprite-Sheet in jeder K
 <tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code><br><sub>Hält die Tasse, Dampf steigt, hebt sie über eine Zwischenposition vor den Mund und nimmt einen Schluck.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/gaehnen.gif" width="144" alt="Gähnen & Strecken"><br><b>Gähnen & Strecken</b><br><code>gaehnen</code><br><sub>Streckt sich, Augen kneifen zu, Mund öffnet sich langsam, schließt wieder, blinzelt müde.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code><br><sub>Augen zu, Kopf nickt sanft, drei Z steigen versetzt auf und werden größer.</sub></td></tr>
 <tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/gym.gif" width="144" alt="Gym: Hantel"><br><b>Gym: Hantel</b><br><code>gym</code><br><sub>Bizeps-Curls in 3/4 mit Kampfblick, beim dritten Mal Schweißtropfen, zum Schluss Blick zur Kamera.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/fussball.gif" width="144" alt="Fußball: Jonglieren"><br><b>Fußball: Jonglieren</b><br><code>fussball</code><br><sub>Jongliert rechts – Mitte – links – Kopfball – zurück. Körper dreht sich zum Ball (3/4), Augen folgen, Ball dreht sich.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/kochen.gif" width="144" alt="Kochen: Pfanne"><br><b>Kochen: Pfanne</b><br><code>kochen</code><br><sub>Wendet das Ei rechts, gibt die Pfanne an die linke Hand, wendet links, dann verfehlt das Ei die Pfanne und landet auf dem Boden.</sub></td></tr>
 <tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/weihnachtsmann.gif" width="144" alt="Weihnachtsmann"><br><b>Weihnachtsmann</b><br><code>weihnachtsmann</code><br><sub>Hält den Sack, winkt über Zwischenposition, Bommel wippt mit.</sub></td></tr>
+</table>
+
+### Kante
+<table>
+<tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/sitzen.gif" width="144" alt="Sitzen auf der Kante"><br><b>Sitzen auf der Kante</b><br><code>sitzen</code><br><sub>Sitzt vorne auf einem Element, Hände auf den Knien, die Beine baumeln gegenläufig, blinzelt und schaut kurz zur Seite.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/sitzen-schlafen.gif" width="144" alt="Schlafen auf der Kante"><br><b>Schlafen auf der Kante</b><br><code>sitzen-schlafen</code><br><sub>Sitzt vorne auf einem Element, Augen zu, Kopf nickt sanft, Beine hängen ruhig, Z steigen auf.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/liegen-schlafen.gif" width="144" alt="Liegt auf der Seite und schläft"><br><b>Liegt auf der Seite und schläft</b><br><code>liegen-schlafen</code><br><sub>Liegt frontal auf der Seite auf einem Element, Augen zu, Z steigen über dem Kopf auf.</sub></td></tr>
+<tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/schneidersitz.gif" width="144" alt="Schneidersitz"><br><b>Schneidersitz</b><br><code>schneidersitz</code><br><sub>Sitzt im Schneidersitz auf einem Element, Hände auf den Knien, blinzelt und schaut sich kurz um.</sub></td></tr>
 </table>
 
 ## Nutzung

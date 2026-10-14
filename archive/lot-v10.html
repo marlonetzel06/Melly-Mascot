@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melly Modell v10</title>
+<style>
+  :root { --ink:#0B1620; --paper:#F5F3EE; --muted:#6B7280; --line:#E4E0D8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+  main { max-width:1180px; margin:0 auto; padding:28px 16px 40px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h2 { font-size:17px; margin:28px 0 4px; }
+  .sub, .desc { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+  .stage { border-radius:12px; padding:14px; display:flex; flex-direction:column; align-items:center; border:1px solid var(--line); background:#fff; }
+  .stage span { font-size:12px; margin-top:6px; color:var(--muted); }
+  canvas { image-rendering:pixelated; image-rendering:crisp-edges; display:block; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Melly · Modell v10 · Anzug wie ein echtes Sakko</h1>
+  <p class="sub">32 px statt 22 px, gleicher Look · Revers-V bis zum Knopf · Krawatte nur im V sichtbar, verschwindet am Knopf unter dem geschlossenen Sakko · Kragenspitzen, Revers mit Kerbe, Schatten rechts</p>
+
+  <h2>1 · Vorher / nachher</h2>
+  <div class="row" id="cmp"></div>
+
+  <h2>2 · Krawatten-Variante (gleicher Schnitt)</h2>
+  <div class="row" id="tie"></div>
+
+  <h2>3 · Hintergründe &amp; Originalgröße</h2>
+  <div class="row" id="bg"></div>
+</main>
+
+<script>
+const PX = {
+  O:'#0E1620', C:'#F4F2EC', c:'#DAD5C8', L:'#FFFFFF', P:'#F2A7A0', E:'#0E1620',
+  N:'#2E5A8A', n:'#264D78', j:'#1E3F64', l:'#3B6CA0',
+  W:'#FFFFFF', w:'#D9D6CE', K:'#18263A', k:'#0D1828', H:'#E3A33B', h:'#B87A1E', T:'#1B3554'
+};
+const GW = 36, GH = 32, OX = 2, OY = 2;
+
+function build(o) {
+  const g = Array.from({length:GH}, () => Array(GW).fill('.'));
+  const S = (x,y,c) => { const X=x+OX, Y=y+OY; if (X>=0&&Y>=0&&X<GW&&Y<GH) g[Y][X] = c; };
+  const span = (y,x0,x1,c) => { for (let x=x0;x<=x1;x++) S(x,y,c); };
+
+  const head = [[11,20],[8,23],[6,25],[5,26],[4,27],[3,28],[3,28],[3,28],[3,28],[3,28],[3,28],[3,28],[4,27]];
+  head.forEach(([a,b],y) => { span(y,a,b,'C'); span(y,b-2,b,'c'); });
+  span(1,10,12,'L'); span(2,8,9,'L');
+  [[9,11],[20,22]].forEach(([a,b]) => { for (let y=6;y<=8;y++) span(y,a,b,'E'); });
+  span(9,7,8,'P'); span(9,23,24,'P');
+
+  span(13,5,26,'N'); for (let y=14;y<=24;y++) span(y,4,27,'N');
+  for (let y=14;y<=24;y++) { S(26,y,'n'); S(27,y,'j'); }
+    for (let y=14;y<=20;y++) { span(y,1,2,'N'); S(3,y,'j'); S(29,y,'N'); S(30,y,'j'); S(28,y,'j'); S(1,y,'l'); }
+  [[1,2],[29,30]].forEach(([a,b]) => { span(21,a,b,'C'); span(22,a,b,'c'); });
+
+  const V = { 13:[10,21], 14:[11,20], 15:[12,19], 16:[12,19], 17:[13,18], 18:[14,17] };
+  Object.entries(V).forEach(([y,[Lx,Rx]]) => {
+    y = +y;
+    span(y,Lx+1,Rx-1,'W');
+    S(Lx,y,'j'); S(Lx-1,y,'n');
+    S(Rx,y,'j'); S(Rx+1,y,'n');
+  });
+  S(8,14,'j'); S(23,14,'j');
+  S(12,14,'w'); S(19,14,'w');
+
+  const tie = o.tie === 'brass' ? ['H','h'] : ['K','k'];
+  span(13,15,16,tie[1]); span(14,15,16,tie[0]); S(16,14,tie[1]);
+  span(15,15,16,tie[0]); span(16,14,17,tie[0]); S(17,16,tie[1]); span(17,14,17,tie[0]); S(17,17,tie[1]); span(18,15,16,tie[0]);
+  if (o.tie !== 'brass') span(16,14,17,'H');
+
+  S(14,19,'n'); span(19,15,16,'H'); S(17,19,'n');
+  for (let y=20;y<=23;y++) S(16,y,'j');
+  span(24,14,17,'T');
+
+  span(16,23,24,'H'); S(24,15,'H'); S(23,16,'h'); span(17,22,25,'j');
+  span(21,6,10,'j'); span(21,21,25,'j');
+
+  span(25,9,13,'T'); span(25,18,22,'T');
+  span(26,7,13,'W'); span(26,18,24,'W'); span(27,7,13,'w'); span(27,18,24,'w');
+  S(9,26,'H'); S(22,26,'H');
+
+  return g;
+}
+
+function render(g, s) {
+  const c = document.createElement('canvas'); c.width = GW*s; c.height = GH*s; const ctx = c.getContext('2d');
+  for (let y=0;y<GH;y++) for (let x=0;x<GW;x++) {
+    let col = null;
+    if (g[y][x] !== '.') col = PX[g[y][x]];
+    else if ([[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy]) => { const v = g[y+dy]?.[x+dx]; return v && v !== '.'; })) col = PX.O;
+    if (col) { ctx.fillStyle = col; ctx.fillRect(x*s, y*s, s, s); }
+  }
+  return c;
+}
+
+const OLD = [
+  '......................','.......CCCCCCCC.......','.....CCCCCCCCCCcc.....','....CCCCCCCCCCCCcc....','....CCCCCCCCCCCCCc....',
+  '...CCCCEECCCCEECCcc...','...CCCCEECCCCEECCcc...','...CCPCCCCCCCCCCPcc...','...CCCCCCCCCCCCCCcc...',
+  '...NNNNnWWkkWWnNNNn...','..NnNNNNnWKKWnNNNNnN..','..NnNNNNNnHHnNNHHNnN..','..NnNNNNNNKKNNNNNNnN..',
+  '..CnNNNNNNNNNNNNNNnC..','...NNnnNNNNNNNNnnNn...','...NNNNNNNnnNNNNNNn...','......................','....WWWw......WWWw....','......................'
+];
+function oldGrid() {
+  const g = Array.from({length:23}, () => Array(26).fill('.'));
+  OLD.forEach((r,y) => [...r].forEach((ch,x) => { if (ch !== '.') g[y+2][x+2] = ch === 'n' ? 'n' : ch; }));
+  return g;
+}
+function renderOld(s) {
+  const g = oldGrid(); const H = g.length, W = g[0].length;
+  const c = document.createElement('canvas'); c.width = W*s; c.height = H*s; const ctx = c.getContext('2d');
+  const pal = { ...PX, n:'#1F4168', K:'#16253A', k:'#0B1626' };
+  for (let y=0;y<H;y++) for (let x=0;x<W;x++) {
+    let col = null;
+    if (g[y][x] !== '.') col = pal[g[y][x]];
+    else if ([[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy]) => { const v = g[y+dy]?.[x+dx]; return v && v !== '.'; })) col = pal.O;
+    if (col) { ctx.fillStyle = col; ctx.fillRect(x*s, y*s, s, s); }
+  }
+  return c;
+}
+function stage(target, canvas, label, bg, fg) {
+  const d = document.createElement('div'); d.className = 'stage'; if (bg) d.style.background = bg;
+  d.appendChild(canvas); const l = document.createElement('span'); l.textContent = label; if (fg) l.style.color = fg; d.appendChild(l);
+  document.getElementById(target).appendChild(d);
+}
+
+stage('cmp', renderOld(13), 'v9 · 22 px');
+stage('cmp', render(build({}), 9), 'v10 · 32 px');
+stage('tie', render(build({}), 8), 'dunkel + Nadel (Empfehlung)');
+stage('tie', render(build({tie:'brass'}), 8), 'Messing, dunkler Knoten');
+stage('bg', render(build({}), 6), 'M&M Navy', '#041C2C', '#9fb3c2');
+stage('bg', render(build({}), 6), 'Schwarz', '#000', '#9fb3c2');
+stage('bg', render(build({}), 6), 'Cyan (Beispiel)', '#29A9E1', '#04324a');
+stage('bg', render(build({}), 1), '1×');
+stage('bg', render(build({}), 2), '2×');
+stage('bg', render(build({}), 3), '3×');
+</script>
+</body>
+</html>

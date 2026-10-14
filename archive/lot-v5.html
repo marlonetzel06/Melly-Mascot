@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melly Minimal v5</title>
+<style>
+  :root { --ink:#0B1620; --navy:#041C2C; --paper:#F5F3EE; --muted:#6B7280; --line:#E4E0D8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+  main { max-width:1180px; margin:0 auto; padding:28px 16px 40px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h2 { font-size:17px; margin:30px 0 4px; }
+  .sub, .desc { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .hero { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+  .stage { border-radius:14px; width:220px; height:220px; display:flex; align-items:center; justify-content:center; }
+  .stage.dark { background:var(--navy); } .stage.light { background:#fff; border:1px solid var(--line); }
+  .stage svg { width:180px; height:186px; }
+  .poses { display:grid; grid-template-columns:repeat(auto-fill,minmax(128px,1fr)); gap:8px; }
+  .pose { background:var(--navy); border-radius:10px; padding:8px 4px 6px; display:flex; flex-direction:column; align-items:center; }
+  .pose svg { width:112px; height:116px; }
+  .pose span { font-size:12px; color:#9fb3c2; margin-top:2px; }
+  canvas { image-rendering:pixelated; image-rendering:crisp-edges; }
+  .bob { animation: bob 1.8s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(-3px); } }
+  .blink { transform-box: fill-box; transform-origin: center; animation: blink 4s infinite; }
+  @keyframes blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+  .wave { transform-box: fill-box; transform-origin: 50% 0; animation: wave .9s ease-in-out infinite; }
+  @keyframes wave { 50% { transform: rotate(-18deg); } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Melly · Minimal-Konzepte v5</h1>
+  <p class="sub">Einfach genug für viele Posen · Anzug als Form, nicht als Kleidung · Navy + Messing · Hero-Figuren mit Idle-Animation (Wippen + Blinzeln)</p>
+
+  <h2>1 · Sakko-Blob</h2>
+  <p class="desc">Ein runder Körper, der im Zweireiher steckt. Weißer Kragen, Krawatte in Messing, 4 Knöpfe.</p>
+  <div class="hero" id="h1"></div>
+  <div class="poses" id="p1"></div>
+
+  <h2>2 · Spielfigur im Anzug</h2>
+  <p class="desc">Runder Kopf, eine Haar-Welle als einzige Signatur, Rumpf als Trapez, weiße Sneaker.</p>
+  <div class="hero" id="h2"></div>
+  <div class="poses" id="p2"></div>
+
+  <h2>3 · Sakko-Blob als Pixel-Glyphe (20×19)</h2>
+  <p class="desc">Konzept 1 auf Clawd-Niveau. Original, 4× und 10×, mit Blinzeln.</p>
+  <div class="hero" id="h3"></div>
+</main>
+
+<script>
+const K = { ink:'#0E1620', cream:'#F4F2EC', creamS:'#DAD6CB', navy:'#1C3550', navyS:'#122840', stripe:'#2A4766',
+  brass:'#E3A33B', brassS:'#B87A1E', cheek:'#F2A7A0', skin:'#F1C7A0', skinS:'#D9A57E', hair:'#3B2A20', hairL:'#5E4636', grey:'#2B323B' };
+const SW = 2.4;
+
+function arm(px, py, ang, len, cls, hand) {
+  return `<g transform="translate(${px} ${py}) rotate(${ang})"><g class="${cls||''}"><rect x="-4.5" y="-2" width="9" height="${len}" rx="4.5" fill="${K.navy}" stroke="${K.ink}" stroke-width="${SW}"/><circle cx="0" cy="${len-1}" r="4.6" fill="${hand}" stroke="${K.ink}" stroke-width="${SW}"/></g></g>`;
+}
+
+function eyes(e, xL, xR, y, lid) {
+  const ov = (x,dy=0) => `<ellipse cx="${x}" cy="${y+dy}" rx="3.2" ry="4.4" fill="${K.ink}"/><circle cx="${x+1}" cy="${y-1.6+dy}" r="1.1" fill="#fff"/>`;
+  const arcUp = x => `<path d="M${x-3.6} ${y+1.5} Q${x} ${y-3.5} ${x+3.6} ${y+1.5}" fill="none" stroke="${K.ink}" stroke-width="2.4" stroke-linecap="round"/>`;
+  const arcDn = x => `<path d="M${x-3.6} ${y} Q${x} ${y+3.6} ${x+3.6} ${y}" fill="none" stroke="${K.ink}" stroke-width="2.4" stroke-linecap="round"/>`;
+  switch (e) {
+    case 'happy': return arcUp(xL) + arcUp(xR);
+    case 'closed': return arcDn(xL) + arcDn(xR);
+    case 'up': return ov(xL,-1.5) + ov(xR,-1.5);
+    case 'focus': return ov(xL) + ov(xR) + `<rect x="${xL-5}" y="${y-6}" width="10" height="5.2" fill="${lid}"/><rect x="${xR-5}" y="${y-6}" width="10" height="5.2" fill="${lid}"/><path d="M${xL-4} ${y-1} H${xL+4} M${xR-4} ${y-1} H${xR+4}" stroke="${K.ink}" stroke-width="2" stroke-linecap="round"/>`;
+    case 'skeptic': return ov(xL) + ov(xR) + `<rect x="${xL-5}" y="${y-6}" width="10" height="4.4" fill="${lid}"/><path d="M${xL-4} ${y-1.8} H${xL+4}" stroke="${K.ink}" stroke-width="2" stroke-linecap="round"/><path d="M${xR-4} ${y-8} Q${xR} ${y-11} ${xR+4} ${y-9}" fill="none" stroke="${K.ink}" stroke-width="2" stroke-linecap="round"/>`;
+    default: return `<g class="blinkme">${ov(xL)}${ov(xR)}</g>`;
+  }
+}
+
+function mouth(m, x, y) {
+  switch (m) {
+    case 'open': return `<path d="M${x-5} ${y-1} Q${x} ${y+7} ${x+5} ${y-1} Z" fill="${K.ink}"/><path d="M${x-2.6} ${y+2.6} Q${x} ${y+4.6} ${x+2.6} ${y+2.6}" fill="#E07A6E"/>`;
+    case 'flat': return `<path d="M${x-3} ${y+1} H${x+3}" stroke="${K.ink}" stroke-width="2" stroke-linecap="round"/>`;
+    case 'o': return `<ellipse cx="${x}" cy="${y+1.5}" rx="1.8" ry="2.2" fill="${K.ink}"/>`;
+    case 'smirk': return `<path d="M${x-3} ${y+1.5} Q${x+1} ${y+2.5} ${x+4} ${y-0.5}" fill="none" stroke="${K.ink}" stroke-width="2" stroke-linecap="round"/>`;
+    default: return `<path d="M${x-4} ${y} Q${x} ${y+4} ${x+4} ${y}" fill="none" stroke="${K.ink}" stroke-width="2" stroke-linecap="round"/>`;
+  }
+}
+
+function props(p, cx) {
+  const star = (x,y,s) => `<path d="M${x} ${y-s} L${x+s*.3} ${y-s*.3} L${x+s} ${y} L${x+s*.3} ${y+s*.3} L${x} ${y+s} L${x-s*.3} ${y+s*.3} L${x-s} ${y} L${x-s*.3} ${y-s*.3} Z" fill="${K.brass}"/>`;
+  switch (p) {
+    case 'sparkle': return star(18,26,6) + star(102,20,5) + star(106,48,3.5) + star(14,52,3.5);
+    case 'think': return `<circle cx="96" cy="24" r="2.4" fill="${K.cream}"/><circle cx="103" cy="15" r="3.4" fill="${K.cream}"/><circle cx="111" cy="5" r="4.4" fill="${K.cream}"/>`;
+    case 'zz': return `<text x="90" y="26" font-family="ui-monospace,Consolas,monospace" font-weight="700" font-size="13" fill="${K.cream}">z</text><text x="100" y="14" font-family="ui-monospace,Consolas,monospace" font-weight="700" font-size="10" fill="${K.cream}">z</text>`;
+    case 'wave': return `<path d="M104 30 q4 -4 0 -8 M110 32 q6 -7 0 -14" fill="none" stroke="${K.cream}" stroke-width="2" stroke-linecap="round"/>`;
+    case 'laptop': return `<g><rect x="${cx-22}" y="80" width="44" height="26" rx="3" fill="${K.grey}" stroke="${K.ink}" stroke-width="${SW}"/><circle cx="${cx}" cy="93" r="2.6" fill="${K.brass}"/><rect x="${cx-26}" y="105" width="52" height="4" rx="2" fill="${K.creamS}" stroke="${K.ink}" stroke-width="${SW}"/></g>`;
+    case 'point': return `<path d="M110 66 l6 0 M110 61 l5 -3 M110 71 l5 3" stroke="${K.cream}" stroke-width="2" stroke-linecap="round"/>`;
+    default: return '';
+  }
+}
+
+function blob(p) {
+  let s = `<svg viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<defs><clipPath id="bc${p.id}"><path d="M30 104 L30 58 Q30 22 60 22 Q90 22 90 58 L90 104 Q90 108 86 108 L34 108 Q30 108 30 104 Z"/></clipPath><pattern id="st${p.id}" patternUnits="userSpaceOnUse" width="6" height="10"><rect width="6" height="10" fill="${K.navy}"/><rect x="2" width="0.8" height="10" fill="${K.stripe}"/></pattern></defs>`;
+  s += props(p.prop === 'laptop' ? '' : p.prop, 60);
+  s += `<g class="${p.anim ? 'bob' : ''}" transform="rotate(${p.tilt||0} 60 108)">`;
+  s += `<ellipse cx="46" cy="110" rx="8" ry="4" fill="${K.cream}" stroke="${K.ink}" stroke-width="${SW}"/><ellipse cx="74" cy="110" rx="8" ry="4" fill="${K.cream}" stroke="${K.ink}" stroke-width="${SW}"/>`;
+  const aL = p.aL ?? 12, aR = p.aR ?? -12;
+  const behind = aL >= 0 && aL < 40 && aR <= 0 && aR > -40;
+  const arms = arm(32, 68, p.aL ?? 12, 18, '', K.cream) + arm(88, 68, p.aR ?? -12, 18, p.waveArm ? 'wave' : '', K.cream);
+  if (behind) s += arms;
+  s += `<g clip-path="url(#bc${p.id})"><rect x="0" y="0" width="120" height="124" fill="${K.cream}"/>`;
+  s += `<path d="M20 62 Q60 55 100 62 L100 124 L20 124 Z" fill="url(#st${p.id})"/>`;
+  s += `<path d="M49 59.5 L60 77 L71 59.5 Z" fill="#fff"/>`;
+  s += `<path d="M58.4 60.5 L61.6 60.5 L62.2 71 L60 74.5 L57.8 71 Z" fill="${K.brass}"/>`;
+  s += `<path d="M47 60 L60 81 L55.5 83 L42 63 Z" fill="${K.navyS}"/><path d="M73 60 L60 81 L64.5 83 L78 63 Z" fill="${K.navyS}"/>`;
+  [[52,88],[68,88],[52,98],[68,98]].forEach(([x,y]) => s += `<circle cx="${x}" cy="${y}" r="2.3" fill="${K.brass}" stroke="${K.brassS}" stroke-width=".8"/>`);
+  s += `</g>`;
+  s += `<path d="M30 104 L30 58 Q30 22 60 22 Q90 22 90 58 L90 104 Q90 108 86 108 L34 108 Q30 108 30 104 Z" fill="none" stroke="${K.ink}" stroke-width="${SW}"/>`;
+  s += `<ellipse cx="45" cy="50" rx="4.2" ry="2.4" fill="${K.cheek}" opacity=".65"/><ellipse cx="75" cy="50" rx="4.2" ry="2.4" fill="${K.cheek}" opacity=".65"/>`;
+  s += eyes(p.eyes, 51, 69, 42, K.cream).replace('class="blinkme"', p.anim ? 'class="blink"' : '');
+  s += mouth(p.mouth, 60, 50);
+  if (!behind) s += arms;
+  s += `</g>`;
+  if (p.prop === 'laptop') s += props('laptop', 60);
+  return s + `</svg>`;
+}
+
+function figure(p) {
+  let s = `<svg viewBox="0 0 120 124" xmlns="http://www.w3.org/2000/svg">`;
+  s += props(p.prop === 'laptop' ? '' : p.prop, 60);
+  s += `<g class="${p.anim ? 'bob' : ''}" transform="rotate(${p.tilt||0} 60 112)">`;
+  s += `<rect x="47" y="96" width="10" height="10" fill="${K.navy}" stroke="${K.ink}" stroke-width="${SW}"/><rect x="63" y="96" width="10" height="10" fill="${K.navy}" stroke="${K.ink}" stroke-width="${SW}"/>`;
+  s += `<path d="M40 110 Q40 104 47 104 L58 104 L58 112 L42 112 Q40 112 40 110 Z" fill="#fff" stroke="${K.ink}" stroke-width="${SW}"/><path d="M80 110 Q80 104 73 104 L62 104 L62 112 L78 112 Q80 112 80 110 Z" fill="#fff" stroke="${K.ink}" stroke-width="${SW}"/>`;
+  const aL = p.aL ?? 12, aR = p.aR ?? -12;
+  const behind = aL >= 0 && aL < 40 && aR <= 0 && aR > -40;
+  const arms = arm(42, 64, p.aL ?? 12, 22, '', K.skin) + arm(78, 64, p.aR ?? -12, 22, p.waveArm ? 'wave' : '', K.skin);
+  if (behind) s += arms;
+  s += `<path d="M42 60 Q60 56 78 60 L84 96 Q84 100 80 100 L40 100 Q36 100 36 96 Z" fill="${K.navy}" stroke="${K.ink}" stroke-width="${SW}"/>`;
+  s += `<path d="M52 59 L60 72 L68 59 Z" fill="#fff"/><path d="M58.6 60 L61.4 60 L62 69 L60 72 L58 69 Z" fill="${K.brass}"/>`;
+  s += `<path d="M51 59.5 L60 76 L56.5 78 L46 62 Z" fill="${K.navyS}"/><path d="M69 59.5 L60 76 L63.5 78 L74 62 Z" fill="${K.navyS}"/>`;
+  [[54,84],[66,84],[54,92],[66,92]].forEach(([x,y]) => s += `<circle cx="${x}" cy="${y}" r="2" fill="${K.brass}"/>`);
+  s += `<circle cx="60" cy="38" r="23" fill="${K.skin}" stroke="${K.ink}" stroke-width="${SW}"/>`;
+  s += `<path d="M37.5 38 Q36 16 58 14 Q72 12 80 20 Q90 10 98 14 Q92 20 86 26 Q84 30 83 36 Q76 25 62 26 Q48 27 42 40 Z" fill="${K.hair}" stroke="${K.ink}" stroke-width="${SW}" stroke-linejoin="round"/>`;
+  s += `<path d="M50 20 Q62 15 74 18" fill="none" stroke="${K.hairL}" stroke-width="2.2" stroke-linecap="round"/>`;
+  s += `<ellipse cx="46" cy="47" rx="4" ry="2.3" fill="${K.cheek}" opacity=".6"/><ellipse cx="74" cy="47" rx="4" ry="2.3" fill="${K.cheek}" opacity=".6"/>`;
+  s += eyes(p.eyes, 52, 68, 40, K.skin).replace('class="blinkme"', p.anim ? 'class="blink"' : '');
+  s += mouth(p.mouth, 60, 49);
+  if (!behind) s += arms;
+  s += `</g>`;
+  if (p.prop === 'laptop') s += props('laptop', 60);
+  return s + `</svg>`;
+}
+
+const POSES = [
+  ['stehen',     { eyes:'open', mouth:'smile' }],
+  ['winken',     { aR:-150, eyes:'happy', mouth:'open', prop:'wave', waveArm:true }],
+  ['zeigen',     { aR:-95, eyes:'open', mouth:'smile', tilt:-4, prop:'point' }],
+  ['denken',     { aR:-145, eyes:'up', mouth:'flat', prop:'think' }],
+  ['jubeln',     { aL:150, aR:-150, eyes:'happy', mouth:'open', prop:'sparkle' }],
+  ['tippen',     { aL:-35, aR:35, eyes:'focus', mouth:'flat', prop:'laptop' }],
+  ['„Zeig mal.“',{ aL:-55, aR:55, eyes:'skeptic', mouth:'smirk', tilt:3 }],
+  ['schlafen',   { eyes:'closed', mouth:'o', tilt:7, prop:'zz' }]
+];
+
+let uid = 0;
+function fill(heroId, posesId, fn) {
+  const h = document.getElementById(heroId);
+  ['dark','light'].forEach(bg => { const d = document.createElement('div'); d.className = 'stage ' + bg; d.innerHTML = fn({ id: uid++, eyes:'open', mouth:'smile', anim:true }); h.appendChild(d); });
+  const w = document.createElement('div'); w.className = 'stage dark'; w.innerHTML = fn({ id: uid++, aR:-150, eyes:'happy', mouth:'open', waveArm:true, anim:true, prop:'wave' }); h.appendChild(w);
+  POSES.forEach(([name, p]) => { const d = document.createElement('div'); d.className = 'pose'; d.innerHTML = fn({ id: uid++, ...p }) + `<span>${name}</span>`; document.getElementById(posesId).appendChild(d); });
+}
+fill('h1','p1', blob);
+fill('h2','p2', figure);
+
+const PX = {
+  O:'#0E1620', C:K.cream, N:K.navy, n:K.navyS, W:'#FFFFFF', H:K.brass, E:'#0E1620', P:K.cheek, M:'#0E1620'
+};
+const BASE = [
+  '......OOOOOOOO......',
+  '....OOCCCCCCCCOO....',
+  '...OCCCCCCCCCCCCO...',
+  '..OCCCCCCCCCCCCCCO..',
+  '..OCCCCCCCCCCCCCCO..',
+  '.OCCCCEECCCCEECCCCO.',
+  '.OCCCCEECCCCEECCCCO.',
+  '.OCCPCCCCCCCCCCPCCO.',
+  '.OCCCCCCCCCCCCCCCCO.',
+  '.ONNNNNNWWWWNNNNNNO.',
+  'ONONNNNnnHHnnNNNNONO',
+  'ONONNNNNnnnnNNNNNONO',
+  'ONONNHNNNNNNNNHNNONO',
+  'OCONNNNNNNNNNNNNNOCO',
+  'OOONNHNNNNNNNNHNNOOO',
+  '.OONNNNNNNNNNNNNNOO.',
+  '..OOOOOOOOOOOOOOOO..',
+  '..OWWWWO....OWWWWO..',
+  '..OOOOOO....OOOOOO..'
+];
+const BLINK = BASE.map((r,i) => i === 5 ? r.replace(/EE/g,'CC') : i === 6 ? r.replace(/EE/g,'OO') : r);
+function pxCanvas(rows, scale) {
+  const c = document.createElement('canvas'); c.width = 20*scale; c.height = rows.length*scale;
+  const x = c.getContext('2d');
+  rows.forEach((r,y) => [...r].forEach((ch,i) => { if (ch !== '.') { x.fillStyle = PX[ch]; x.fillRect(i*scale, y*scale, scale, scale); } }));
+  return c;
+}
+const h3 = document.getElementById('h3');
+[1,4,10].forEach(s => {
+  const d = document.createElement('div'); d.className = 'stage ' + (s === 4 ? 'light' : 'dark');
+  const a = pxCanvas(BASE, s), b = pxCanvas(BLINK, s);
+  d.appendChild(a);
+  let t = 0; setInterval(() => { t++; d.replaceChild(t % 25 === 0 ? b : a, d.firstChild); }, 160);
+  h3.appendChild(d);
+});
+</script>
+</body>
+</html>

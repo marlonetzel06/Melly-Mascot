@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melly Set 3</title>
+<style>
+  :root { --ink:#0B1620; --paper:#F5F3EE; --muted:#6B7280; --line:#E4E0D8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+  main { max-width:1180px; margin:0 auto; padding:28px 16px 40px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h2 { font-size:17px; margin:26px 0 6px; }
+  .sub, .desc { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .combos { display:flex; gap:8px; flex-wrap:wrap; }
+  .combo { background:#fff; border:2px solid var(--line); border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; cursor:pointer; font:inherit; color:inherit; }
+  .combo[aria-pressed="true"] { border-color:#E3A33B; }
+  .combo span { font-size:12px; color:var(--muted); margin-top:4px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:10px; }
+  .anim { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; }
+  .anim h3 { font-size:15px; margin:0 0 2px; } .anim p { font-size:13px; color:var(--muted); margin:0 0 8px; }
+  .play { display:flex; gap:8px; }
+  .bg { border-radius:10px; padding:4px; }
+  canvas { image-rendering:pixelated; image-rendering:crisp-edges; display:block; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Melly · Set 3: Alltag</h1>
+  <p class="sub">Krawatte und Einstecktuch immer in derselben Akzentfarbe · Kombi anklicken, alle Animationen wechseln mit</p>
+
+  <h2>1 · Anzug-Kombis</h2>
+  <div class="combos" id="combos"></div>
+
+  <h2>2 · Animationen</h2>
+  <div class="grid" id="anims"></div>
+</main>
+
+<script>
+const BASE_PX = { O:'#0E1620', C:'#F4F2EC', c:'#D9D4C7', W:'#FFFFFF', w:'#CFCBC0', H:'#E3A33B', E:'#0E1620', P:'#F2A7A0',
+                  G:'#3A424C', g:'#8A93A0', B:'#7FC8F8', Z:'#F4F2EC', R:'#D9534F', X:'#FFFFFF', V:'#3FA34D', h:'#F6CC7A', k:'#262C33', Y:'#FFD95A', x:'#A9A59B' };
+const COMBOS = [
+  ['Mittelblau · Messing', '#2E5A8A','#1F4168','#E3A33B','#A86F18'],
+  ['Anthrazit · Bordeaux', '#3D4654','#2A313B','#A3324A','#6E1F2C'],
+  ['Hellgrau · Navy',      '#A7AFB8','#858D97','#1F3A57','#0F2238'],
+  ['Dunkelgrün · Messing', '#2F5D4E','#1F4237','#E3A33B','#A86F18'],
+  ['Sand · Navy',          '#C9B48E','#A8956F','#1F3A57','#0F2238'],
+  ['Navy · Koralle',       '#1F3A57','#132840','#E8735E','#B04C3B']
+];
+let combo = 0;
+const lighten = (hex, f) => { const v = parseInt(hex.slice(1),16); return '#' + [16,8,0].map(sh => Math.min(255, Math.round(((v>>sh)&255) + (255-((v>>sh)&255))*f)).toString(16).padStart(2,'0')).join(''); };
+const pal = () => { const [,N,n,A,a] = COMBOS[combo]; return { ...BASE_PX, N, n, A, a, l: lighten(N, .22) }; };
+
+const HEAD = [
+  '......................','.......CCCCCCCC.......','.....CCCCCCCCCCcc.....','....CCCCCCCCCCCCcc....','....CCCCCCCCCCCCCc....',
+  '...CCCCEECCCCEECCcc...','...CCCCEECCCCEECCcc...','...CCPCCCCCCCCCCPcc...','...CCCCCCCCCCCCCCcc...'
+];
+const BODY = [
+  '...NNNNnWWaaWWnNNNn...','..NnNNNNnWAAWnNNNNnN..','..NnNNNNNnAAnNNAANnN..','..NnNNNNNNAANNNNNNnN..',
+  '..CnNNNNNNNNNNNNNNnC..','...NNnnNNNNNNNNnnNn...','...NNNNNNNnnNNNNNNn...','......................',
+  '....WWWw......WWWw....','......................'
+];
+const SIDE = [
+  '......................','.......CCCCCCCC.......','.....CCCCCCCCCCcc.....','....CCCCCCCCCCCCcc....','....CCCCCCCCCCCCCc....',
+  '...CCCCCCCCCCCEECcc...','...CCCCCCCCCCCEECcc...','...CCCCCCCCCCPCCCcc...','...CCCCCCCCCCCCCCcc...',
+  '...NNNNNllNNNNnWann...','...NNNNOllONNNnWAnn...','...NNNNOllONNNNnAnn...','...NNNNOllONNNNNnNn...',
+  '...NNNNOCCONNNNNNNn...','...NNNNOCCONnnnNNNn...','...NNNNNOONNNNNNNNn...','......................',
+  '.......WWWWWWWw.......','......................'
+];
+const QV = [
+  ...HEAD.slice(0,5),
+  '...CCCCCCEECCCEECcc...','...CCCCCCEECCCEECcc...','...CCCCPCCCCCCCCPcc...','...CCCCCCCCCCCCCCcc...',
+  '...NNNNNNnWWaaWnNNn...','..NnNNNNNNnWAAWnNNnN..','..NnNNNNNNNnAAnNANnN..','..NnNNNNNNNNAANNNNnN..',
+  '..CnNNNNNNNNNNNNNNnC..','...NNNnnNNNNNNNNnNn...','...NNNNNNNNNnnNNNNn...','......................',
+  '....WWWWw.....WWWw....','......................'
+];
+const QLV = QV.map(r => [...r].reverse().join(''));
+const GW = 36, GH = 32, OX = 7, OY = 10;
+
+function frame(mods, ms, opt) {
+  opt = opt || {};
+  const g = Array.from({length:GH}, () => Array(GW).fill('.'));
+  const dy = opt.dy || 0, dx = opt.dx || 0, hd = opt.headDy || 0;
+  const put = (x,y,c) => { const X=x+OX+dx, Y=y+OY+dy; if (X>=0&&Y>=0&&X<GW&&Y<GH) g[Y][X] = c; };
+  if (opt.view === 'QL') QLV.forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') put(x, y, c); }));
+  else if (opt.view === 'Q') QV.forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') put(x, y, c); }));
+  else if (opt.view === 'S') SIDE.forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') put(x, y, c); }));
+  else {
+    BODY.forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') put(x, y+9, c); }));
+    HEAD.forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') put(x, y+hd, c); }));
+  }
+  const S = (x,y,c) => put(x, y + hd, c);
+  (mods||[]).forEach(m => m(put, S));
+  return { g, ms, pal: opt.pal };
+}
+
+const EY = [[7,8],[13,14]];
+const look  = (dx,dy) => (p,S) => EY.forEach(([a,b]) => { for (let y=5;y<=6;y++) { S(a,y,'C'); S(b,y,'C'); } [a,b].forEach(x => { S(x+dx,5+(dy||0),'E'); S(x+dx,6+(dy||0),'E'); }); });
+const blink = (p,S) => EY.forEach(([a,b]) => { S(a,5,'C'); S(b,5,'C'); });
+const caret = (S,x0) => { for (let y=5;y<=6;y++) for (let x=x0-1;x<=x0+2;x++) S(x,y,'C'); S(x0-1,6,'E'); S(x0,5,'E'); S(x0+1,5,'E'); S(x0+2,6,'E'); };
+const happy = (p,S) => { caret(S,7); caret(S,13); };
+const angry = (p,S) => { EY.forEach(([a,b]) => { S(a,5,'C'); S(b,5,'C'); }); [[6,3],[7,3],[8,4],[9,4],[12,4],[13,4],[14,3],[15,3]].forEach(([x,y]) => S(x,y,'E')); };
+const surprised = (p,S) => EY.forEach(([a,b]) => { S(a,4,'E'); S(b,4,'E'); });
+const L = list => p => list.forEach(([x,y,c]) => p(x,y,c));
+const clrR = p => { for (let y=10;y<=13;y++) p(19,y,'.'); };
+const clrL = p => { for (let y=10;y<=13;y++) p(2,y,'.'); };
+const Z4 = ['####','..#.','.#..','####'], Z5 = ['#####','...#.','..#..','.#...','#####'];
+const SLOTS = [[18,1,Z4],[20,-3,Z4],[22,-7,Z5],[24,-12,Z5]];
+const zSlot = (i) => p => { const [x,y,m] = SLOTS[i]; m.forEach((r,j) => [...r].forEach((ch,ii) => { if (ch==='#') p(x+ii,y+j,'Z'); })); };
+const zed = (x,y) => p => ['####','..#.','.#..','####'].forEach((r,j) => [...r].forEach((ch,i) => { if (ch==='#') p(x+i,y+j,'Z'); }));
+const puff = (x,y,c) => p => L([[x,y,c||'Z'],[x+1,y,c||'Z'],[x,y-1,c||'Z']])(p);
+
+const signArm = (lift) => p => { clrR(p); L([[19,10,'N'],[20,10,'N'],[20,9,'N'],[21,9,'N'],[20,8-lift,'N'],[21,8-lift,'N'],[21,7-lift,'C'],[22,7-lift,'C'],[21,6-lift,'C'],[22,6-lift,'C']])(p); };
+const sign = (lift, lines) => p => {
+  const top = -8 - lift, x0 = 15, x1 = 28;
+  for (let y=top; y<=top+6; y++) for (let x=x0; x<=x1; x++) p(x,y,'W');
+  for (let x=x0+1; x<=x1; x++) p(x,top+6,'w'); for (let y=top+1; y<=top+6; y++) p(x1,y,'w');
+  if (lines) { for (let x=x0+3; x<=x1-3; x++) p(x,top+2,'g'); for (let x=x0+5; x<=x1-5; x++) p(x,top+4,'g'); }
+  for (let y=top+7; y<=5-lift; y++) { p(21,y,'G'); p(22,y,'G'); }
+};
+const sArm = p => {
+  for (let y=9;y<=15;y++) for (let x=6;x<=11;x++) p(x,y,'N');
+  for (let x=8;x<=16;x++) { const y = x < 13 ? 10 : 9; p(x,y,'l'); p(x,y+1,'l'); p(x,y+2,'O'); }
+  p(17,9,'C'); p(17,10,'C');
+};
+const BOARD = [[18,13],[19,12],[20,12],[21,11],[22,10],[23,10],[24,9]];
+const board = p => {
+  BOARD.forEach(([x,y]) => { p(x,y,'G'); p(x,y-1,'g'); });
+  p(24,7,'G'); p(25,8,'G');
+  p(22,12,'C'); p(23,12,'C');
+};
+const eyeDown = (p,S) => { S(14,5,'C'); S(15,5,'C'); S(14,7,'E'); S(15,7,'E'); };
+const sLens = (bug) => p => {
+  [[20,5],[21,5],[22,5],[19,6],[23,6],[19,7],[23,7],[20,8],[21,8],[22,8]].forEach(([x,y]) => p(x,y,'G'));
+  p(20,6,'B'); p(21,6,'B'); p(22,6,'B'); p(20,7,'B'); p(21,7,'B'); p(22,7,'B');
+  if (bug) { p(21,6,'R'); p(22,6,'R'); p(21,7,'O'); p(22,7,'R'); }
+  p(18,8,'G'); p(19,8,'G');
+};
+const sPen = (up) => p => { p(18,8 - up,'G'); p(19,7 - up,'G'); p(20,8 - up,'k'); };
+const tick = (x,y) => p => { p(x,y+1,'V'); p(x+1,y+2,'V'); p(x+2,y+1,'V'); p(x+3,y,'V'); };
+const sBug = (x,y) => p => L([[x,y,'R'],[x+1,y,'R'],[x-1,y,'O'],[x+2,y,'O']])(p);
+const sSurprised = (S) => { S(14,4,'E'); S(15,4,'E'); };
+const sBang = p => L([[15,-5,'R'],[15,-4,'R'],[15,-3,'R'],[15,-1,'R']])(p);
+const bug = (x,y) => p => L([[x,y,'O'],[x+1,y,'O'],[x-1,y+1,'O'],[x,y+1,'R'],[x+1,y+1,'R'],[x+2,y+1,'O'],[x,y+2,'O'],[x+1,y+2,'O']])(p);
+const bang = p => L([[22,-3,'A'],[22,-2,'A'],[22,-1,'A'],[22,1,'A']])(p);
+const laptop = () => p => {
+  clrL(p); clrR(p);
+  for (let y=7;y<=14;y++) for (let x=4;x<=17;x++) p(x,y,'G');
+  for (let x=4;x<=17;x++) p(x,7,'g'); for (let y=7;y<=14;y++) p(4,y,'g');
+  for (let x=5;x<=17;x++) p(x,14,'k'); for (let y=8;y<=14;y++) p(17,y,'k');
+  for (let x=4;x<=17;x++) p(x,15,'w');
+  p(10,10,'H'); p(11,10,'H'); p(10,11,'H'); p(11,11,'H');
+  L([[2,10,'N'],[2,11,'N'],[3,11,'C'],[3,12,'C'],[19,10,'N'],[19,11,'N'],[18,11,'C'],[18,12,'C']])(p);
+};
+const cupAt = (S, x0, y0, steam) => {
+  for (let y=y0-1;y<=y0+3;y++) for (let x=x0-1;x<=x0+4;x++) S(x,y,'O');
+  for (let y=y0;y<=y0+2;y++) for (let x=x0;x<=x0+2;x++) S(x,y,'W');
+  S(x0,y0,'A'); S(x0+1,y0,'A'); S(x0+2,y0,'A');
+  S(x0+3,y0+1,'W');
+  if (steam === 1) L([[x0+1,y0-3,'g'],[x0,y0-4,'g'],[x0+1,y0-5,'g']])(S);
+  if (steam === 2) L([[x0,y0-3,'g'],[x0+1,y0-4,'g'],[x0,y0-5,'g']])(S);
+};
+const mug = (pos, steam) => (p,S) => {
+  clrR(p);
+  if (pos === 0) {
+    for (let y=11;y<=13;y++) for (let x=14;x<=16;x++) p(x,y,'W'); p(14,11,'A'); p(15,11,'A'); p(16,11,'A');
+    L([[17,12,'W'],[19,10,'N'],[19,11,'N'],[18,12,'C'],[18,11,'C']])(p);
+    if (steam === 1) L([[15,9,'g'],[14,8,'g'],[15,7,'g']])(p);
+    if (steam === 2) L([[14,9,'g'],[15,8,'g'],[14,7,'g']])(p);
+  } else if (pos === 1) {
+    cupAt(S, 11, 9, 0);
+    L([[15,10,'C'],[15,11,'C'],[16,11,'l'],[17,11,'l'],[18,10,'l'],[19,10,'N'],[16,12,'O'],[17,12,'O']])(p);
+  } else {
+    cupAt(S, 10, 6, steam);
+    L([[14,7,'C'],[14,8,'C'],[15,8,'l'],[16,9,'l'],[17,9,'l'],[18,10,'l'],[19,10,'N'],[15,9,'O'],[16,10,'O'],[17,10,'O']])(S);
+    caret(S,7); caret(S,13);
+  }
+};
+const RED = [ { C:'#F4F2EC', c:'#D9D4C7' }, { C:'#F6D3C8', c:'#E0B4A6' }, { C:'#F0A898', c:'#D88A79' }, { C:'#E8766A', c:'#C95A4F', P:'#C24A40' } ];
+const thumb = (up) => p => { clrR(p); L([[19,10,'N'],[20,10,'N'],[20,9,'N'],[21,9,'N'],[21,7,'C'],[22,7,'C'],[21,8,'C'],[22,8,'C']])(p); if (up) { p(21,6,'C'); p(21,5,'C'); } };
+const qEyes = (cols, dx, dy) => (p,S) => cols.forEach(x => { S(x,5,'C'); S(x,6,'C'); }) || cols.forEach(x => { S(x+dx,5+dy,'E'); S(x+dx,6+dy,'E'); });
+const QR = [9,10,14,15], QL = [6,7,11,12];
+const qLook = (left, dx, dy) => (p,S) => { const cols = left ? QL : QR; cols.forEach(x => { S(x,5,'C'); S(x,6,'C'); }); cols.forEach(x => { S(x+dx,5+dy,'E'); S(x+dx,6+dy,'E'); }); };
+const qHappy = (left) => (p,S) => { const pairs = left ? [6,11] : [9,14]; pairs.forEach(x0 => { for (let y=5;y<=6;y++) for (let x=x0-1;x<=x0+2;x++) S(x,y,'C'); S(x0-1,6,'E'); S(x0,5,'E'); S(x0+1,5,'E'); S(x0+2,6,'E'); }); };
+const qSurprised = (left) => (p,S) => (left ? QL : QR).forEach(x => S(x,4,'E'));
+const winkR = (p,S) => caret(S,7);
+const star = (x,y) => p => L([[x,y,'H'],[x-1,y,'H'],[x+1,y,'H'],[x,y-1,'H'],[x,y+1,'H']])(p);
+const bulb = (on) => p => {
+  const g = on ? 'Y' : 'w';
+  ['.###.','#####','#####','.###.'].forEach((r,j) => [...r].forEach((c,i) => { if (c === '#') p(8+i,-8+j,g); }));
+  p(9,-4,'g'); p(10,-4,'g'); p(11,-4,'g'); p(10,-3,'g');
+  if (on) { p(9,-7,'X'); [[6,-7],[14,-7],[10,-10],[7,-10],[13,-10]].forEach(([x,y]) => p(x,y,'Y')); }
+};
+const fingerUp = p => { clrR(p); L([[19,10,'N'],[20,10,'N'],[20,9,'N'],[21,9,'N'],[21,8,'N'],[21,7,'C'],[22,7,'C'],[21,6,'C'],[21,5,'C']])(p); };
+const shrugArms = p => { clrL(p); clrR(p); L([[2,10,'N'],[1,10,'N'],[0,10,'N'],[-1,9,'C'],[-2,9,'C'],[-1,10,'C'],[-2,10,'C'],[19,10,'N'],[20,10,'N'],[21,10,'N'],[22,9,'C'],[23,9,'C'],[22,10,'C'],[23,10,'C']])(p); };
+const meh = (p,S) => { [7,8,13,14].forEach(x => S(x,5,'C')); [6,7,8,9,12,13,14,15].forEach(x => S(x,3,'E')); };
+const palm = (on) => (p,S) => {
+  clrR(p);
+  if (!on) { L([[19,10,'N'],[20,9,'N'],[20,8,'N'],[20,7,'C'],[21,7,'C'],[20,6,'C'],[21,6,'C']])(p); return; }
+  const M = ['.OOOOO.', 'OCCCCCO', 'OCCCCCO', 'OCCCCcO', '.OOcCO.', '...OO..'];
+  M.forEach((r,j) => [...r].forEach((c,i) => { if (c !== '.') S(10+i, 3+j, c); }));
+  S(9,5,'O'); S(9,6,'O'); S(10,5,'C'); S(10,6,'C');
+  L([[15,8,'l'],[16,8,'l'],[16,9,'l'],[17,9,'l'],[17,10,'l'],[18,10,'l'],[15,9,'O'],[16,10,'O'],[17,11,'O']])(S); p(19,10,'N');
+  S(7,5,'C'); S(8,5,'C');
+};
+const yawnM = (size) => (p,S) => {
+  [7,8,13,14].forEach(x => { S(x,5,'C'); S(x,6,'E'); });
+  S(6,5,'E'); S(9,5,'E'); S(12,5,'E'); S(15,5,'E');
+  const rows = size === 1 ? [7] : size === 2 ? [6,7] : [6,7,8];
+  rows.forEach(y => { S(10,y,'E'); S(11,y,'E'); });
+  if (size === 3) { S(10,8,'P'); S(11,8,'P'); }
+};
+const armsUp = p => { clrL(p); clrR(p); L([[19,10,'N'],[20,10,'N'],[20,9,'N'],[21,9,'N'],[21,8,'N'],[22,8,'N'],[22,7,'C'],[23,7,'C'],[22,6,'C'],[23,6,'C'],[2,10,'N'],[1,10,'N'],[1,9,'N'],[0,9,'N'],[0,8,'N'],[-1,8,'N'],[-1,7,'C'],[-2,7,'C'],[-1,6,'C'],[-2,6,'C']])(p); };
+const phone = (thumbUp, like) => p => {
+  clrR(p);
+  for (let y=9;y<=13;y++) for (let x=12;x<=15;x++) p(x,y,'k');
+  p(14,10,'H');
+  L([[19,10,'N'],[18,11,'l'],[17,12,'l'],[16,12,'C'],[16,11,'C'],[18,12,'O'],[17,13,'O']])(p);
+  p(15, thumbUp ? 8 : 9, 'C');
+  if (like) [[20,2],[22,2],[19,3],[20,3],[21,3],[22,3],[23,3],[20,4],[21,4],[22,4],[21,5]].forEach(([x,y]) => p(x,y,'R'));
+};
+const bell = (x,y) => p => { for (let j=-1;j<=1;j++) { p(x,y+j,'G'); p(x+1,y+j,'G'); p(x+5,y+j,'G'); p(x+6,y+j,'G'); } p(x+2,y,'g'); p(x+3,y,'g'); p(x+4,y,'g'); };
+const curl = (up) => p => { clrR(p); if (!up) { L([[19,10,'N'],[19,11,'N'],[19,12,'N'],[19,13,'C'],[20,13,'C']])(p); bell(16,15)(p); } else { L([[19,10,'N'],[20,10,'N'],[20,9,'N'],[20,8,'C'],[21,8,'C']])(p); bell(17,6)(p); } };
+const effort = (p,S) => { [[6,3],[7,3],[8,4],[9,4],[12,4],[13,4],[14,3],[15,3]].forEach(([x,y]) => S(x,y,'E')); };
+const sweatL = p => { p(2,2,'B'); p(2,3,'B'); p(3,3,'B'); };
+const BALLS = [
+  ['..WkW..','.WWWWW.','kWkkkWk','WWkkkWW','kWWkWWw','.WWWww.','..wkw..'],
+  ['..kWW..','.WWWkW.','WkkWWWk','WkkkWWw','WWkWWkw','.kWWww.','..wWk..']
+];
+const ball = (x,y,spin) => p => BALLS[spin % 2].forEach((r,j) => [...r].forEach((c,i) => { if (c !== '.') p(x+i,y+j,c); }));
+const kickR = p => { for (let x=12;x<=19;x++) p(x,17,'.'); for (let x=15;x<=18;x++) p(x,16,'W'); p(19,16,'w'); };
+const kickL = p => { for (let x=2;x<=9;x++) p(x,17,'.'); for (let x=3;x<=6;x++) p(x,16,'W'); p(2,16,'w'); };
+const pan = (tilt, side) => p => {
+  if (side === 'L') { clrL(p); L([[2,10,'N'],[1,10,'N'],[0,10,'C'],[0,11,'C']])(p); p(-1,11-tilt,'k'); for (let x=-7;x<=-2;x++) { p(x,11-tilt,'G'); p(x,12-tilt,'G'); } return; }
+  clrR(p); L([[19,10,'N'],[20,10,'N'],[21,10,'C'],[21,11,'C']])(p); p(22,11-tilt,'k'); for (let x=23;x<=28;x++) { p(x,11-tilt,'G'); p(x,12-tilt,'G'); }
+};
+const EGG = ['.WWW.','WWYWW','.WWW.'], EGGB = ['.WWW.','WWWWW','.WWW.'];
+const egg = (x,y,flip) => p => (flip ? EGGB : EGG).forEach((r,j) => [...r].forEach((c,i) => { if (c !== '.') p(x+i,y+j,c); }));
+const splat = (x) => p => { L([[x,17,'W'],[x+1,17,'W'],[x+2,17,'Y'],[x+3,17,'W'],[x+4,17,'W'],[x+1,16,'W'],[x+3,16,'W']])(p); };
+const panSteam = (k, side) => p => { const o = side === 'L' ? -30 : 0; L(k ? [[24+o,8,'g'],[25+o,7,'g'],[24+o,6,'g']] : [[27+o,8,'g'],[26+o,7,'g'],[27+o,6,'g']])(p); };
+const sideArm2 = (o) => p => {
+  for (let y=9;y<=15;y++) for (let x=6;x<=11;x++) p(x,y,'N');
+  p(8+o,9,'l'); p(9+o,9,'l');
+  for (let y=10;y<=12;y++) { p(7+o,y,'O'); p(8+o,y,'l'); p(9+o,y,'l'); p(10+o,y,'O'); }
+  for (let y=13;y<=14;y++) { p(7+o,y,'O'); p(8+o,y,'C'); p(9+o,y,'C'); p(10+o,y,'O'); }
+  p(8+o,15,'O'); p(9+o,15,'O');
+};
+const sideFeet = (mode) => p => {
+  for (let x=0;x<22;x++) p(x,17,'.');
+  if (mode === 'pass') { for (let x=7;x<=13;x++) p(x,17,'W'); p(14,17,'w'); }
+  else { const back = mode === 'a' ? 'x' : 'W', front = mode === 'a' ? 'W' : 'x'; for (let x=4;x<=7;x++) p(x,17,back); p(8,17,'w'); for (let x=12;x<=15;x++) p(x,17,front); p(16,17,'w'); }
+};
+const waveA = p => { clrR(p); L([[19,10,'N'],[20,10,'N'],[20,9,'N'],[21,9,'N'],[21,8,'N'],[22,8,'N'],[22,7,'C'],[23,7,'C'],[22,6,'C'],[23,6,'C']])(p); };
+const waveB = p => { clrR(p); L([[19,10,'N'],[20,10,'N'],[21,10,'N'],[21,9,'N'],[22,9,'N'],[23,9,'N'],[23,8,'N'],[24,8,'C'],[25,8,'C'],[24,7,'C'],[25,7,'C']])(p); };
+const n = [];
+
+const ANIMS = [
+  ['Daumen hoch', 'Faust kommt hoch, Daumen schnappt nach oben, Zwinkern + Funkeln.', () => [
+    frame(n,500), frame([thumb(false)],120), frame([thumb(true), winkR, star(25,4)],700), frame([thumb(true), winkR],500), frame([thumb(true)],600), frame([thumb(false)],100), frame(n,600)]],
+  ['Idee', 'Grübelt in 3/4 zur Seite gedreht, Glühbirne erscheint, dreht sich zur Kamera, Birne geht an, Zeigefinger hoch.', () => [
+    frame([qLook(true,0,-1)],700,{view:'QL'}), frame([qLook(true,0,-1), bulb(false)],400,{view:'QL'}), frame([bulb(false), look(0,-1)],140),
+    frame([fingerUp, happy, bulb(true)],900), frame([fingerUp, happy, bulb(true)],300,{dy:-1}), frame([fingerUp, bulb(true)],700), frame(n,500)]],
+  ['Schulterzucken', 'Arme raus, Handflächen hoch, Kopf zieht in die Schultern, Brauen hoch: „Keine Ahnung.“', () => [
+    frame(n,500), frame([shrugArms, meh],120,{headDy:1}), frame([shrugArms, meh],1100,{headDy:1}), frame([shrugArms, meh, blink],110,{headDy:1}), frame([shrugArms, meh],500,{headDy:1}), frame(n,700)]],
+  ['Facepalm', 'Hand geht hoch, klatscht vor die Stirn (Fäustling-Hand mit Daumen), Kopf sinkt, kurzes Kopfschütteln.', () => [
+    frame(n,500), frame([palm(false)],120), frame([palm(true)],700,{headDy:1}), frame([palm(true)],160,{headDy:1, dx:1}), frame([palm(true)],160,{headDy:1, dx:-1}), frame([palm(true)],600,{headDy:1}), frame([palm(false), blink],140), frame(n,600)]],
+  ['Gähnen & Strecken', 'Streckt sich, Augen kneifen zu, Mund öffnet sich langsam, Zunge sichtbar, schließt wieder, blinzelt müde.', () => [
+    frame(n,500), frame([armsUp, yawnM(1)],180,{dy:-1}), frame([armsUp, yawnM(2)],220,{dy:-2}), frame([armsUp, yawnM(3)],900,{dy:-2}), frame([armsUp, yawnM(2)],200,{dy:-1}), frame([yawnM(1)],200), frame([blink],400,{headDy:1}), frame(n,200), frame([blink],120), frame(n,700)]],
+  ['Handy (LinkedIn)', 'Scrollt mit dem Daumen, Blick nach unten, ab und zu ploppt ein Herz (Like) auf.', () => [
+    frame([phone(false), look(0,1)],350), frame([phone(true), look(0,1)],200), frame([phone(false), look(0,1)],350), frame([phone(true), look(0,1)],200),
+    frame([phone(false), look(0,1)],350), frame([phone(false, true), happy],700), frame([phone(true), look(0,1)],200), frame([phone(false), look(0,1)],400)]],
+  ['Gym: Hantel', 'Bizeps-Curls in 3/4-Ansicht mit Kampfblick, beim dritten Mal Schweißtropfen, zum Schluss Blick zur Kamera.', () => [
+    frame([curl(false), qLook(false,0,0)],350,{view:'Q'}), frame([curl(true), effort],350,{view:'Q'}), frame([curl(false)],350,{view:'Q'}), frame([curl(true), effort],350,{view:'Q'}),
+    frame([curl(false)],350,{view:'Q'}), frame([curl(true), effort, sweatL],600,{view:'Q'}), frame([curl(false)],200,{view:'Q'}), frame([curl(false), happy],600)]],
+  ['Fußball: Jonglieren', 'Jongliert rechts – über die Mitte – links – Kopfball – zurück. Körper dreht sich zum Ball (3/4), Augen folgen, Ball dreht sich.', () => [
+    frame([ball(19,9,0), kickR, qLook(false,1,1)],170,{view:'Q'}), frame([ball(16,1,1), qLook(false,0,-1)],150,{view:'Q'}), frame([ball(8,-5,0), look(0,-1)],180),
+    frame([ball(1,1,1), qLook(true,-1,-1)],150,{view:'QL'}), frame([ball(-3,9,0), kickL, qLook(true,-1,1)],170,{view:'QL', dx:-1}), frame([ball(-1,1,1), qLook(true,0,-1)],150,{view:'QL'}),
+    frame([ball(7,-8,0), look(0,-1)],180), frame([ball(7,-6,1), happy],140,{dy:-1}), frame([ball(7,-9,0), look(0,-1)],180),
+    frame([ball(14,0,1), qLook(false,1,-1)],150,{view:'Q'})]],
+  ['Kochen: Pfanne', 'Wendet das Ei rechts, gibt die Pfanne an die linke Hand, wendet links, dann fliegt das Ei zu hoch, verfehlt die Pfanne und landet auf dem Boden.', () => [
+    frame([pan(0), egg(24,8,false), qLook(false,1,0), panSteam(0)],400,{view:'Q'}), frame([pan(1), egg(24,6,false)],120,{view:'Q'}), frame([pan(0), egg(24,1,true), qLook(false,1,-1)],200,{view:'Q'}), frame([pan(0), egg(24,8,false), qHappy(false), panSteam(1)],500,{view:'Q'}),
+    frame([egg(9,-4,false), look(0,-1)],220), frame([pan(0,'L'), egg(-6,8,false), qLook(true,-1,0)],400,{view:'QL'}), frame([pan(1,'L'), egg(-6,4,true), qLook(true,-1,-1)],180,{view:'QL'}), frame([pan(0,'L'), egg(-6,8,false), qHappy(true), panSteam(1,'L')],500,{view:'QL'}),
+    frame([pan(1,'L'), egg(-5,-3,true), qLook(true,-1,-1)],200,{view:'QL'}), frame([pan(0,'L'), egg(-1,-8,false), look(0,-1)],220), frame([pan(0,'L'), egg(1,4,true), look(-1,1)],180),
+    frame([pan(0,'L'), splat(-2), surprised],900), frame([pan(0,'L'), splat(-2), meh, sweatL],1100)]],
+  ['Tschüss', 'Winkt, dreht sich über 3/4 ins Profil und läuft aus dem Bild.', () => {
+    const fr = [frame(n,400), frame([waveA, happy],140), frame([waveB, happy],170), frame([waveA, happy],140), frame([waveB, happy],170), frame([waveA, happy],200), frame(n,200), frame([],160,{view:'Q'}), frame([],160,{view:'S'})];
+    const seq = [['a',1,0],['pass',0,-1],['b',-1,0],['pass',0,-1]];
+    for (let i=0;i<12;i++) { const [m,arm,dy] = seq[i%4]; fr.push(frame([sideFeet(m), sideArm2(arm)],130,{view:'S', dx:2*(i+1), dy})); }
+    fr.push(frame([() => {}],700,{dx:60}));
+    return fr; }]
+];
+
+function outline(g) {
+  const o = g.map(r => r.slice());
+  for (let y=0;y<GH;y++) for (let x=0;x<GW;x++) {
+    if (g[y][x] !== '.') continue;
+    if ([[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy]) => { const c = g[y+dy]?.[x+dx]; return c && c !== '.'; })) o[y][x] = 'O';
+  }
+  return o;
+}
+const cache = new WeakMap();
+function draw(ctx, f, s) {
+  if (!cache.has(f)) cache.set(f, outline(f.g));
+  const P = { ...pal(), ...(f.pal || {}) };
+  ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+  cache.get(f).forEach((r,y) => r.forEach((c,x) => { if (c !== '.') { ctx.fillStyle = P[c]; ctx.fillRect(x*s, y*s, s, s); } }));
+}
+const players = [];
+function player(frames, s, bg) {
+  const wrap = document.createElement('div'); wrap.className = 'bg'; wrap.style.background = bg;
+  const c = document.createElement('canvas'); c.width = GW*s; c.height = GH*s; wrap.appendChild(c);
+  const ctx = c.getContext('2d'); let i = 0;
+  const tick = () => { draw(ctx, frames[i], s); const ms = frames[i].ms; i = (i+1) % frames.length; setTimeout(tick, ms); };
+  tick(); return wrap;
+}
+
+function stillCanvas(f, s) { const c = document.createElement('canvas'); c.width = GW*s; c.height = GH*s; draw(c.getContext('2d'), f, s); return c; }
+function renderCombos() {
+  const box = document.getElementById('combos'); box.innerHTML = '';
+  COMBOS.forEach((cb, i) => {
+    const b = document.createElement('button'); b.className = 'combo'; b.setAttribute('aria-pressed', i === combo);
+    const prev = combo; combo = i; b.appendChild(stillCanvas(frame([],0), 4)); combo = prev;
+    b.insertAdjacentHTML('beforeend', `<span>${cb[0]}</span>`);
+    b.onclick = () => { combo = i; renderCombos(); };
+    box.appendChild(b);
+  });
+}
+renderCombos();
+
+const grid = document.getElementById('anims');
+ANIMS.forEach(([name, desc, mk, mk2]) => {
+  const d = document.createElement('section'); d.className = 'anim';
+  d.innerHTML = `<h3>${name}</h3><p>${desc}</p><div class="play"></div>`;
+  const play = d.querySelector('.play');
+  play.append(player(mk(), 5, '#FFFFFF'), player(mk(), 5, '#041C2C'));
+  if (mk2) play.append(player(mk2(), 3, '#F5F3EE'));
+  grid.appendChild(d);
+});
+</script>
+</body>
+</html>

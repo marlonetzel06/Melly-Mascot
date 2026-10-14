@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melly Set 2</title>
+<style>
+  :root { --ink:#0B1620; --paper:#F5F3EE; --muted:#6B7280; --line:#E4E0D8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+  main { max-width:1180px; margin:0 auto; padding:28px 16px 40px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h2 { font-size:17px; margin:26px 0 6px; }
+  .sub, .desc { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .combos { display:flex; gap:8px; flex-wrap:wrap; }
+  .combo { background:#fff; border:2px solid var(--line); border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; cursor:pointer; font:inherit; color:inherit; }
+  .combo[aria-pressed="true"] { border-color:#E3A33B; }
+  .combo span { font-size:12px; color:var(--muted); margin-top:4px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:10px; }
+  .anim { background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; }
+  .anim h3 { font-size:15px; margin:0 0 2px; } .anim p { font-size:13px; color:var(--muted); margin:0 0 8px; }
+  .play { display:flex; gap:8px; }
+  .bg { border-radius:10px; padding:4px; }
+  canvas { image-rendering:pixelated; image-rendering:crisp-edges; display:block; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Melly · Set 2: Anzug-Kombis + neue Posen</h1>
+  <p class="sub">Krawatte und Einstecktuch immer in derselben Akzentfarbe · Kombi anklicken, alle Animationen wechseln mit</p>
+
+  <h2>1 · Anzug-Kombis</h2>
+  <div class="combos" id="combos"></div>
+
+  <h2>2 · Animationen</h2>
+  <div class="grid" id="anims"></div>
+</main>
+
+<script>
+const BASE_PX = { O:'#0E1620', C:'#F4F2EC', c:'#D9D4C7', W:'#FFFFFF', w:'#CFCBC0', H:'#E3A33B', E:'#0E1620', P:'#F2A7A0',
+                  G:'#3A424C', g:'#8A93A0', B:'#7FC8F8', Z:'#F4F2EC', R:'#D9534F', X:'#FFFFFF', V:'#3FA34D', h:'#F6CC7A', k:'#262C33' };
+const COMBOS = [
+  ['Mittelblau · Messing', '#2E5A8A','#1F4168','#E3A33B','#A86F18'],
+  ['Anthrazit · Bordeaux', '#3D4654','#2A313B','#A3324A','#6E1F2C'],
+  ['Hellgrau · Navy',      '#A7AFB8','#858D97','#1F3A57','#0F2238'],
+  ['Dunkelgrün · Messing', '#2F5D4E','#1F4237','#E3A33B','#A86F18'],
+  ['Sand · Navy',          '#C9B48E','#A8956F','#1F3A57','#0F2238'],
+  ['Navy · Koralle',       '#1F3A57','#132840','#E8735E','#B04C3B']
+];
+let combo = 0;
+const lighten = (hex, f) => { const v = parseInt(hex.slice(1),16); return '#' + [16,8,0].map(sh => Math.min(255, Math.round(((v>>sh)&255) + (255-((v>>sh)&255))*f)).toString(16).padStart(2,'0')).join(''); };
+const pal = () => { const [,N,n,A,a] = COMBOS[combo]; return { ...BASE_PX, N, n, A, a, l: lighten(N, .22) }; };
+
+const HEAD = [
+  '......................','.......CCCCCCCC.......','.....CCCCCCCCCCcc.....','....CCCCCCCCCCCCcc....','....CCCCCCCCCCCCCc....',
+  '...CCCCEECCCCEECCcc...','...CCCCEECCCCEECCcc...','...CCPCCCCCCCCCCPcc...','...CCCCCCCCCCCCCCcc...'
+];
+const BODY = [
+  '...NNNNnWWaaWWnNNNn...','..NnNNNNnWAAWnNNNNnN..','..NnNNNNNnAAnNNAANnN..','..NnNNNNNNAANNNNNNnN..',
+  '..CnNNNNNNNNNNNNNNnC..','...NNnnNNNNNNNNnnNn...','...NNNNNNNnnNNNNNNn...','......................',
+  '....WWWw......WWWw....','......................'
+];
+const SIDE = [
+  '......................','.......CCCCCCCC.......','.....CCCCCCCCCCcc.....','....CCCCCCCCCCCCcc....','....CCCCCCCCCCCCCc....',
+  '...CCCCCCCCCCCEECcc...','...CCCCCCCCCCCEECcc...','...CCCCCCCCCCPCCCcc...','...CCCCCCCCCCCCCCcc...',
+  '...NNNNNllNNNNnWann...','...NNNNOllONNNnWAnn...','...NNNNOllONNNNnAnn...','...NNNNOllONNNNNnNn...',
+  '...NNNNOCCONNNNNNNn...','...NNNNOCCONnnnNNNn...','...NNNNNOONNNNNNNNn...','......................',
+  '.......WWWWWWWw.......','......................'
+];
+const GW = 36, GH = 32, OX = 7, OY = 10;
+
+function frame(mods, ms, opt) {
+  opt = opt || {};
+  const g = Array.from({length:GH}, () => Array(GW).fill('.'));
+  const dy = opt.dy || 0, dx = opt.dx || 0, hd = opt.headDy || 0;
+  const put = (x,y,c) => { const X=x+OX+dx, Y=y+OY+dy; if (X>=0&&Y>=0&&X<GW&&Y<GH) g[Y][X] = c; };
+  if (opt.view === 'S') SIDE.forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') put(x, y, c); }));
+  else {
+    BODY.forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') put(x, y+9, c); }));
+    HEAD.forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') put(x, y+hd, c); }));
+  }
+  const S = (x,y,c) => put(x, y + hd, c);
+  (mods||[]).forEach(m => m(put, S));
+  return { g, ms, pal: opt.pal };
+}
+
+const EY = [[7,8],[13,14]];
+const look  = (dx,dy) => (p,S) => EY.forEach(([a,b]) => { for (let y=5;y<=6;y++) { S(a,y,'C'); S(b,y,'C'); } [a,b].forEach(x => { S(x+dx,5+(dy||0),'E'); S(x+dx,6+(dy||0),'E'); }); });
+const blink = (p,S) => EY.forEach(([a,b]) => { S(a,5,'C'); S(b,5,'C'); });
+const caret = (S,x0) => { for (let y=5;y<=6;y++) for (let x=x0-1;x<=x0+2;x++) S(x,y,'C'); S(x0-1,6,'E'); S(x0,5,'E'); S(x0+1,5,'E'); S(x0+2,6,'E'); };
+const happy = (p,S) => { caret(S,7); caret(S,13); };
+const angry = (p,S) => { EY.forEach(([a,b]) => { S(a,5,'C'); S(b,5,'C'); }); [[6,3],[7,3],[8,4],[9,4],[12,4],[13,4],[14,3],[15,3]].forEach(([x,y]) => S(x,y,'E')); };
+const surprised = (p,S) => EY.forEach(([a,b]) => { S(a,4,'E'); S(b,4,'E'); });
+const L = list => p => list.forEach(([x,y,c]) => p(x,y,c));
+const clrR = p => { for (let y=10;y<=13;y++) p(19,y,'.'); };
+const clrL = p => { for (let y=10;y<=13;y++) p(2,y,'.'); };
+const Z4 = ['####','..#.','.#..','####'], Z5 = ['#####','...#.','..#..','.#...','#####'];
+const SLOTS = [[18,1,Z4],[20,-3,Z4],[22,-7,Z5],[24,-12,Z5]];
+const zSlot = (i) => p => { const [x,y,m] = SLOTS[i]; m.forEach((r,j) => [...r].forEach((ch,ii) => { if (ch==='#') p(x+ii,y+j,'Z'); })); };
+const zed = (x,y) => p => ['####','..#.','.#..','####'].forEach((r,j) => [...r].forEach((ch,i) => { if (ch==='#') p(x+i,y+j,'Z'); }));
+const puff = (x,y,c) => p => L([[x,y,c||'Z'],[x+1,y,c||'Z'],[x,y-1,c||'Z']])(p);
+
+const signArm = (lift) => p => { clrR(p); L([[19,10,'N'],[20,10,'N'],[20,9,'N'],[21,9,'N'],[20,8-lift,'N'],[21,8-lift,'N'],[21,7-lift,'C'],[22,7-lift,'C'],[21,6-lift,'C'],[22,6-lift,'C']])(p); };
+const sign = (lift, lines) => p => {
+  const top = -8 - lift, x0 = 15, x1 = 28;
+  for (let y=top; y<=top+6; y++) for (let x=x0; x<=x1; x++) p(x,y,'W');
+  for (let x=x0+1; x<=x1; x++) p(x,top+6,'w'); for (let y=top+1; y<=top+6; y++) p(x1,y,'w');
+  if (lines) { for (let x=x0+3; x<=x1-3; x++) p(x,top+2,'g'); for (let x=x0+5; x<=x1-5; x++) p(x,top+4,'g'); }
+  for (let y=top+7; y<=5-lift; y++) { p(21,y,'G'); p(22,y,'G'); }
+};
+const sArm = p => {
+  for (let y=9;y<=15;y++) for (let x=6;x<=11;x++) p(x,y,'N');
+  for (let x=8;x<=16;x++) { const y = x < 13 ? 10 : 9; p(x,y,'l'); p(x,y+1,'l'); p(x,y+2,'O'); }
+  p(17,9,'C'); p(17,10,'C');
+};
+const BOARD = [[18,13],[19,12],[20,12],[21,11],[22,10],[23,10],[24,9]];
+const board = p => {
+  BOARD.forEach(([x,y]) => { p(x,y,'G'); p(x,y-1,'g'); });
+  p(24,7,'G'); p(25,8,'G');
+  p(22,12,'C'); p(23,12,'C');
+};
+const eyeDown = (p,S) => { S(14,5,'C'); S(15,5,'C'); S(14,7,'E'); S(15,7,'E'); };
+const sLens = (bug) => p => {
+  [[20,5],[21,5],[22,5],[19,6],[23,6],[19,7],[23,7],[20,8],[21,8],[22,8]].forEach(([x,y]) => p(x,y,'G'));
+  p(20,6,'B'); p(21,6,'B'); p(22,6,'B'); p(20,7,'B'); p(21,7,'B'); p(22,7,'B');
+  if (bug) { p(21,6,'R'); p(22,6,'R'); p(21,7,'O'); p(22,7,'R'); }
+  p(18,8,'G'); p(19,8,'G');
+};
+const sPen = (up) => p => { p(18,8 - up,'G'); p(19,7 - up,'G'); p(20,8 - up,'k'); };
+const tick = (x,y) => p => { p(x,y+1,'V'); p(x+1,y+2,'V'); p(x+2,y+1,'V'); p(x+3,y,'V'); };
+const sBug = (x,y) => p => L([[x,y,'R'],[x+1,y,'R'],[x-1,y,'O'],[x+2,y,'O']])(p);
+const sSurprised = (S) => { S(14,4,'E'); S(15,4,'E'); };
+const sBang = p => L([[15,-5,'R'],[15,-4,'R'],[15,-3,'R'],[15,-1,'R']])(p);
+const bug = (x,y) => p => L([[x,y,'O'],[x+1,y,'O'],[x-1,y+1,'O'],[x,y+1,'R'],[x+1,y+1,'R'],[x+2,y+1,'O'],[x,y+2,'O'],[x+1,y+2,'O']])(p);
+const bang = p => L([[22,-3,'A'],[22,-2,'A'],[22,-1,'A'],[22,1,'A']])(p);
+const laptop = () => p => {
+  clrL(p); clrR(p);
+  for (let y=7;y<=14;y++) for (let x=4;x<=17;x++) p(x,y,'G');
+  for (let x=4;x<=17;x++) p(x,7,'g'); for (let y=7;y<=14;y++) p(4,y,'g');
+  for (let x=5;x<=17;x++) p(x,14,'k'); for (let y=8;y<=14;y++) p(17,y,'k');
+  for (let x=4;x<=17;x++) p(x,15,'w');
+  p(10,10,'H'); p(11,10,'H'); p(10,11,'H'); p(11,11,'H');
+  L([[2,10,'N'],[2,11,'N'],[3,11,'C'],[3,12,'C'],[19,10,'N'],[19,11,'N'],[18,11,'C'],[18,12,'C']])(p);
+};
+const cupAt = (S, x0, y0, steam) => {
+  for (let y=y0-1;y<=y0+3;y++) for (let x=x0-1;x<=x0+4;x++) S(x,y,'O');
+  for (let y=y0;y<=y0+2;y++) for (let x=x0;x<=x0+2;x++) S(x,y,'W');
+  S(x0,y0,'A'); S(x0+1,y0,'A'); S(x0+2,y0,'A');
+  S(x0+3,y0+1,'W');
+  if (steam === 1) L([[x0+1,y0-3,'g'],[x0,y0-4,'g'],[x0+1,y0-5,'g']])(S);
+  if (steam === 2) L([[x0,y0-3,'g'],[x0+1,y0-4,'g'],[x0,y0-5,'g']])(S);
+};
+const mug = (pos, steam) => (p,S) => {
+  clrR(p);
+  if (pos === 0) {
+    for (let y=11;y<=13;y++) for (let x=14;x<=16;x++) p(x,y,'W'); p(14,11,'A'); p(15,11,'A'); p(16,11,'A');
+    L([[17,12,'W'],[19,10,'N'],[19,11,'N'],[18,12,'C'],[18,11,'C']])(p);
+    if (steam === 1) L([[15,9,'g'],[14,8,'g'],[15,7,'g']])(p);
+    if (steam === 2) L([[14,9,'g'],[15,8,'g'],[14,7,'g']])(p);
+  } else if (pos === 1) {
+    cupAt(S, 11, 9, 0);
+    L([[15,10,'C'],[15,11,'C'],[16,11,'l'],[17,11,'l'],[18,10,'l'],[19,10,'N'],[16,12,'O'],[17,12,'O']])(p);
+  } else {
+    cupAt(S, 10, 6, steam);
+    L([[14,7,'C'],[14,8,'C'],[15,8,'l'],[16,9,'l'],[17,9,'l'],[18,10,'l'],[19,10,'N'],[15,9,'O'],[16,10,'O'],[17,10,'O']])(S);
+    caret(S,7); caret(S,13);
+  }
+};
+const RED = [ { C:'#F4F2EC', c:'#D9D4C7' }, { C:'#F6D3C8', c:'#E0B4A6' }, { C:'#F0A898', c:'#D88A79' }, { C:'#E8766A', c:'#C95A4F', P:'#C24A40' } ];
+const n = [];
+
+const ANIMS = [
+  ['Schild hochhalten', 'Hebt das Schild, es wippt leicht. Feld bleibt leer für den Post-Titel (Variante mit Platzhalter-Zeilen rechts).', () => [
+    frame([happy],400), frame([signArm(-2), sign(-2,false)],100), frame([signArm(0), sign(0,false), happy],500), frame([signArm(1), sign(1,false), happy],260), frame([signArm(0), sign(0,false), happy],260), frame([signArm(1), sign(1,false), happy],260), frame([signArm(0), sign(0,false)],900), frame([signArm(0), sign(0,false), blink],110), frame([signArm(0), sign(0,false)],700)],
+    () => [frame([signArm(0), sign(0,true), happy],2000)]],
+  ['Checkliste (Profil)', 'Dreht sich ins Profil, hält das Klemmbrett schräg vor sich, Blick nach unten, hakt ab: grüne Häkchen steigen auf.', () => [
+    frame(n,400), frame([],140,{view:'S'}),
+    frame([sArm, board, sPen(0), eyeDown],300,{view:'S'}), frame([sArm, board, sPen(1), eyeDown, tick(21,2)],250,{view:'S'}), frame([sArm, board, sPen(0), eyeDown, tick(21,0)],250,{view:'S'}),
+    frame([sArm, board, sPen(1), eyeDown, tick(21,-2), tick(21,2)],250,{view:'S'}), frame([sArm, board, sPen(0), eyeDown, tick(21,0)],250,{view:'S'}),
+    frame([sArm, board, sPen(1), eyeDown, tick(21,-2), tick(21,2)],250,{view:'S'}), frame([sArm, board, sPen(0), eyeDown, tick(21,0)],250,{view:'S'}), frame([sArm, board, sPen(0), eyeDown, tick(21,-2)],250,{view:'S'}),
+    frame([],140,{view:'S'}), frame([happy],900)]],
+  ['Bug gefunden (Profil)', 'Prüft das schräg gehaltene Klemmbrett mit der Lupe, ein Käfer krabbelt unter die Lupe (Glas wird rot), Schreck: Auge groß, zuckt zurück, rotes Ausrufezeichen.', () => [
+    frame(n,400), frame([],140,{view:'S'}),
+    frame([sArm, board, sLens(), eyeDown],700,{view:'S'}), frame([sArm, board, sLens(), eyeDown, sBug(24,7)],300,{view:'S'}), frame([sArm, board, sLens(), eyeDown, sBug(23,8)],300,{view:'S'}),
+    frame([sArm, board, sLens(true), eyeDown],400,{view:'S'}),
+    frame([sArm, board, sLens(true), (p,S) => sSurprised(S), sBang],900,{view:'S', dx:-1}), frame([sArm, board, sLens(true), (p,S) => sSurprised(S)],200,{view:'S', dx:-1}),
+    frame([sArm, board, sLens(true), (p,S) => sSurprised(S), sBang],700,{view:'S', dx:-1})]],
+  ['Sauer', 'Brauen ziehen sich zusammen, Kopf läuft rot an, zittert, Dampf steigt auf, kühlt wieder ab.', () => [
+    frame(n,500), frame([angry],350), frame([angry],200,{pal:RED[1]}), frame([angry],180,{pal:RED[2],dx:1}), frame([angry],180,{pal:RED[2],dx:-1}),
+    frame([angry, puff(3,-1), puff(18,-1)],140,{pal:RED[3],dx:1}), frame([angry, puff(2,-3), puff(19,-3)],140,{pal:RED[3],dx:-1}), frame([angry, puff(3,-1), puff(18,-1)],140,{pal:RED[3],dx:1}), frame([angry, puff(2,-3), puff(19,-3)],140,{pal:RED[3],dx:-1}),
+    frame([angry, puff(2,-5), puff(19,-5)],400,{pal:RED[3]}), frame([angry],250,{pal:RED[2]}), frame([angry],250,{pal:RED[1]}), frame([blink],200), frame(n,700)]],
+  ['Kaffee', 'Hält die Tasse, Dampf steigt, hebt sie über eine Zwischenposition vor den Mund und nimmt genießerisch einen Schluck.', () => [
+    frame([mug(0,1)],350), frame([mug(0,2)],350), frame([mug(0,1)],350), frame([mug(0,2)],350), frame([mug(1)],140), frame([mug(2,0)],900), frame([mug(2,1)],500), frame([mug(1), happy],140), frame([mug(0,0), happy],500), frame([mug(0,1)],350), frame([mug(0,2)],400)]],
+  ['Am Laptop', 'Hält den aufgeklappten Laptop, die Augen lesen Zeile für Zeile von links nach rechts.', () => [
+    frame([laptop(),look(-1)],380), frame([laptop()],380), frame([laptop(),look(1)],380), frame([laptop(),look(-1,0)],120),
+    frame([laptop(),look(-1)],380), frame([laptop()],380), frame([laptop(),look(1)],380), frame([laptop(),look(1),blink],110), frame([laptop(),look(-1)],120)]],
+  ['Schlafen', 'Augen zu, Kopf nickt sanft, drei Z steigen versetzt auf und werden größer, wie im Cartoon.', () => [
+    ...[0,1,2,3].map(k => frame([blink, ...[0,1,2,3].filter(s => ((s - k) % 4 + 4) % 4 !== 3).map(s => zSlot(s))], 500, k % 2 ? {headDy:1} : {}))]]
+];
+
+function outline(g) {
+  const o = g.map(r => r.slice());
+  for (let y=0;y<GH;y++) for (let x=0;x<GW;x++) {
+    if (g[y][x] !== '.') continue;
+    if ([[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy]) => { const c = g[y+dy]?.[x+dx]; return c && c !== '.'; })) o[y][x] = 'O';
+  }
+  return o;
+}
+const cache = new WeakMap();
+function draw(ctx, f, s) {
+  if (!cache.has(f)) cache.set(f, outline(f.g));
+  const P = { ...pal(), ...(f.pal || {}) };
+  ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+  cache.get(f).forEach((r,y) => r.forEach((c,x) => { if (c !== '.') { ctx.fillStyle = P[c]; ctx.fillRect(x*s, y*s, s, s); } }));
+}
+const players = [];
+function player(frames, s, bg) {
+  const wrap = document.createElement('div'); wrap.className = 'bg'; wrap.style.background = bg;
+  const c = document.createElement('canvas'); c.width = GW*s; c.height = GH*s; wrap.appendChild(c);
+  const ctx = c.getContext('2d'); let i = 0;
+  const tick = () => { draw(ctx, frames[i], s); const ms = frames[i].ms; i = (i+1) % frames.length; setTimeout(tick, ms); };
+  tick(); return wrap;
+}
+
+function stillCanvas(f, s) { const c = document.createElement('canvas'); c.width = GW*s; c.height = GH*s; draw(c.getContext('2d'), f, s); return c; }
+function renderCombos() {
+  const box = document.getElementById('combos'); box.innerHTML = '';
+  COMBOS.forEach((cb, i) => {
+    const b = document.createElement('button'); b.className = 'combo'; b.setAttribute('aria-pressed', i === combo);
+    const prev = combo; combo = i; b.appendChild(stillCanvas(frame([],0), 4)); combo = prev;
+    b.insertAdjacentHTML('beforeend', `<span>${cb[0]}</span>`);
+    b.onclick = () => { combo = i; renderCombos(); };
+    box.appendChild(b);
+  });
+}
+renderCombos();
+
+const grid = document.getElementById('anims');
+ANIMS.forEach(([name, desc, mk, mk2]) => {
+  const d = document.createElement('section'); d.className = 'anim';
+  d.innerHTML = `<h3>${name}</h3><p>${desc}</p><div class="play"></div>`;
+  const play = d.querySelector('.play');
+  play.append(player(mk(), 5, '#FFFFFF'), player(mk(), 5, '#041C2C'));
+  if (mk2) play.append(player(mk2(), 3, '#F5F3EE'));
+  grid.appendChild(d);
+});
+</script>
+</body>
+</html>

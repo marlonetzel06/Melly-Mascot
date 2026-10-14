@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melly Pixel v6</title>
+<style>
+  :root { --ink:#0B1620; --navy:#041C2C; --paper:#F5F3EE; --muted:#6B7280; --line:#E4E0D8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+  main { max-width:1180px; margin:0 auto; padding:28px 16px 40px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h2 { font-size:17px; margin:28px 0 8px; }
+  .sub { color:var(--muted); font-size:14px; margin:0 0 16px; }
+  .hero { display:flex; gap:12px; flex-wrap:wrap; }
+  .stage { background:var(--navy); border-radius:14px; padding:18px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .stage.light { background:#fff; border:1px solid var(--line); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px; }
+  .stage span { font-size:12px; color:#9fb3c2; margin-top:8px; }
+  .stage.light span { color:var(--muted); }
+  canvas { image-rendering:pixelated; image-rendering:crisp-edges; display:block; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Melly · Pixel v6</h1>
+  <p class="sub">Basis unverändert (20×19) · alle Posen sind kleine Pixel-Änderungen an derselben Figur · animiert</p>
+
+  <h2>Idle (wippt nicht, blinzelt unregelmäßig)</h2>
+  <div class="hero" id="hero"></div>
+
+  <h2>Animierte Posen</h2>
+  <div class="grid" id="poses"></div>
+
+  <h2>Variante für M&amp;M-Navy: helle Außenkontur</h2>
+  <div class="grid" id="rim"></div>
+
+  <h2>Klein auf hellem Grund (2×)</h2>
+  <div class="hero" id="small"></div>
+</main>
+
+<script>
+const PX = { O:'#0E1620', C:'#F4F2EC', N:'#1C3550', n:'#122840', W:'#FFFFFF', H:'#E3A33B', E:'#0E1620',
+             P:'#F2A7A0', G:'#2B323B', g:'#5A6470', B:'#7FC8F8', Z:'#F4F2EC' };
+const BASE = [
+  '....................',
+  '......CCCCCCCC......',
+  '....CCCCCCCCCCCC....',
+  '...CCCCCCCCCCCCCC...',
+  '...CCCCCCCCCCCCCC...',
+  '..CCCCEECCCCEECCCC..',
+  '..CCCCEECCCCEECCCC..',
+  '..CCPCCCCCCCCCCPCC..',
+  '..CCCCCCCCCCCCCCCC..',
+  '..NNNNNNWWWWNNNNNN..',
+  '.N.NNNNnnHHnnNNNN.N.',
+  '.N.NNNNNnnnnNNNNN.N.',
+  '.N.NNHNNNNNNNNHNN.N.',
+  '.C.NNNNNNNNNNNNNN.C.',
+  '...NNHNNNNNNNNHNN...',
+  '...NNNNNNNNNNNNNN...',
+  '....................',
+  '...WWWW.....WWWW....',
+  '....................'
+];
+const GW = 28, GH = 26, OX = 4, OY = 5;
+
+function place() {
+  const g = Array.from({length:GH}, () => Array(GW).fill('.'));
+  BASE.forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') g[y+OY][x+OX] = c; }));
+  return g;
+}
+function frame(mods, ms, dy) {
+  const g = place();
+  const S = (x,y,c) => { const X = x+OX, Y = y+OY; if (X>=0&&Y>=0&&X<GW&&Y<GH) g[Y][X] = c; };
+  (mods||[]).forEach(m => m(S));
+  return { g, ms, dy: dy||0 };
+}
+
+const EY = [6,7,12,13];
+const blink   = S => EY.forEach(x => { S(x,5,'C'); S(x,6,'E'); });
+const happy   = S => EY.forEach(x => { S(x,5,'E'); S(x,6,'C'); });
+const winkL   = S => [6,7].forEach(x => { S(x,5,'C'); S(x,6,'E'); });
+const eyesUp  = S => EY.forEach(x => { S(x,6,'C'); S(x,4,'E'); });
+const eyesDn  = S => EY.forEach(x => { S(x,5,'C'); S(x,7,'E'); });
+const eyesR   = S => [6,12].forEach(x => { S(x,5,'C'); S(x,6,'C'); S(x+2,5,'E'); S(x+2,6,'E'); });
+const eyesL   = S => [7,13].forEach(x => { S(x,5,'C'); S(x,6,'C'); S(x-2,5,'E'); S(x-2,6,'E'); });
+const skeptic = S => { S(6,5,'C'); S(7,5,'C'); S(12,3,'E'); S(13,3,'E'); };
+const clrL = S => { for (let y=10;y<=13;y++) S(1,y,'.'); };
+const clrR = S => { for (let y=10;y<=13;y++) S(18,y,'.'); };
+const upR  = S => { clrR(S); S(18,9,'N'); S(19,9,'N'); S(19,8,'N'); S(19,7,'N'); S(19,6,'C'); };
+const upR2 = S => { clrR(S); S(18,9,'N'); S(19,9,'N'); S(20,9,'N'); S(20,8,'N'); S(21,7,'N'); S(21,6,'C'); };
+const upL  = S => { clrL(S); S(1,9,'N'); S(0,9,'N'); S(0,8,'N'); S(0,7,'N'); S(0,6,'C'); };
+const point= S => { clrR(S); [18,19,20].forEach(x => S(x,10,'N')); S(21,10,'C'); };
+const plus = (x,y,big) => S => { S(x,y,'H'); if (big) { S(x-1,y,'H'); S(x+1,y,'H'); S(x,y-1,'H'); S(x,y+1,'H'); } };
+const laptop = S => { for (let y=11;y<=15;y++) for (let x=4;x<=15;x++) S(x,y,'G'); S(9,13,'H'); S(10,13,'H'); for (let x=2;x<=17;x++) S(x,16,'g'); };
+const handsA = S => { S(5,10,'C'); S(14,11,'C'); };
+const handsB = S => { S(5,11,'C'); S(14,10,'C'); };
+const sweat  = S => { S(18,1,'B'); S(18,2,'B'); S(17,2,'B'); };
+const tapUp  = S => { [13,14,15,16].forEach(x => { S(x,17,'.'); S(x,16,'W'); }); };
+const dot = (x,y,s) => S => { for (let i=0;i<s;i++) for (let j=0;j<s;j++) S(x+i,y+j,'C'); };
+const zed = (x,y) => S => ['####','..#.','.#..','####'].forEach((r,j) => [...r].forEach((c,i) => { if (c==='#') S(x+i,y+j,'Z'); }));
+
+const ANIMS = {
+  'Idle':         [frame([],1700), frame([blink],110), frame([],900), frame([blink],110), frame([],2600)],
+  'Zwinkern':     [frame([],900), frame([winkL],500), frame([],1100)],
+  'Winken':       [frame([upR,happy],230), frame([upR2,happy],230)],
+  'Jubeln':       [frame([upR,upL,happy,plus(-2,2,false),plus(21,1,true)],220), frame([upR,upL,happy,plus(-2,2,true),plus(21,1,false)],220,-2)],
+  'Zeigen':       [frame([point,eyesR],1600), frame([point,eyesR,blink],110), frame([point,eyesR],900)],
+  'Denken':       [frame([eyesUp],500), frame([eyesUp,dot(18,3,1)],500), frame([eyesUp,dot(18,3,1),dot(19,0,2)],500), frame([eyesUp,dot(18,3,1),dot(19,0,2),dot(21,-4,3)],1200)],
+  'Tippen':       [frame([laptop,eyesDn,handsA],140), frame([laptop,eyesDn,handsB],140)],
+  '„Zeig mal.“':  [frame([skeptic],1800), frame([skeptic,S=>{S(12,5,'C');S(13,5,'C');}],120), frame([skeptic],1000)],
+  'Ungeduldig':   [frame([eyesR,sweat],260), frame([eyesR,sweat,tapUp],260), frame([eyesL,sweat],260), frame([eyesL,sweat,tapUp],260)],
+  'Schlafen':     [frame([blink,zed(18,0)],600), frame([blink,zed(19,-2)],600,1), frame([blink,zed(20,-4),zed(17,1)],600), frame([blink,zed(17,-1)],600,1)]
+};
+
+function outline(g) {
+  const o = g.map(r => r.slice());
+  for (let y=0;y<GH;y++) for (let x=0;x<GW;x++) {
+    if (g[y][x] !== '.') continue;
+    if ([[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy]) => { const c = g[y+dy]?.[x+dx]; return c && c !== '.'; })) o[y][x] = 'O';
+  }
+  return o;
+}
+function draw(ctx, f, s, rim) {
+  ctx.clearRect(0,0,GW*s,GH*s);
+  outline(f.g).forEach((r,y) => r.forEach((c,x) => { if (c !== '.') { ctx.fillStyle = (rim && c === 'O' && f.g[y][x] === '.') ? rim : PX[c]; ctx.fillRect(x*s, (y+f.dy)*s, s, s); } }));
+}
+function animate(target, frames, s, label, light, rim) {
+  const d = document.createElement('div'); d.className = 'stage' + (light ? ' light' : '');
+  const c = document.createElement('canvas'); c.width = GW*s; c.height = GH*s; d.appendChild(c);
+  if (label) { const l = document.createElement('span'); l.textContent = label; d.appendChild(l); }
+  document.getElementById(target).appendChild(d);
+  const ctx = c.getContext('2d'); let i = 0;
+  const tick = () => { draw(ctx, frames[i], s, rim); const ms = frames[i].ms; i = (i+1) % frames.length; setTimeout(tick, ms); };
+  tick();
+}
+
+animate('hero', ANIMS['Idle'], 10, 'Idle · 10×');
+animate('hero', ANIMS['Zwinkern'], 10, 'Zwinkern · 10×');
+Object.entries(ANIMS).filter(([k]) => k !== 'Idle').forEach(([k,f]) => animate('poses', f, 6, k));
+['Idle','Winken','Jubeln','Tippen','Schlafen'].forEach(k => animate('small', ANIMS[k], 2, k, true));
+['Winken','Jubeln','Denken','Schlafen'].forEach(k => animate('rim', ANIMS[k], 6, k + ' · Kontur hell', false, '#5D7FA3'));
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "melly-mascot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Melly – Pixel-Maskottchen als Code: Modell, Posen, Galerie, Export",
+  "type": "module",
+  "scripts": {
+    "gallery": "node tools/serve.mjs",
+    "preview": "node tools/preview.mjs",
+    "export": "node tools/export.mjs"
+  },
+  "dependencies": {
+    "gifenc": "^1.0.3",
+    "pngjs": "^7.0.0"
+  }
+}

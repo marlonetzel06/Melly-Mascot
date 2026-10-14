@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melly Übersicht</title>
+<style>
+  :root { --ink:#0B1620; --paper:#F5F3EE; --muted:#6B7280; --line:#E4E0D8; --navy:#041C2C; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+  main { max-width:1200px; margin:0 auto; padding:28px 16px 48px; }
+  h1 { font-size:24px; margin:0 0 4px; }
+  h2 { font-size:18px; margin:32px 0 8px; }
+  .sub { color:var(--muted); font-size:14px; margin:0 0 20px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+  .card h3 { font-size:14px; margin:0 0 6px; }
+  .card .n { font-size:28px; font-weight:700; }
+  .card ul { margin:6px 0 0; padding-left:18px; font-size:13px; line-height:1.55; color:#374151; }
+  .tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:99px; background:#FDF1DC; color:#8A5A14; margin-left:6px; vertical-align:middle; }
+  .frame { background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-top:8px; }
+  .frame header { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line); font-size:14px; }
+  .frame header a { color:#1F4168; font-size:13px; }
+  iframe { width:100%; border:0; display:block; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Melly · Gesamtübersicht</h1>
+  <p class="sub">Alle Elemente des Maskottchens auf einen Blick: Modell, Varianten, Ansichten, Mimik, Animationen und Objekte. Darunter die Arbeitsseiten live eingebettet.</p>
+
+  <div class="cards">
+    <div class="card"><h3>Modell</h3><div class="n">1</div>
+      <ul><li>Creme-Blob, 22×19 px, dunkle Kontur</li><li>Einreiher, weißes Hemd, weiße Sneaker</li><li>Krawatte + Einstecktuch in Akzentfarbe</li></ul></div>
+    <div class="card"><h3>Anzug-Kombis</h3><div class="n">6</div>
+      <ul><li>Mittelblau · Messing (Standard)</li><li>Anthrazit · Bordeaux</li><li>Hellgrau · Navy</li><li>Dunkelgrün · Messing</li><li>Sand · Navy</li><li>Navy · Koralle</li></ul></div>
+    <div class="card"><h3>Ansichten</h3><div class="n">8</div>
+      <ul><li>vorne, 3/4 rechts, Profil rechts</li><li>3/4 hinten rechts, hinten</li><li>3/4 hinten links, Profil links, 3/4 links</li></ul></div>
+    <div class="card"><h3>Mimik</h3><div class="n">10</div>
+      <ul><li>neutral, fröhlich, zwinkern</li><li>„Zeig mal.“, überrascht, konzentriert</li><li>„Fast.“, schläfrig, begeistert</li><li>sauer (mit Rotfärbung)</li></ul></div>
+    <div class="card"><h3>Objekte</h3><div class="n">19</div>
+      <ul><li>Schild, Klemmbrett, Stift, Lupe, Käfer</li><li>Laptop, Handy + Herz, Tasse</li><li>Glühbirne, Hantel, Fußball, Pfanne + Ei</li><li>Z, Funken, Gedankenblasen, Ausrufezeichen, Häkchen, Schweißtropfen, Dampf</li></ul></div>
+    <div class="card"><h3>Animationen</h3><div class="n">31</div>
+      <ul><li>Bewegung: Drehung 360°, Umschauen, Laufen, Reinlaufen &amp; Hallo, Tschüss, Winken, Jubeln, Zeigen</li><li>Arbeit: Schild, Checkliste, Bug gefunden, Laptop, Handy, Idee, Denken</li><li>Reaktion: Sauer, Daumen hoch, Schulterzucken, Facepalm, „Zeig mal.“, Ungeduldig, Zwinkern</li><li>Alltag: Kaffee, Gähnen, Schlafen, Gym, Fußball, Kochen, Idle</li></ul></div>
+  </div>
+
+  <h2>Arbeitsseiten</h2>
+
+  <div class="frame"><header><b>Set 3 · Alltag</b><a href="lot-set3.html" target="_blank">einzeln öffnen</a></header><iframe src="lot-set3.html" height="1500" title="Set 3"></iframe></div>
+  <div class="frame"><header><b>Set 2 · Arbeit &amp; Reaktionen + Anzug-Kombis</b><a href="lot-set2.html" target="_blank">einzeln öffnen</a></header><iframe src="lot-set2.html" height="1250" title="Set 2"></iframe></div>
+  <div class="frame"><header><b>Ansichten · Drehung, Umschauen, Laufen, Reinlaufen &amp; Hallo</b><a href="lot-views.html" target="_blank">einzeln öffnen</a></header><iframe src="lot-views.html" height="1150" title="Ansichten"></iframe></div>
+  <div class="frame"><header><b>Basis-Animationen <span class="tag">noch altes Krawatten-Design</span></b><a href="lot-anim.html" target="_blank">einzeln öffnen</a></header><iframe src="lot-anim.html" height="1400" title="Basis-Animationen"></iframe></div>
+  <div class="frame"><header><b>Mimik-Blatt <span class="tag">noch altes Krawatten-Design</span></b><a href="lot-v9.html" target="_blank">einzeln öffnen</a></header><iframe src="lot-v9.html" height="900" title="Mimik"></iframe></div>
+</main>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melly Ansichten</title>
+<style>
+  :root { --ink:#0B1620; --paper:#F5F3EE; --muted:#6B7280; --line:#E4E0D8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+  main { max-width:1180px; margin:0 auto; padding:28px 16px 40px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h2 { font-size:17px; margin:26px 0 4px; }
+  .sub, .desc { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; }
+  .cell { background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px; display:flex; flex-direction:column; align-items:center; }
+  .cell span { font-size:12px; color:var(--muted); margin-top:4px; }
+  .anim { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; }
+  .anim h3 { font-size:15px; margin:0 0 2px; } .anim p { font-size:13px; color:var(--muted); margin:0 0 10px; }
+  .play { display:flex; gap:10px; flex-wrap:wrap; }
+  .bg { border-radius:10px; padding:6px; }
+  canvas { image-rendering:pixelated; image-rendering:crisp-edges; display:block; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Melly · Ansichten &amp; dynamische Animationen</h1>
+  <p class="sub">Wie im Referenzblatt „Angles and Expressions“: Silhouette bleibt, Gesicht und Vorderseite wandern zur Blickrichtung</p>
+
+  <h2>1 · Drehung (Turnaround)</h2>
+  <p class="desc">Links-Ansichten sind gespiegelt</p>
+  <div class="row" id="views"></div>
+
+  <h2>2 · Animationen mit Ansichten</h2>
+  <div id="anims"></div>
+</main>
+
+<script>
+const PX = { l:'#3F70A6', O:'#0E1620', C:'#F4F2EC', c:'#D9D4C7', N:'#2E5A8A', n:'#1F4168', W:'#FFFFFF', w:'#CFCBC0', x:'#A9A59B',
+             K:'#16253A', k:'#0B1626', H:'#E3A33B', E:'#0E1620', P:'#F2A7A0', Z:'#F4F2EC' };
+const HEADTOP = ['......................','.......CCCCCCCC.......','.....CCCCCCCCCCcc.....','....CCCCCCCCCCCCcc....','....CCCCCCCCCCCCCc....'];
+const V = {
+  front: [...HEADTOP,
+    '...CCCCEECCCCEECCcc...','...CCCCEECCCCEECCcc...','...CCPCCCCCCCCCCPcc...','...CCCCCCCCCCCCCCcc...',
+    '...NNNNnWWkkWWnNNNn...','..NnNNNNnWKKWnNNNNnN..','..NnNNNNNnHHnNNHHNnN..','..NnNNNNNNKKNNNNNNnN..',
+    '..CnNNNNNNNNNNNNNNnC..','...NNnnNNNNNNNNnnNn...','...NNNNNNNnnNNNNNNn...','......................',
+    '....WWWw......WWWw....','......................'],
+  q: [...HEADTOP,
+    '...CCCCCCEECCCEECcc...','...CCCCCCEECCCEECcc...','...CCCCPCCCCCCCCPcc...','...CCCCCCCCCCCCCCcc...',
+    '...NNNNNNnWWkkWnNNn...','..NnNNNNNNnWKKWnNNnN..','..NnNNNNNNNnHHnNHNnN..','..NnNNNNNNNNKKNNNNnN..',
+    '..CnNNNNNNNNNNNNNNnC..','...NNNnnNNNNNNNNnNn...','...NNNNNNNNNnnNNNNn...','......................',
+    '....WWWWw.....WWWw....','......................'],
+  side: [...HEADTOP,
+    '...CCCCCCCCCCCEECcc...','...CCCCCCCCCCCEECcc...','...CCCCCCCCCCPCCCcc...','...CCCCCCCCCCCCCCcc...',
+    '...NNNNNllNNNNnWknn...','...NNNNOllONNNnWKnn...','...NNNNOllONNNNnKnn...','...NNNNOllONNNNNnNn...',
+    '...NNNNOCCONNNNNNNn...','...NNNNOCCONnnnNNNn...','...NNNNNOONNNNNNNNn...','......................',
+    '.......WWWWWWWw.......','......................'],
+  qb: [...HEADTOP,
+    '...CCCCCCCCCCCCCCcc...','...CCCCCCCCCCCCCCcc...','...CCCCCCCCCCCCCCPc...','...CCCCCCCCCCCCCCcc...',
+    '...NNNnnnnnnnnnNNWn...','..NnNNNNNNnNNNNNNnnN..','..NnNNNNNNnNNNNNNNnN..','..NnNNNNNNnNNNNNNNnN..',
+    '..CnNNNNNNnNNNNNNNnC..','...NNNNNnNNNNNNNNNn...','...NNNNNnnNNNNNNNNn...','......................',
+    '...WWWw.......WWWw....','......................'],
+  back: [...HEADTOP,
+    '...CCCCCCCCCCCCCCcc...','...CCCCCCCCCCCCCCcc...','...CCCCCCCCCCCCCCcc...','...CCCCCCCCCCCCCCcc...',
+    '...NNNnnnnnnnnnnNNn...','..NnNNNNNNNNNNNNNNnN..','..NnNNNNNNnNNNNNNNnN..','..NnNNNNNNnNNNNNNNnN..',
+    '..CnNNNNNNnNNNNNNNnC..','...NNNNNNNnNNNNNNNn...','...NNNNNNNnnNNNNNNn...','......................',
+    '....WWWw......WWWw....','......................']
+};
+const mirror = rows => rows.map(r => [...r].reverse().join(''));
+const VIEW = { F:V.front, Q:V.q, S:V.side, QB:V.qb, B:V.back, QL:mirror(V.q), SL:mirror(V.side), QBL:mirror(V.qb) };
+
+let GW = 30, GH = 26;
+function frame(view, mods, ms, opt) {
+  opt = opt || {}; const W = opt.w || GW, H = GH;
+  const g = Array.from({length:H}, () => Array(W).fill('.'));
+  const ox = (opt.x ?? 4), oy = 5 + (opt.dy || 0);
+  const p = (x,y,c) => { const X=x+ox, Y=y+oy; if (X>=0&&Y>=0&&X<W&&Y<H) g[Y][X] = c; };
+  VIEW[view].forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') p(x,y,c); }));
+  (mods||[]).forEach(m => m(p));
+  return { g, ms, w: W };
+}
+const F = (view, ms, opt, mods) => frame(view, mods, ms, opt);
+
+const sideArm = (o, mir) => p => { const X = x => mir ? 21 - x : x;
+  for (let y=9;y<=15;y++) for (let x=6;x<=11;x++) p(X(x),y,'N');
+  p(X(8+o),9,'l'); p(X(9+o),9,'l');
+  for (let y=10;y<=12;y++) { p(X(7+o),y,'O'); p(X(8+o),y,'l'); p(X(9+o),y,'l'); p(X(10+o),y,'O'); }
+  for (let y=13;y<=14;y++) { p(X(7+o),y,'O'); p(X(8+o),y,'C'); p(X(9+o),y,'C'); p(X(10+o),y,'O'); }
+  p(X(8+o),15,'O'); p(X(9+o),15,'O'); };
+const sideFeet = (mode, mir) => p => { const X = x => mir ? 21 - x : x;
+  for (let x=0;x<22;x++) p(x,17,'.');
+  if (mode === 'pass') { for (let x=7;x<=13;x++) p(X(x),17,'W'); p(X(14),17,'w'); }
+  else { const back = mode === 'a' ? 'x' : 'W', front = mode === 'a' ? 'W' : 'x';
+    for (let x=4;x<=7;x++) p(X(x),17,back); p(X(8),17,'w'); for (let x=12;x<=15;x++) p(X(x),17,front); p(X(16),17,'w'); } };
+const blinkF = p => { [7,8,13,14].forEach(x => p(x,5,'C')); };
+const happyF = p => { [[7],[13]].forEach(([x0]) => { for (let y=5;y<=6;y++) for (let x=x0-1;x<=x0+2;x++) p(x,y,'C'); p(x0-1,6,'E'); p(x0,5,'E'); p(x0+1,5,'E'); p(x0+2,6,'E'); }); };
+const clrR = p => { for (let y=10;y<=13;y++) p(19,y,'.'); };
+const armA = p => { clrR(p); [[19,10,'N'],[20,10,'N'],[20,9,'N'],[21,9,'N'],[21,8,'N'],[22,8,'N'],[22,7,'C'],[23,7,'C'],[22,6,'C'],[23,6,'C']].forEach(a => p(...a)); };
+const armB = p => { clrR(p); [[19,10,'N'],[20,10,'N'],[21,10,'N'],[21,9,'N'],[22,9,'N'],[23,9,'N'],[23,8,'N'],[24,8,'C'],[25,8,'C'],[24,7,'C'],[25,7,'C']].forEach(a => p(...a)); };
+
+function walk(view, mir, x0, steps, dx) {
+  const out = []; const seq = [['a',1,0],['pass',0,-1],['b',-1,0],['pass',0,-1]];
+  for (let i=0;i<steps;i++) { const [m,arm,dy] = seq[i%4]; out.push(frame(view, [sideFeet(m,mir), sideArm(mir ? -arm : arm, mir)], 130, {x: x0 + i*dx, dy, w: 72})); }
+  return out;
+}
+
+const SEQ = ['F','Q','S','QB','B','QBL','SL','QL'];
+const LABEL = { F:'vorne', Q:'3/4 rechts', S:'Profil rechts', QB:'3/4 hinten rechts', B:'hinten', QBL:'3/4 hinten links', SL:'Profil links', QL:'3/4 links' };
+
+function outline(g) {
+  const H = g.length, W = g[0].length; const o = g.map(r => r.slice());
+  for (let y=0;y<H;y++) for (let x=0;x<W;x++) {
+    if (g[y][x] !== '.') continue;
+    if ([[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy]) => { const c = g[y+dy]?.[x+dx]; return c && c !== '.'; })) o[y][x] = 'O';
+  }
+  return o;
+}
+const cache = new Map();
+function draw(ctx, f, s) {
+  if (!cache.has(f)) cache.set(f, outline(f.g));
+  ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+  cache.get(f).forEach((r,y) => r.forEach((c,x) => { if (c !== '.') { ctx.fillStyle = PX[c]; ctx.fillRect(x*s, y*s, s, s); } }));
+}
+function still(target, f, s, label) {
+  const d = document.createElement('div'); d.className = 'cell';
+  const c = document.createElement('canvas'); c.width = f.w*s; c.height = GH*s; draw(c.getContext('2d'), f, s);
+  d.appendChild(c); d.insertAdjacentHTML('beforeend', `<span>${label}</span>`); document.getElementById(target).appendChild(d);
+}
+function player(frames, s, bg) {
+  const wrap = document.createElement('div'); wrap.className = 'bg'; wrap.style.background = bg;
+  const c = document.createElement('canvas'); c.width = frames[0].w*s; c.height = GH*s; wrap.appendChild(c);
+  const ctx = c.getContext('2d'); let i = 0;
+  const tick = () => { draw(ctx, frames[i], s); const ms = frames[i].ms; i = (i+1) % frames.length; setTimeout(tick, ms); };
+  tick(); return wrap;
+}
+function anim(name, desc, frames, s) {
+  const d = document.createElement('section'); d.className = 'anim';
+  d.innerHTML = `<h3>${name}</h3><p>${desc}</p><div class="play"></div>`;
+  d.querySelector('.play').append(player(frames, s, '#FFFFFF'), player(frames, s, '#041C2C'));
+  document.getElementById('anims').appendChild(d);
+}
+
+SEQ.forEach(v => still('views', frame(v,[],0), 5, LABEL[v]));
+
+const wide = (v, ms, mods) => frame(v, mods, ms, {x: 25, w: 72});
+anim('Drehung 360°', 'vorne → 3/4 → Profil → hinten → zurück, mit kurzem Halt vorne.',
+  [...SEQ.map(v => frame(v,[],v === 'F' ? 900 : 140)), frame('F',[blinkF],110), frame('F',[],500)], 7);
+anim('Umschauen', 'Dreht sich nur in die 3/4-Ansicht nach links und rechts, blinzelt dabei.',
+  [frame('F',[],900), frame('QL',[],900), frame('QL',[blinkF.bind ? (p => [14,15,9,10].forEach(x => p(21-x,5,'C'))) : null],110), frame('QL',[],400), frame('F',[],500), frame('Q',[],1000), frame('F',[],400), frame('F',[blinkF],110), frame('F',[],900)], 7);
+anim('Laufen (Profil)', 'Lauf-Zyklus im Profil: Beine wechseln, Arm schwingt gegenläufig, Körper wippt beim Durchschwingen.',
+  (() => { const fr = []; const seq = [['a',1,0],['pass',0,-1],['b',-1,0],['pass',0,-1]]; for (let i=0;i<8;i++) { const [m,arm,dy] = seq[i%4]; fr.push(frame('S',[sideFeet(m,false), sideArm(arm,false)],140,{dy})); } return fr; })(), 7);
+anim('Reinlaufen & Hallo', 'Läuft von links ins Bild, bleibt stehen, dreht sich zur Kamera und winkt.',
+  [...walk('S', false, -20, 22, 2), wide('S',200), wide('Q',140), wide('F',300),
+   wide('F',140,[armA,happyF]), wide('F',170,[armB,happyF]), wide('F',140,[armA,happyF]), wide('F',170,[armB,happyF]), wide('F',220,[armA,happyF]), wide('F',900)], 5);
+</script>
+</body>
+</html>

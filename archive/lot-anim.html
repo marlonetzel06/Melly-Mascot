@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melly Animationen</title>
+<style>
+  :root { --ink:#0B1620; --paper:#F5F3EE; --muted:#6B7280; --line:#E4E0D8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+  main { max-width:1180px; margin:0 auto; padding:28px 16px 40px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--muted); font-size:14px; margin:0 0 18px; }
+  .anim { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; }
+  .anim h2 { font-size:16px; margin:0 0 2px; }
+  .anim p { font-size:13px; color:var(--muted); margin:0 0 10px; }
+  .play { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
+  .bg { border-radius:10px; padding:8px; }
+  .strip { margin-top:10px; overflow-x:auto; }
+  .strip span { font-size:11px; color:var(--muted); display:block; margin-bottom:4px; }
+  canvas { image-rendering:pixelated; image-rendering:crisp-edges; display:block; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Melly · Animationen</h1>
+  <p class="sub">Basis eingefroren (22 px, weißes Hemd, dunkle Krawatte + Messing-Nadel) · pro Animation: Loop auf Weiß und M&amp;M-Navy + alle Einzelbilder mit Dauer</p>
+  <div id="list"></div>
+</main>
+
+<script>
+const PX = { O:'#0E1620', C:'#F4F2EC', c:'#D9D4C7', N:'#2E5A8A', n:'#1F4168', W:'#FFFFFF', w:'#CFCBC0',
+             K:'#16253A', k:'#0B1626', H:'#E3A33B', E:'#0E1620', P:'#F2A7A0', G:'#3A424C', g:'#5A6470', B:'#7FC8F8', Z:'#F4F2EC' };
+const HEAD = [
+  '......................',
+  '.......CCCCCCCC.......',
+  '.....CCCCCCCCCCcc.....',
+  '....CCCCCCCCCCCCcc....',
+  '....CCCCCCCCCCCCCc....',
+  '...CCCCEECCCCEECCcc...',
+  '...CCCCEECCCCEECCcc...',
+  '...CCPCCCCCCCCCCPcc...',
+  '...CCCCCCCCCCCCCCcc...'
+];
+const BODY = [
+  '...NNNNnWWkkWWnNNNn...',
+  '..NnNNNNnWKKWnNNNNnN..',
+  '..NnNNNNNnHHnNNHHNnN..',
+  '..NnNNNNNNKKNNNNNNnN..',
+  '..CnNNNNNNNNNNNNNNnC..',
+  '...NNnnNNNNNNNNnnNn...',
+  '...NNNNNNNnnNNNNNNn...',
+  '......................',
+  '....WWWw......WWWw....',
+  '......................'
+];
+const GW = 30, GH = 28, OX = 4, OY = 6;
+
+function frame(mods, ms, opt) {
+  opt = opt || {};
+  const g = Array.from({length:GH}, () => Array(GW).fill('.'));
+  const dy = opt.dy || 0, hd = opt.headDy || 0;
+  const put = (x,y,c) => { const X=x+OX, Y=y+OY+dy; if (X>=0&&Y>=0&&X<GW&&Y<GH) g[Y][X] = c; };
+  BODY.forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') put(x, y+9, c); }));
+  HEAD.forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') put(x, y+hd, c); }));
+  const S = (x,y,c) => put(x, y + hd, c);
+  (mods||[]).forEach(m => m(put, S));
+  return { g, ms };
+}
+
+const EYES = [[7,8],[13,14]];
+const eye = (S, dx, dy) => EYES.forEach(([a,b]) => { for (let y=5;y<=6;y++) { S(a,y,'C'); S(b,y,'C'); } [a,b].forEach(x => { S(x+dx,5+dy,'E'); S(x+dx,6+dy,'E'); }); });
+const look   = (dx,dy) => (p,S) => eye(S, dx, dy||0);
+const blink  = (p,S) => EYES.forEach(([a,b]) => { S(a,5,'C'); S(b,5,'C'); });
+const caret  = (S,x0) => { for (let y=5;y<=6;y++) for (let x=x0-1;x<=x0+2;x++) S(x,y,'C'); S(x0-1,6,'E'); S(x0,5,'E'); S(x0+1,5,'E'); S(x0+2,6,'E'); };
+const happy  = (p,S) => { caret(S,7); caret(S,13); };
+const wink   = (p,S) => caret(S,7);
+const sleepy = (p,S) => EYES.forEach(([a,b]) => { S(a,5,'C'); S(b,5,'C'); });
+const skep1  = (p,S) => { S(12,3,'E'); S(13,3,'E'); S(14,3,'E'); S(15,3,'E'); };
+const skep   = (p,S) => { S(7,5,'C'); S(8,5,'C'); S(6,4,'E'); S(7,4,'E'); S(8,4,'E'); S(9,4,'E'); S(12,3,'E'); S(13,2,'E'); S(14,2,'E'); S(15,3,'E'); };
+
+const clrR = p => { for (let y=10;y<=13;y++) p(19,y,'.'); };
+const clrL = p => { for (let y=10;y<=13;y++) p(2,y,'.'); };
+const L = list => p => list.forEach(([x,y,c]) => p(x,y,c));
+const armHalfR = p => { clrR(p); L([[19,10,'N'],[20,10,'N'],[21,10,'N'],[20,11,'n'],[21,11,'n'],[22,10,'C'],[22,11,'C']])(p); };
+const armA = p => { clrR(p); L([[19,10,'N'],[20,10,'N'],[20,9,'N'],[21,9,'N'],[21,8,'N'],[22,8,'N'],[22,7,'C'],[23,7,'C'],[22,6,'C'],[23,6,'C']])(p); };
+const armB = p => { clrR(p); L([[19,10,'N'],[20,10,'N'],[21,10,'N'],[21,9,'N'],[22,9,'N'],[23,9,'N'],[23,8,'N'],[24,8,'C'],[25,8,'C'],[24,7,'C'],[25,7,'C']])(p); };
+const armAL = p => { clrL(p); L([[2,10,'N'],[1,10,'N'],[1,9,'N'],[0,9,'N'],[0,8,'N'],[-1,8,'N'],[-1,7,'C'],[-2,7,'C'],[-1,6,'C'],[-2,6,'C']])(p); };
+const point = (tap) => p => { clrR(p); const t = tap ? 1 : 0; L([[19,10,'N'],[20,10,'N'],[21,10,'N'],[21,9,'N'],[22,9,'N'],[23,9,'N'],[22,10,'n'],[23,10,'n']])(p); if (t) { p(24,9,'N'); p(24,10,'n'); } L([[24+t,9,'C'],[24+t,10,'C'],[25+t,9,'C']])(p); };
+const spark = (x,y,big) => p => { p(x,y,'H'); if (big) { p(x-1,y,'H'); p(x+1,y,'H'); p(x,y-1,'H'); p(x,y+1,'H'); } };
+const dot = (x,y,s) => p => { for (let i=0;i<s;i++) for (let j=0;j<s;j++) p(x+i,y+j,'C'); };
+const zed = (x,y) => p => ['####','..#.','.#..','####'].forEach((r,j) => [...r].forEach((ch,i) => { if (ch==='#') p(x+i,y+j,'Z'); }));
+const sweat = p => { p(19,2,'B'); p(19,3,'B'); p(18,3,'B'); };
+const toeUp = p => { p(16,17,'.'); p(17,17,'.'); };
+const tapMark = p => { p(19,17,'w'); p(20,16,'w'); };
+const laptop = (click) => p => {
+  clrL(p); clrR(p);
+  for (let y=7;y<=14;y++) for (let x=4;x<=17;x++) p(x,y,'G');
+  for (let x=4;x<=17;x++) p(x,7,'g');
+  p(10,10,'H'); p(11,10,'H'); p(10,11,'H'); p(11,11,'h' in PX ? 'H' : 'H');
+  L([[2,10,'N'],[2,11,'N'],[3,11,'C'],[3,12,'C'],[19,10,'N'],[19,11,'N'],[18,11,'C'],[18,12,'C']])(p);
+  if (click === 'L') { p(1,6,'w'); p(0,5,'w'); }
+  if (click === 'R') { p(20,6,'w'); p(21,5,'w'); }
+};
+
+const n = [];
+const ANIMS = [
+  ['Idle', 'Blinzelt unregelmäßig, schaut sich kurz um. Körper bleibt ruhig.', [
+    frame(n,1800), frame([blink],110), frame(n,1300), frame([look(-1)],650), frame(n,250), frame([look(1)],650), frame(n,1100), frame([blink],100), frame(n,110), frame([blink],100), frame(n,2000)]],
+  ['Zwinkern', 'Linkes Auge zwinkert fröhlich.', [frame(n,900), frame([wink],480), frame(n,1400)]],
+  ['Winken', 'Anheben über Zwischenposition, 3× Pendeln zwischen 45° und 30°, zurück.', [
+    frame(n,500), frame([armHalfR],90), frame([armA,happy],140), frame([armB,happy],170), frame([armA,happy],140), frame([armB,happy],170), frame([armA,happy],140), frame([armB,happy],170), frame([armA,happy],220), frame([armHalfR],90), frame(n,700)]],
+  ['Jubeln', 'Kurzes Ducken, Sprung mit beiden Armen hoch, Funken blinken, Landung.', [
+    frame([happy],260,{dy:1}), frame([armA,armAL,happy,spark(-3,3,false),spark(23,2,true)],120,{dy:-2}), frame([armA,armAL,happy,spark(-3,3,true),spark(23,2,false)],120,{dy:-3}), frame([armA,armAL,happy,spark(-3,3,false),spark(23,2,true)],120,{dy:-2}), frame([armA,armAL,happy,spark(-3,3,true),spark(23,2,false)],200,{dy:0}), frame([happy],500)]],
+  ['Zeigen', 'Arm über Zwischenposition nach rechts, Blick folgt, 2× Antippen, halten.', [
+    frame(n,400), frame([armHalfR,look(1)],90), frame([point(false),look(1)],600), frame([point(true),look(1)],120), frame([point(false),look(1)],140), frame([point(true),look(1)],120), frame([point(false),look(1)],900), frame([point(false),look(1),blink],110), frame([point(false),look(1)],700), frame([armHalfR,look(1)],90)]],
+  ['Denken', 'Blick nach oben, Gedankenblasen wachsen nacheinander.', [
+    frame([look(0,-1)],500), frame([look(0,-1),dot(19,1,1)],380), frame([look(0,-1),dot(19,1,1),dot(20,-2,2)],380), frame([look(0,-1),dot(19,1,1),dot(20,-2,2),dot(22,-6,3)],1500), frame([look(0,-1),blink],110), frame([look(0,-1),dot(19,1,1),dot(20,-2,2),dot(22,-6,3)],700)]],
+  ['Tippen', 'Hält den aufgeklappten Laptop vor sich, Augen lesen über dem Deckel, Tipp-Klicks links/rechts.', [
+    frame([laptop()],400), frame([laptop('L'),look(-1)],170), frame([laptop('R'),look(-1)],170), frame([laptop('L')],170), frame([laptop('R'),look(1)],170), frame([laptop(),look(1)],300), frame([laptop(),look(1),blink],110), frame([laptop('L'),look(1)],170), frame([laptop('R')],170), frame([laptop()],500)]],
+  ['„Zeig mal.“', 'Rechte Braue geht in zwei Stufen hoch, linkes Auge kneift zusammen, halten.', [
+    frame(n,600), frame([skep1],140), frame([skep],1700), frame([skep, p => {}, (p,S) => { S(13,5,'C'); S(14,5,'C'); }],110), frame([skep],900), frame([skep1],120), frame(n,500)]],
+  ['Ungeduldig', 'Schaut hin und her, Schweißtropfen, Fußspitze tippt (Schuh bleibt am Boden).', [
+    frame([look(-1),sweat],300), frame([look(-1),sweat,toeUp],170), frame([look(-1),sweat,tapMark],150), frame([look(1),sweat],300), frame([look(1),sweat,toeUp],170), frame([look(1),sweat,tapMark],150)]],
+  ['Schlafen', 'Augen zu, nur der Kopf nickt sanft ins Kinn, Z steigen auf. Körper und Füße bleiben stehen.', [
+    frame([sleepy,zed(19,0)],1000), frame([sleepy,zed(20,-3)],1200,{headDy:1}), frame([sleepy,zed(21,-6),zed(19,0)],1000), frame([sleepy,zed(20,-3)],1200,{headDy:1})]]
+];
+
+function outline(g) {
+  const o = g.map(r => r.slice());
+  for (let y=0;y<GH;y++) for (let x=0;x<GW;x++) {
+    if (g[y][x] !== '.') continue;
+    if ([[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy]) => { const c = g[y+dy]?.[x+dx]; return c && c !== '.'; })) o[y][x] = 'O';
+  }
+  return o;
+}
+const cache = new Map();
+function draw(ctx, f, s) {
+  if (!cache.has(f)) cache.set(f, outline(f.g));
+  ctx.clearRect(0,0,GW*s,GH*s);
+  cache.get(f).forEach((r,y) => r.forEach((c,x) => { if (c !== '.') { ctx.fillStyle = PX[c]; ctx.fillRect(x*s, y*s, s, s); } }));
+}
+function player(frames, s, bg) {
+  const wrap = document.createElement('div'); wrap.className = 'bg'; wrap.style.background = bg;
+  const c = document.createElement('canvas'); c.width = GW*s; c.height = GH*s; wrap.appendChild(c);
+  const ctx = c.getContext('2d'); let i = 0;
+  const tick = () => { draw(ctx, frames[i], s); const ms = frames[i].ms; i = (i+1) % frames.length; setTimeout(tick, ms); };
+  tick();
+  return wrap;
+}
+function strip(frames, s) {
+  const c = document.createElement('canvas'); c.width = frames.length*GW*s; c.height = GH*s + 14;
+  const ctx = c.getContext('2d');
+  frames.forEach((f,i) => {
+    ctx.fillStyle = i % 2 ? '#F7F5F0' : '#EFECE5'; ctx.fillRect(i*GW*s, 0, GW*s, GH*s + 14);
+    const t = document.createElement('canvas'); t.width = GW*s; t.height = GH*s; draw(t.getContext('2d'), f, s);
+    ctx.drawImage(t, i*GW*s, 0);
+    ctx.fillStyle = '#6B7280'; ctx.font = '10px ui-monospace, Consolas, monospace'; ctx.fillText(f.ms + 'ms', i*GW*s + 3, GH*s + 11);
+  });
+  return c;
+}
+
+const list = document.getElementById('list');
+ANIMS.forEach(([name, desc, frames]) => {
+  const d = document.createElement('section'); d.className = 'anim';
+  d.innerHTML = `<h2>${name}</h2><p>${desc}</p><div class="play"></div><div class="strip"><span>Einzelbilder</span></div>`;
+  d.querySelector('.play').append(player(frames, 7, '#FFFFFF'), player(frames, 7, '#041C2C'), player(frames, 2, '#F5F3EE'));
+  d.querySelector('.strip').appendChild(strip(frames, 3));
+  list.appendChild(d);
+});
+</script>
+</body>
+</html>

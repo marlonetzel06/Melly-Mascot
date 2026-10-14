@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melly Modell v7</title>
+<style>
+  :root { --ink:#0B1620; --navy:#041C2C; --paper:#F5F3EE; --muted:#6B7280; --line:#E4E0D8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+  main { max-width:1180px; margin:0 auto; padding:28px 16px 40px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h2 { font-size:17px; margin:28px 0 4px; }
+  .sub, .desc { color:var(--muted); font-size:14px; margin:0 0 12px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; }
+  .stage { background:var(--navy); border-radius:12px; padding:14px; display:flex; flex-direction:column; align-items:center; }
+  .stage.light { background:#fff; border:1px solid var(--line); }
+  .stage span { font-size:12px; color:#9fb3c2; margin-top:6px; }
+  .stage.light span { color:var(--muted); }
+  canvas { image-rendering:pixelated; image-rendering:crisp-edges; display:block; }
+  .sw { display:flex; gap:14px; flex-wrap:wrap; font:12px ui-monospace, Consolas, monospace; color:var(--muted); }
+  .sw div { display:flex; align-items:center; gap:6px; } .sw i { width:22px; height:22px; border-radius:5px; border:1px solid rgba(0,0,0,.1); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Melly · Modell v7 (geschärft)</h1>
+  <p class="sub">Statisches Modell-Blatt: erst Charakter finalisieren, Motion danach</p>
+
+  <h2>1 · Basis: v6 → v7</h2>
+  <p class="desc">v7: 22 px breit · Arme als Ausstülpung mit Naht-Schatten statt Stäbchen · Licht von links (Schattenkante rechts an Kopf und Sakko) · Kontur innen dunkel, außen je nach Hintergrund</p>
+  <div class="row" id="base"></div>
+
+  <h2>2 · Mimik (nur Augen, kein Mund)</h2>
+  <div class="row" id="faces"></div>
+
+  <h2>3 · Arm-Konstruktion in Schlüsselposen</h2>
+  <p class="desc">Arme zweifarbig (Ärmel + Naht), Arme als 2 px dicke Diagonale weg vom Kopf (kein Henkel-Effekt), Hände 2×2. Tippen: Tastatur vor dem Körper, Hände liegen auf, A/B = abwechselnd anheben.</p>
+  <div class="row" id="poses"></div>
+
+  <h2>4 · Palette</h2>
+  <div class="sw" id="sw"></div>
+</main>
+
+<script>
+const PX = { O:'#0E1620', C:'#F4F2EC', c:'#D9D4C7', N:'#1F3A57', n:'#142A42', W:'#FFFFFF', w:'#CFCBC0',
+             H:'#E3A33B', E:'#0E1620', P:'#F2A7A0', G:'#2B323B', g:'#8A93A0', k:'#C9CED6', Z:'#F4F2EC' };
+const RIM = '#5D7FA3';
+
+const V6 = [
+  '....................','......CCCCCCCC......','....CCCCCCCCCCCC....','...CCCCCCCCCCCCCC...','...CCCCCCCCCCCCCC...',
+  '..CCCCEECCCCEECCCC..','..CCCCEECCCCEECCCC..','..CCPCCCCCCCCCCPCC..','..CCCCCCCCCCCCCCCC..','..NNNNNNWWWWNNNNNN..',
+  '.N.NNNNnnHHnnNNNN.N.','.N.NNNNNnnnnNNNNN.N.','.N.NNHNNNNNNNNHNN.N.','.C.NNNNNNNNNNNNNN.C.','...NNHNNNNNNNNHNN...',
+  '...NNNNNNNNNNNNNN...','....................','...WWWW.....WWWW....','....................'
+];
+const V7 = [
+  '......................',
+  '.......CCCCCCCC.......',
+  '.....CCCCCCCCCCcc.....',
+  '....CCCCCCCCCCCCcc....',
+  '....CCCCCCCCCCCCCc....',
+  '...CCCCEECCCCEECCcc...',
+  '...CCCCEECCCCEECCcc...',
+  '...CCPCCCCCCCCCCPcc...',
+  '...CCCCCCCCCCCCCCcc...',
+  '...NNNNNNWWWWNNNNNn...',
+  '..NnNNNNnnHHnnNNNNnN..',
+  '..NnNNNNNnHHnNNNNNnN..',
+  '..NnNNHNNNnnNNNHNNnN..',
+  '..CnNNNNNNNNNNNNNNnC..',
+  '...NNNHNNNNNNNNHNNn...',
+  '...NNNNNNNNNNNNNNNn...',
+  '......................',
+  '....WWWw......WWWw....',
+  '......................'
+];
+const GW = 30, GH = 26, OX = 4, OY = 4;
+
+function make(base, mods) {
+  const g = Array.from({length:GH}, () => Array(GW).fill('.'));
+  base.forEach((r,y) => [...r].forEach((c,x) => { if (c !== '.') g[y+OY][x+OX] = c; }));
+  const S = (x,y,c) => { const X=x+OX, Y=y+OY; if (X>=0&&Y>=0&&X<GW&&Y<GH) g[Y][X] = c; };
+  (mods||[]).forEach(m => m(S));
+  return g;
+}
+function render(g, s, rim) {
+  const ext = Array.from({length:GH}, () => Array(GW).fill(false));
+  const st = [];
+  for (let x=0;x<GW;x++) { st.push([x,0],[x,GH-1]); } for (let y=0;y<GH;y++) { st.push([0,y],[GW-1,y]); }
+  while (st.length) { const [x,y] = st.pop(); if (x<0||y<0||x>=GW||y>=GH||ext[y][x]||g[y][x] !== '.') continue; ext[y][x] = true; st.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]); }
+  const c = document.createElement('canvas'); c.width = GW*s; c.height = GH*s; const ctx = c.getContext('2d');
+  for (let y=0;y<GH;y++) for (let x=0;x<GW;x++) {
+    let col = null;
+    if (g[y][x] !== '.') col = PX[g[y][x]];
+    else if ([[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy]) => { const v = g[y+dy]?.[x+dx]; return v && v !== '.'; })) {
+      const outside = ext[y][x] && [[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy]) => { const yy=y+dy, xx=x+dx; return yy<0||xx<0||yy>=GH||xx>=GW|| (ext[yy][xx] && g[yy][xx]==='.' && ![[1,0],[-1,0],[0,1],[0,-1]].some(([ex,ey]) => { const v=g[yy+ey]?.[xx+ex]; return v && v!=='.'; })); });
+      col = (rim && outside) ? rim : PX.O;
+    }
+    if (col) { ctx.fillStyle = col; ctx.fillRect(x*s, y*s, s, s); }
+  }
+  return c;
+}
+function stage(target, canvas, label, light) {
+  const d = document.createElement('div'); d.className = 'stage' + (light ? ' light' : '');
+  d.appendChild(canvas); const l = document.createElement('span'); l.textContent = label; d.appendChild(l);
+  document.getElementById(target).appendChild(d);
+}
+
+const EYES = [7,8,13,14];
+const F = {
+  neutral:   [],
+  happy:     [S => EYES.forEach(x => S(x,6,'C'))],
+  wink:      [S => { S(7,5,'C'); S(8,5,'C'); }],
+  skeptic:   [S => { S(7,5,'C'); S(8,5,'C'); S(13,3,'E'); S(14,3,'E'); S(15,4,'E'); }],
+  surprised: [S => { EYES.forEach(x => S(x,4,'E')); S(10,8,'E'); S(11,8,'E'); }],
+  focus:     [S => EYES.forEach(x => { S(x,5,'C'); S(x,7,'E'); })],
+  sleepy:    [S => EYES.forEach(x => S(x,5,'C')), S => ['####','..#.','.#..','####'].forEach((r,j) => [...r].forEach((ch,i) => { if (ch==='#') S(19+i,-2+j,'Z'); }))],
+  sparkle:   [S => { S(7,5,'W'); S(13,5,'W'); }]
+};
+
+const clrR = S => { for (let y=11;y<=13;y++) S(19,y,'.'); S(18,13,'n'); };
+const clrL = S => { for (let y=11;y<=13;y++) S(2,y,'.'); S(3,13,'n'); };
+const P = list => S => list.forEach(p => S(...p));
+const waveA = S => { clrR(S); P([[19,10,'N'],[20,10,'N'],[20,9,'N'],[21,9,'N'],[21,8,'N'],[22,8,'N'],[22,7,'C'],[23,7,'C'],[22,6,'C'],[23,6,'C']])(S); };
+const waveB = S => { clrR(S); P([[19,10,'N'],[20,10,'N'],[21,10,'N'],[21,9,'N'],[22,9,'N'],[23,9,'N'],[23,8,'N'],[24,8,'C'],[25,8,'C'],[24,7,'C'],[25,7,'C']])(S); };
+const cheerL = S => { clrL(S); P([[2,10,'N'],[1,10,'N'],[1,9,'N'],[0,9,'N'],[0,8,'N'],[-1,8,'N'],[-1,7,'C'],[-2,7,'C'],[-1,6,'C'],[-2,6,'C']])(S); };
+const point = S => { clrR(S); P([[19,10,'N'],[20,10,'N'],[21,10,'N'],[21,9,'N'],[22,9,'N'],[23,9,'N'],[22,10,'n'],[23,10,'n'],[24,9,'C'],[24,10,'C'],[25,9,'C']])(S); };
+const typing = (up) => S => {
+  for (let y=14;y<=15;y++) for (let x=0;x<=21;x++) S(x,y,'k');
+  for (let x=1;x<=20;x+=2) S(x,14,'g');
+  for (let x=0;x<=21;x++) S(x,16,'.');
+  S(2,13,'C'); S(3,13,'C'); S(18,13,'C'); S(19,13,'C');
+  if (up === 'L') { S(2,13,'N'); S(3,13,'n'); S(2,12,'C'); S(3,12,'C'); }
+  if (up === 'R') { S(18,13,'n'); S(19,13,'N'); S(18,12,'C'); S(19,12,'C'); }
+};
+stage('base', render(make(V6),8,RIM), 'v6 · Navy', false);
+stage('base', render(make(V7),8,RIM), 'v7 · Navy, helle Außenkontur', false);
+stage('base', render(make(V7),8), 'v7 · hell, dunkle Kontur', true);
+
+[['neutral','neutral'],['happy','fröhlich'],['wink','zwinkern'],['skeptic','„Zeig mal.“'],['surprised','überrascht'],['focus','konzentriert'],['sleepy','schläfrig']]
+  .forEach(([k,l]) => stage('faces', render(make(V7, F[k]),6,RIM), l));
+
+[['stehen',[]],['winken A',[waveA, ...F.happy]],['winken B',[waveB, ...F.happy]],['zeigen',[point]],['jubeln',[waveA, cheerL, ...F.happy]],['tippen A',[typing('L'), ...F.focus]],['tippen B',[typing('R'), ...F.focus]]]
+  .forEach(([l,m]) => stage('poses', render(make(V7, m),6,RIM), l));
+
+const names = { C:'Creme', c:'Creme Schatten', N:'Navy Sakko', n:'Navy Naht/Revers', H:'Messing', W:'Kragen/Sneaker', P:'Bäckchen', O:'Kontur innen' };
+const sw = document.getElementById('sw');
+Object.entries(names).forEach(([k,n]) => sw.insertAdjacentHTML('beforeend', `<div><i style="background:${PX[k]}"></i>${n} ${PX[k]}</div>`));
+sw.insertAdjacentHTML('beforeend', `<div><i style="background:${RIM}"></i>Kontur außen auf Navy ${RIM}</div>`);
+</script>
+</body>
+</html>

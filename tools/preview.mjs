@@ -1,6 +1,6 @@
 // Kontaktbogen zur Selbstprüfung: alle Frames einer Pose, oben auf Weiß, unten auf M&M-Navy, mit Index + Dauer.
 // node tools/preview.mjs <pose-id|all> [--combo 0] [--outfit <id>|none] [--scale 6] [--out out/preview]
-import { POSES, getPose, buildFrames } from '../src/registry.js';
+import { POSES, getPose, buildFrames, fitsOutfit } from '../src/registry.js';
 import { COMBOS, slug } from '../src/model.js';
 import { renderRGBA, GW, GH } from '../src/render.js';
 import { image, blit, fillRect, text, writePNG, parseArgs } from './lib.mjs';
@@ -13,6 +13,7 @@ const scale = Number(args.scale || 6), out = args.out || 'out/preview';
 const poses = id === 'all' ? POSES : [getPose(id) || fail(`Unbekannte Pose '${id}'`)];
 
 for (const pose of poses) {
+  if (args.outfit && args.outfit !== 'none' && !fitsOutfit(pose, args.outfit)) console.warn(`Hinweis: '${pose.id}' nutzt Ansichten ohne Layer im Outfit '${args.outfit}' – dort fehlen die Accessoires (Export überspringt die Pose).`);
   const frames = buildFrames(pose, args.outfit === undefined ? undefined : args.outfit === 'none' ? null : args.outfit);
   const tw = GW * scale, th = GH * scale, gap = 6, label = 16;
   const sheet = image(frames.length * (tw + gap) + gap, 2 * th + label + 3 * gap, '#F5F3EE');

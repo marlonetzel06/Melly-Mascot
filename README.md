@@ -6,13 +6,24 @@ Hier wird das Private Mascot von Marlon abelegt und dient als Basis zur erstellu
 
 <p align="center"><img src="dist/v1/mittelblau-messing/gif/winken.gif" width="288" alt="Melly winkt"></p>
 
-**Melly** ist ein Pixel-Maskottchen als Code: Creme-Blob im Einreiher, Name aus dem Kürzel MEL. 31 Posen · 6 Anzug-Kombis · 8 Ansichten · 10 Gesichtsausdrücke. Asset-Stand: `v1`.
+**Melly** ist ein Pixel-Maskottchen als Code: Creme-Blob im Einreiher, Name aus dem Kürzel MEL. 32 Posen · 6 Anzug-Kombis · 1 Outfit(s) · 8 Ansichten · 10 Gesichtsausdrücke. Asset-Stand: `v1`.
 
 ## Anzug-Kombis
 Krawatte und Einstecktuch haben immer die Akzentfarbe.
 
 <table>
 <tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/png/mimik-neutral.png" width="96" alt="Mittelblau · Messing"><br><sub>Mittelblau<br>Messing</sub></td><td align="center" valign="top"><img src="dist/v1/anthrazit-bordeaux/png/mimik-neutral.png" width="96" alt="Anthrazit · Bordeaux"><br><sub>Anthrazit<br>Bordeaux</sub></td><td align="center" valign="top"><img src="dist/v1/hellgrau-navy/png/mimik-neutral.png" width="96" alt="Hellgrau · Navy"><br><sub>Hellgrau<br>Navy</sub></td><td align="center" valign="top"><img src="dist/v1/dunkelgruen-messing/png/mimik-neutral.png" width="96" alt="Dunkelgrün · Messing"><br><sub>Dunkelgrün<br>Messing</sub></td><td align="center" valign="top"><img src="dist/v1/sand-navy/png/mimik-neutral.png" width="96" alt="Sand · Navy"><br><sub>Sand<br>Navy</sub></td><td align="center" valign="top"><img src="dist/v1/navy-koralle/png/mimik-neutral.png" width="96" alt="Navy · Koralle"><br><sub>Navy<br>Koralle</sub></td></tr>
+</table>
+
+## Outfits
+Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoires). Ordner: `dist/v1/outfit-<id>/`.
+
+### Weihnachtsmann (`weihnachten`)
+Roter Anzug mit Gürtel und Pelzsaum, Weihnachtsmütze mit Bommel. Krawatte/Einstecktuch bleiben Messing. Läuft mit 20 Posen.
+
+<table>
+<tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/weihnachtsmann.gif" width="144" alt="Weihnachtsmann"><br><b>Weihnachtsmann</b><br><code>weihnachtsmann</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td></tr>
+<tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code></td></tr>
 </table>
 
 ## Ansichten
@@ -54,17 +65,18 @@ Alle als animiertes GIF (transparent), Standbild-PNG und Sprite-Sheet in jeder K
 <table>
 <tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code><br><sub>Hält die Tasse, Dampf steigt, hebt sie über eine Zwischenposition vor den Mund und nimmt einen Schluck.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/gaehnen.gif" width="144" alt="Gähnen & Strecken"><br><b>Gähnen & Strecken</b><br><code>gaehnen</code><br><sub>Streckt sich, Augen kneifen zu, Mund öffnet sich langsam, schließt wieder, blinzelt müde.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code><br><sub>Augen zu, Kopf nickt sanft, drei Z steigen versetzt auf und werden größer.</sub></td></tr>
 <tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/gym.gif" width="144" alt="Gym: Hantel"><br><b>Gym: Hantel</b><br><code>gym</code><br><sub>Bizeps-Curls in 3/4 mit Kampfblick, beim dritten Mal Schweißtropfen, zum Schluss Blick zur Kamera.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/fussball.gif" width="144" alt="Fußball: Jonglieren"><br><b>Fußball: Jonglieren</b><br><code>fussball</code><br><sub>Jongliert rechts – Mitte – links – Kopfball – zurück. Körper dreht sich zum Ball (3/4), Augen folgen, Ball dreht sich.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/kochen.gif" width="144" alt="Kochen: Pfanne"><br><b>Kochen: Pfanne</b><br><code>kochen</code><br><sub>Wendet das Ei rechts, gibt die Pfanne an die linke Hand, wendet links, dann verfehlt das Ei die Pfanne und landet auf dem Boden.</sub></td></tr>
+<tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/weihnachtsmann.gif" width="144" alt="Weihnachtsmann"><br><b>Weihnachtsmann</b><br><code>weihnachtsmann</code><br><sub>Hält den Sack, winkt über Zwischenposition, Bommel wippt mit.</sub></td></tr>
 </table>
 
 ## Nutzung
 | Zweck | Befehl |
 |---|---|
 | Galerie mit Kombi-Umschalter | `npm run gallery` → http://localhost:8777 |
-| Kontaktbogen einer Pose (Selbstprüfung) | `node tools/preview.mjs <id>` |
-| Export (GIF, PNG, Sprite-Sheet) | `node tools/export.mjs <id\|all> [--combo <kombi>]` |
+| Kontaktbogen einer Pose (Selbstprüfung) | `node tools/preview.mjs <id> [--outfit <id>]` |
+| Export (GIF, PNG, Sprite-Sheet) | `node tools/export.mjs <id\|all> [--combo <kombi>] [--outfit <id>]` |
 | Diesen Katalog aktualisieren | `npm run catalog` |
 
 Kombi-Ordner: `mittelblau-messing`, `anthrazit-bordeaux`, `hellgrau-navy`, `dunkelgruen-messing`, `sand-navy`, `navy-koralle`.
-Dateien: `dist/v1/<kombi>/gif/<id>.gif` · `png/<id>.png` (Standbild) · `png/ansicht-*.png` · `png/mimik-*.png` · `sheet/<id>.png` + `.json`.
+Dateien: `dist/v1/<kombi>/gif/<id>.gif` · `png/<id>.png` (Standbild) · `png/ansicht-*.png` · `png/mimik-*.png` · `sheet/<id>.png` + `.json`. Outfits: `dist/v1/outfit-<id>/…` (gleiche Struktur).
 Neue Posen baut der Skill **melly** (`skill/melly/SKILL.md`); Regeln in `BRAND.md`.
 <!-- KATALOG:END -->

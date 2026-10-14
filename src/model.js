@@ -8,7 +8,8 @@ export const BASE_PX = {
   E: '#0E1620', P: '#F2A7A0', // Augen, Bäckchen
   H: '#E3A33B', h: '#F6CC7A', // Messing (Logos/Funken)
   G: '#3A424C', g: '#8A93A0', k: '#262C33', // Grautöne für Objekte
-  B: '#7FC8F8', R: '#D9534F', V: '#3FA34D', Y: '#FFD95A', Z: '#F4F2EC', X: '#FFFFFF'
+  B: '#7FC8F8', R: '#D9534F', V: '#3FA34D', Y: '#FFD95A', Z: '#F4F2EC', X: '#FFFFFF',
+  J: '#B08354', j: '#80592F' // Jute (Sack)
 };
 
 // [Name, Anzug N, Anzug-Schatten n, Akzent A (Krawatte+Einstecktuch), Akzent dunkel a (Knoten)]

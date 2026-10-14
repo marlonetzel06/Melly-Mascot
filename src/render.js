@@ -15,7 +15,7 @@ export function outline(g) {
   return o;
 }
 
-export const colorsFor = (frame, combo = 0) => ({ ...palette(combo), ...(frame.pal || {}) });
+export const colorsFor = (frame, combo = 0) => ({ ...palette(combo), ...(frame.outfitPal || {}), ...(frame.pal || {}) });
 
 const rgb = hex => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
 

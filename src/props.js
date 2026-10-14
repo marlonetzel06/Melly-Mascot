@@ -145,3 +145,11 @@ export const talk = (k) => p => {
   L([[22, 4, 'g'], [23, 5, 'g'], [23, 6, 'g'], [22, 7, 'g']])(p);
   if (k > 1) L([[26, 2, 'g'], [27, 3, 'g'], [27, 4, 'g'], [27, 5, 'g'], [27, 6, 'g'], [27, 7, 'g'], [26, 8, 'g']])(p);
 };
+
+// ---------- Sack (Jute J/j) ----------
+/** Sack links am Boden, linke Hand hält den zugebundenen Hals. */
+export const sack = p => {
+  clrL(p);
+  L([[2, 10, 'N'], [1, 10, 'N'], [0, 10, 'N'], [1, 11, 'n'], [0, 11, 'n'], [-1, 10, 'C'], [-2, 10, 'C'], [-1, 11, 'C'], [-2, 11, 'c']])(p);
+  sprite(['..jJ..', '..JJ..', '..GG..', '.JJJJ.', 'JJJJJj', 'JJJJJj', 'JJJJjj', 'JJJJjj', '.JJjj.'], -6, 9)(p);
+};

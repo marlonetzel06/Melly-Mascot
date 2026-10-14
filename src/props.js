@@ -14,7 +14,7 @@ export const tick = (x, y) => L([[x, y + 1, 'V'], [x + 1, y + 2, 'V'], [x + 2, y
 const Z4 = ['####', '..#.', '.#..', '####'], Z5 = ['#####', '...#.', '..#..', '.#...', '#####'];
 const zs = rows => rows.map(r => r.replace(/#/g, 'Z'));
 const SLOTS = [[18, 1, Z4], [20, -3, Z4], [22, -7, Z5], [24, -12, Z5]];
-export const zSlot = (i) => { const [x, y, m] = SLOTS[i]; return sprite(zs(m), x, y); };
+export const zSlot = (i, ox = 0, oy = 0) => { const [x, y, m] = SLOTS[i]; return sprite(zs(m), x + ox, y + oy); };
 export const heart = L([[20, 2, 'R'], [22, 2, 'R'], [19, 3, 'R'], [20, 3, 'R'], [21, 3, 'R'], [22, 3, 'R'], [23, 3, 'R'], [20, 4, 'R'], [21, 4, 'R'], [22, 4, 'R'], [21, 5, 'R']]);
 
 // Kopf-Rotfärbung für „Sauer“ (als frame-Option pal)
@@ -153,3 +153,43 @@ export const sack = p => {
   L([[2, 10, 'N'], [1, 10, 'N'], [0, 10, 'N'], [1, 11, 'n'], [0, 11, 'n'], [-1, 10, 'C'], [-2, 10, 'C'], [-1, 11, 'C'], [-2, 11, 'c']])(p);
   sprite(['..jJ..', '..JJ..', '..GG..', '.JJJJ.', 'JJJJJj', 'JJJJJj', 'JJJJjj', 'JJJJjj', '.JJjj.'], -6, 9)(p);
 };
+
+// ---------- Beispiel-Element zum Draufsitzen (Rechteck, Oberkante = Sitzlinie y 16) ----------
+export const rect = (x0 = -5, x1 = 26, y0 = 16, y1 = 21) => p => {
+  for (let x = x0; x <= x1; x++) p(x, y0, 'O');
+  for (let y = y0 + 1; y <= y1; y++) for (let x = x0; x <= x1; x++) p(x, y, x === x1 || y === y1 ? 'w' : 'W');
+};
+
+// ---------- Liegend auf der Seite (vorne, Kopf links, liegt auf y 15 auf) ----------
+// Eigene Figur statt gedrehter Ansicht: flach aufliegend, oberer Arm über dem Körper, unterer verdeckt, Beine angewinkelt.
+const LIE = [
+  '...CCCCC................',
+  '.CCCCCCCCc..............',
+  '.CCCCCCCCcNNNNNNN.......',
+  'CCCCCCPCCcNNNNNNNNn.....',
+  'CCCCCCCCCWnllllllCCn....',
+  'CCCCCECCCWWOOOOOOCCn....',
+  'CCCCCECCCaAAANNAANNNn...',
+  'CCCCCCCCCaAAANNNNNNNn..W',
+  'CCCCCCCCCWWnNNNNNNNNnNNW',
+  'CCCCCECCCWnNNNNNNNNNnnnW',
+  'CCCCCECCCnNNNNNNNNNNn..w',
+  'cCCCCCCCcNNNNNNNNNNNn.x.',
+  '.cCCCCPCcNNNNNNNNNNnnnx.',
+  '.ccCCCCccnnnnnnnnnnnnnx.',
+  '..cccccc..nnnnnnnnnn..x.'
+];
+/** Liegende Melly (Augen zu = 1 px breite Striche). eyes: 'zu' (Standard) oder 'auf'. */
+export const lying = (x0 = 0, y0 = 1, eyes = 'zu') => p => {
+  LIE.forEach((r, j) => [...r].forEach((c, i) => { if (c !== '.') p(x0 + i, y0 + j, c); }));
+  if (eyes === 'auf') [[4, 5], [4, 6], [4, 9], [4, 10]].forEach(([x, y]) => p(x0 + x, y0 + y, 'E'));
+};
+
+// ---------- Schneidersitz (vorne): gekreuzte Beine vor dem Sakko (Schienbeine kreuzen mittig, Schuhe unter den Knien), Hände auf den Knien, Sitzfläche y 17 ----------
+const CROSS = [
+  '.CCOOOOOOOOOOOOOOOOCC.',
+  'OCCNNNNNNNNNNNNNNNNCCO',
+  'ONNNNNNNNNnONNNNNNNNNO',
+  '.OWWWwnnnnOnnnnnWWWwO.'
+];
+export const crossLegs = p => { for (let x = 0; x < 22; x++) p(x, 17, '.'); CROSS.forEach((r, j) => [...r].forEach((c, i) => { if (c !== '.') p(i, 13 + j, c); })); };

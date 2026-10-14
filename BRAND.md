@@ -8,6 +8,7 @@ Melly ist Marlons persönliches Pixel-Maskottchen: ein Creme-Blob im Einreiher. 
 - Einreiher `N`/`n`, weißes Hemd `W`, **Krawatte = Einstecktuch = Akzentfarbe `A`**, dunklerer Knoten `a`. Weiße Sneaker.
 - Kontur `O` wird automatisch gesetzt und ist **überall dunkel** – funktioniert auf Weiß, Papier, M&M-Navy, Schwarz, Cyan.
 - 6 Anzug-Kombis (`COMBOS`). Neue Kombi: Anzugfarbe muss sich vom M&M-Navy `#041C2C` abheben; Akzent kontrastiert zum Anzug.
+- **Outfits** (`src/outfits.js`) verkleiden Melly für Anlässe (z. B. Weihnachtsmann). Sie ändern Farben und legen Accessoires darüber, nie das Modell selbst. Augen, Kontur und Silhouette bleiben erkennbar Melly; Krawatte/Einstecktuch bleiben sichtbar.
 - Ansichten: `F` vorne, `Q`/`QL` 3/4, `S`/`SL` Profil, `QB`/`QBL` 3/4 hinten, `B` hinten.
 
 ## Checkliste für jede neue oder geänderte Pose
@@ -18,6 +19,6 @@ Melly ist Marlons persönliches Pixel-Maskottchen: ein Creme-Blob im Einreiher. 
 5. **Ruhe**: Beim Schlafen nickt nur der Kopf (`headDy`), Körper bleibt stehen. Ganze Figur bewegen (`dy/dx`) nur bei Sprung, Zittern, Laufen.
 6. **Große Bewegungen mit Zwischenposition** (z. B. `armHalfR` vor dem Winken, Tasse über Kinnhöhe zum Mund).
 7. **Dynamik über Ansichten**, wo es Sinn ergibt: zur Seite drehen (3/4) statt nur Augen schieben; Profil für Objekte, die er betrachtet.
-8. **Farben mit Sinn:** keine dekorativen Akzentfarben, keine blinkenden Logos. Gelb `Y` nur für Licht (Glühbirne). Rot `R` für Alarm (Bug, Ausrufezeichen), Grün `V` für erledigt.
+8. **Farben mit Sinn:** keine dekorativen Akzentfarben, keine blinkenden Logos. Gelb `Y` nur für Licht (Glühbirne). Rot `R` für Alarm (Bug, Ausrufezeichen), Grün `V` für erledigt. Ausnahme Outfits: dort sind Kostümfarben erlaubt (z. B. Rot beim Weihnachtsmann).
 9. Keine Formen, die sich als etwas anderes lesen (Krawatte ≠ Zunge, Brett ≠ Handy, Hand ≠ Kasten). Im Zweifel im Kontaktbogen in 1×/2× prüfen.
 10. Läuft auf Weiß **und** Navy (Kontaktbogen zeigt beides).

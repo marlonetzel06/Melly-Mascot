@@ -6,7 +6,8 @@
 
 import { GW, GH, OX, OY, HEAD, BODY, VIEWS } from './model.js';
 
-/** Baut einen Frame. opt: { view:'F'|'Q'|'QL'|'S'|'SL'|'QB'|'QBL'|'B', dx, dy, headDy, pal } */
+/** Baut einen Frame. opt: { view:'F'|'Q'|'QL'|'S'|'SL'|'QB'|'QBL'|'B', dx, dy, headDy, pal, outfit, … }
+ *  outfit (aus outfits.js) wird vor den Posen-Bausteinen gezeichnet; seine Farben liegen über der Kombi. */
 export function frame(mods, ms, opt = {}) {
   const g = Array.from({ length: GH }, () => Array(GW).fill('.'));
   const dy = opt.dy || 0, dx = opt.dx || 0, hd = opt.headDy || 0;
@@ -19,8 +20,9 @@ export function frame(mods, ms, opt = {}) {
     VIEWS[view].forEach((r, y) => [...r].forEach((c, x) => { if (c !== '.') put(x, y, c); }));
   }
   const S = (x, y, c) => put(x, y + hd, c);
+  if (opt.outfit) (opt.outfit.layers[view] ? opt.outfit.layers[view](opt) : []).forEach(m => m(put, S));
   (mods || []).forEach(m => m(put, S));
-  return { g, ms, pal: opt.pal };
+  return { g, ms, view, pal: opt.pal, outfitPal: opt.outfit?.pal };
 }
 
 export const n = [];

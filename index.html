@@ -34,9 +34,10 @@
 <body>
 <main>
   <h1>Melly</h1>
-  <p class="sub">Pixel-Maskottchen · Name aus dem Kürzel MEL · Quelle der Wahrheit: <code>src/</code> · Kombi wählen, alles färbt mit</p>
+  <p class="sub">Pixel-Maskottchen · Name aus dem Kürzel MEL · Quelle der Wahrheit: <code>src/</code> · Kombi oder Outfit wählen, alles färbt mit</p>
 
   <div class="bar" id="combos"></div>
+  <div class="bar" id="outfits" style="margin-top:8px"></div>
   <h2>Posen &amp; Animationen</h2>
   <div class="bar" id="tabs"></div>
   <div class="grid" id="poses"></div>
@@ -50,11 +51,12 @@
 
 <script type="module">
 import { COMBOS, VIEW_LABELS, TURNAROUND, GW, GH } from './src/model.js';
-import { POSES, CATEGORIES, LIB, buildFrames } from './src/registry.js';
+import { POSES, CATEGORIES, LIB, OUTFITS, buildFrames, fitsOutfit } from './src/registry.js';
+import { frame } from './src/core.js';
 import { EXPRESSIONS } from './src/expressions.js';
 import { drawFrame } from './src/render.js';
 
-let combo = 0, cat = 'Alle';
+let combo = 0, cat = 'Alle', outfit = null;
 const timers = [];
 const canvas = s => { const c = document.createElement('canvas'); c.width = GW * s; c.height = GH * s; return c; };
 
@@ -79,23 +81,31 @@ function render() {
     b.insertAdjacentHTML('beforeend', `<span>${cb[0]}</span>`); b.onclick = () => { combo = i; render(); };
     combos.appendChild(b);
   });
+  const ob = document.getElementById('outfits'); ob.innerHTML = '';
+  [null, ...OUTFITS].forEach(o => {
+    const b = document.createElement('button'); b.className = 'combo'; b.setAttribute('aria-pressed', (o ? o.id : null) === outfit);
+    const c = canvas(3); drawFrame(c.getContext('2d'), frame([], 0, o ? { outfit: o } : {}), 3, combo); b.appendChild(c);
+    b.insertAdjacentHTML('beforeend', `<span>${o ? 'Outfit: ' + o.title : 'Ohne Outfit'}</span>`); b.onclick = () => { outfit = o ? o.id : null; render(); };
+    ob.appendChild(b);
+  });
+  const O = OUTFITS.find(o => o.id === outfit);
   const tabs = document.getElementById('tabs'); tabs.innerHTML = '';
   ['Alle', ...CATEGORIES].forEach(c => {
     const b = document.createElement('button'); b.className = 'tab'; b.textContent = c; b.setAttribute('aria-pressed', c === cat);
     b.onclick = () => { cat = c; render(); }; tabs.appendChild(b);
   });
   const grid = document.getElementById('poses'); grid.innerHTML = '';
-  POSES.filter(p => cat === 'Alle' || p.category === cat).forEach(p => {
-    const frames = buildFrames(p);
+  POSES.filter(p => (cat === 'Alle' || p.category === cat) && (!outfit || ((!p.outfit || p.outfit === outfit) && fitsOutfit(p, outfit)))).forEach(p => {
+    const frames = buildFrames(p, outfit || undefined);
     const d = document.createElement('section'); d.className = 'card';
     d.innerHTML = `<h3>${p.title}<code>${p.id}</code></h3><p>${p.desc}</p><div class="play"></div>`;
     d.querySelector('.play').append(player(frames, 5, '#FFFFFF'), player(frames, 5, '#041C2C'), player(frames, 2, '#F5F3EE'));
     grid.appendChild(d);
   });
   const views = document.getElementById('views'); views.innerHTML = '';
-  TURNAROUND.forEach(v => still(views, LIB.frame([], 0, { view: v }), 4, VIEW_LABELS[v]));
+  TURNAROUND.filter(v => !O || O.layers[v]).forEach(v => still(views, frame([], 0, { view: v, outfit: O }), 4, VIEW_LABELS[v]));
   const faces = document.getElementById('faces'); faces.innerHTML = '';
-  EXPRESSIONS.forEach(e => still(faces, LIB.frame(e.mods(LIB), 0, e.opt ? e.opt(LIB) : {}), 4, e.title));
+  EXPRESSIONS.forEach(e => still(faces, frame(e.mods(LIB), 0, { ...(e.opt ? e.opt(LIB) : {}), outfit: O }), 4, e.title));
 }
 render();
 </script>

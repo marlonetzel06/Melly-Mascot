@@ -33,9 +33,19 @@ import p30 from './poses/telefonieren.js';
 import * as core from './core.js';
 import * as props from './props.js';
 import * as model from './model.js';
+import { OUTFITS, getOutfit } from './outfits.js';
 
 export const LIB = { ...model, ...core, ...props };
 export const POSES = [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30];
 export const CATEGORIES = ['Bewegung', 'Arbeit', 'Reaktion', 'Alltag'];
+export { OUTFITS, getOutfit };
 export const getPose = id => POSES.find(p => p.id === id);
-export const buildFrames = pose => pose.frames(LIB);
+
+/** Frames einer Pose. outfit: Outfit-ID, null = ohne Outfit, undefined = Outfit der Pose (pose.outfit). */
+export const buildFrames = (pose, outfit) => {
+  const o = getOutfit(outfit === undefined ? pose.outfit : outfit);
+  if (!o) return pose.frames(LIB);
+  return pose.frames({ ...LIB, frame: (mods, ms, opt = {}) => core.frame(mods, ms, { ...opt, outfit: o }) });
+};
+/** Passt die Pose zum Outfit? (alle Ansichten der Pose haben Outfit-Layer) */
+export const fitsOutfit = (pose, outfit) => { const o = getOutfit(outfit); return !!o && pose.frames(LIB).every(f => o.layers[f.view]); };

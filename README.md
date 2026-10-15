@@ -6,6 +6,7 @@
 - **Modell und Posen als Code** (`src/`): Raster, Paletten, Bausteine und alle Animationen als JavaScript. Keine Handzeichnungen, jede Pose ist reproduzierbar.
 - **Renderer und Export** (`tools/`): GIF, PNG und Sprite-Sheets in 6 Anzug-Kombis und mit Outfits, dazu Kontaktbögen zur Selbstprüfung.
 - **Galerie** (`index.html`): lokale Übersicht mit Kombi-Umschalter.
+- **Intro-Video** (`video/`): ein durchgehender 4:5-Clip (für LinkedIn oder eine Maskottchen-Präsentation), der Melly und alle 6 Anzug-Kombis am Stück vorstellt – aus den echten Posen-Frames über Chrome-headless und ffmpeg zu MP4.
 - **Claude-Code-Skill** (`.claude/skills/melly/`): ein Agent baut damit neue Posen und Outfits nach festen Regeln (`BRAND.md`).
 - **Claude-Code-Mod** (`mod/melly-mascot/`): Melly lebt über der Prompt-Leiste und reagiert auf Claude, Tippen und Inaktivität.
 
@@ -13,6 +14,7 @@
 ```bash
 npm install
 npm run gallery   # Galerie auf http://localhost:8777
+npm run video     # Intro-Video → dist/video/melly-intro-4x5.mp4 (braucht Chrome + ffmpeg)
 ```
 
 > **Source available, nicht Open Source.** © 2026 Marlon Etzel, alle Rechte vorbehalten. Der Code und die Figur „Melly“ sind nur zur Ansicht veröffentlicht; Kopieren, Weiterverwenden oder KI-Training ohne schriftliche Genehmigung ist nicht gestattet. Siehe [LICENSE](LICENSE).

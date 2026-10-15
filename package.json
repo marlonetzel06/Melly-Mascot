@@ -9,7 +9,8 @@
     "gallery": "node tools/serve.mjs",
     "preview": "node tools/preview.mjs",
     "export": "node tools/export.mjs",
-    "catalog": "node tools/catalog.mjs"
+    "catalog": "node tools/catalog.mjs",
+    "video": "node video/build-frames.mjs && node video/render.mjs"
   },
   "dependencies": {
     "gifenc": "^1.0.3",

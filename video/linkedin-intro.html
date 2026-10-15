@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Melly – LinkedIn-Intro</title>
+<style>
+  html,body{margin:0;background:#02121c;color:#8aa;display:flex;flex-direction:column;align-items:center;gap:12px;font:13px/1.4 system-ui;min-height:100vh}
+  #wrap{margin-top:18px}
+  canvas{width:360px;height:450px;image-rendering:pixelated;box-shadow:0 10px 40px rgba(0,0,0,.5);border-radius:8px}
+  .bar{display:flex;gap:10px;align-items:center}
+  button{font:13px system-ui;padding:5px 12px;border-radius:6px;border:1px solid #244;background:#0a2230;color:#cde;cursor:pointer}
+  #t{font-variant-numeric:tabular-nums;color:#6ad}
+</style>
+</head>
+<body>
+  <div id="wrap"><canvas id="c" width="1080" height="1350"></canvas></div>
+  <div class="bar">
+    <button id="play">Pause</button>
+    <button id="restart">Von vorn</button>
+    <span id="t">0.0 s</span>
+  </div>
+
+<script type="module">
+import { GW, GH, PAL, FRAMES, COMBO_NAMES } from './melly-frames.js';
+
+// ---------- Bühne ----------
+const W = 1080, H = 1350, FPS = 30, SCALE = 30;
+const OX0 = 0;                    // Melly-Raster füllt die Breite (36 × 30 = 1080)
+const GROUND_Y = 960;             // Bodenlinie (Füße stehen hier; Figur-Boden = Raster-Zeile 28)
+const OY0 = GROUND_Y - 29 * SCALE;// Unterkante Zeile 28 landet auf GROUND_Y → Figur vertikal mittig
+const NAVY = '#041C2C', CYAN = '#00F2E5';
+const SPOT_X = 540, SPOT_Y = OY0 + 18 * SCALE, SPOT_R = 660;
+const FLASH_MS = 180;
+
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+
+// ---------- Timeline ----------
+// Segment: { pose, combo, idx?:[Frame-Indizes], flash?:true }  – idx weggelassen = alle Frames. flash = Cyan-Snap am Segmentstart.
+const carousel = [];
+const CAR_LEAD = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];   // erste Kombi: ganzer Sprung
+const CAR_BEAT = [3, 4, 5, 6, 7, 8, 9, 10];         // weitere Kombis: Sprung + Pumpen
+for (let c = 0; c < 6; c++) carousel.push({ pose: 'jubeln', combo: c, idx: c === 0 ? CAR_LEAD : CAR_BEAT, flash: c > 0 });
+
+const TIMELINE = [
+  { pose: 'reinlaufen-hallo', combo: 0 },
+  { pose: 'drehung', combo: 0, idx: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
+  ...carousel,
+  { pose: 'jubeln', combo: 5, idx: [14, 16, 18] },                 // Arme sacken zurück
+  { pose: 'laptop-raus', combo: 5 },
+  { pose: 'laptop', combo: 5, idx: [0, 2, 6] },
+  { pose: 'laptop-weg', combo: 5 },
+  { pose: 'daumen-hoch', combo: 5, idx: [2, 3] },
+  { pose: 'hinlegen', combo: 5 },
+  { pose: 'liegen-boden', combo: 5, idx: [0, 1] },
+  { pose: 'aufstehen', combo: 5, idx: [0, 1, 5, 6, 7, 8, 9, 10, 11, 12] },
+  { pose: 'tschuess', combo: 5, idx: [0, 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21] }
+];
+
+// Flache Schrittliste mit Zeitachse.
+const steps = [];
+let tAcc = 0;
+for (const seg of TIMELINE) {
+  const frames = FRAMES[seg.pose];
+  const idx = seg.idx || frames.map((_, i) => i);
+  idx.forEach((i, k) => {
+    const f = frames[i];
+    steps.push({ pose: seg.pose, i, combo: seg.combo, ms: f.ms, flash: !!seg.flash && k === 0, tStart: tAcc, tEnd: tAcc + f.ms });
+    tAcc += f.ms;
+  });
+}
+const TOTAL_MS = tAcc;
+const TOTAL_FRAMES = Math.round(TOTAL_MS / 1000 * FPS);
+const flashTimes = steps.filter(s => s.flash).map(s => s.tStart);
+
+// ---------- Zeichnen ----------
+function stepAt(t) {
+  const tt = ((t % TOTAL_MS) + TOTAL_MS) % TOTAL_MS;
+  for (const s of steps) if (tt >= s.tStart && tt < s.tEnd) return s;
+  return steps[steps.length - 1];
+}
+
+function drawStage() {
+  ctx.fillStyle = NAVY; ctx.fillRect(0, 0, W, H);
+  const g = ctx.createRadialGradient(SPOT_X, SPOT_Y, 0, SPOT_X, SPOT_Y, SPOT_R);
+  g.addColorStop(0, 'rgba(16,74,100,0.72)');
+  g.addColorStop(0.55, 'rgba(10,48,68,0.34)');
+  g.addColorStop(1, 'rgba(4,28,44,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  // Dot-Grid
+  ctx.fillStyle = 'rgba(0,242,229,0.16)';
+  for (let y = 24; y < H; y += 34) for (let x = 24; x < W; x += 34) { ctx.beginPath(); ctx.arc(x, y, 2, 0, 6.3); ctx.fill(); }
+  // Bodenlinie mit zartem Glow
+  ctx.fillStyle = 'rgba(0,242,229,0.12)'; ctx.fillRect(0, GROUND_Y - 4, W, 10);
+  ctx.fillStyle = 'rgba(0,242,229,0.42)'; ctx.fillRect(0, GROUND_Y, W, 3);
+}
+
+function drawMelly(s) {
+  const f = FRAMES[s.pose][s.i], pal = f.pal ? { ...PAL[s.combo], ...f.pal } : PAL[s.combo];
+  for (let y = 0; y < GH; y++) {
+    const row = f.g[y];
+    for (let x = 0; x < GW; x++) {
+      const tok = row[x];
+      if (tok === '.') continue;
+      const col = pal[tok]; if (!col) continue;
+      ctx.fillStyle = col;
+      ctx.fillRect(OX0 + x * SCALE, OY0 + y * SCALE, SCALE, SCALE);
+    }
+  }
+}
+
+function drawFlash(t) {
+  const tt = ((t % TOTAL_MS) + TOTAL_MS) % TOTAL_MS;
+  let a = 0;
+  for (const tf of flashTimes) { const d = tt - tf; if (d >= 0 && d < FLASH_MS) a = Math.max(a, 1 - d / FLASH_MS); }
+  if (a <= 0) return;
+  ctx.fillStyle = `rgba(0,242,229,${0.30 * a})`; ctx.fillRect(0, 0, W, H);
+  const r = SPOT_R * 0.5 * (1.3 - a);
+  ctx.strokeStyle = `rgba(0,242,229,${0.9 * a})`; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.arc(SPOT_X, SPOT_Y - 30, r, 0, 6.3); ctx.stroke();
+}
+
+function draw(t) {
+  drawStage();
+  drawMelly(stepAt(t));
+  drawFlash(t);
+}
+
+// ---------- Capture-API (für video/render.mjs) ----------
+window.__meta = { fps: FPS, total: TOTAL_FRAMES, totalMs: TOTAL_MS, W, H };
+window.__seek = (frameNo) => { window.__CAPTURE = true; draw(frameNo / FPS * 1000); return true; };
+
+// ---------- Live-Vorschau ----------
+let playing = true, t0 = performance.now();
+function loop(now) {
+  if (!window.__CAPTURE && playing) { const t = now - t0; draw(t); document.getElementById('t').textContent = (((t % TOTAL_MS) / 1000)).toFixed(1) + ' s / ' + (TOTAL_MS / 1000).toFixed(1) + ' s'; }
+  requestAnimationFrame(loop);
+}
+document.getElementById('play').onclick = e => { playing = !playing; if (playing) t0 = performance.now() - (performance.now() - t0) % TOTAL_MS; e.target.textContent = playing ? 'Pause' : 'Play'; };
+document.getElementById('restart').onclick = () => { t0 = performance.now(); };
+draw(0);
+requestAnimationFrame(loop);
+console.log('Melly-Intro:', (TOTAL_MS / 1000).toFixed(2), 's ·', TOTAL_FRAMES, 'Frames @', FPS, 'fps ·', steps.length, 'Steps');
+</script>
+</body>
+</html>

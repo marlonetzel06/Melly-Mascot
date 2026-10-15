@@ -4,25 +4,23 @@ export default {
   id: 'aufstehen',
   title: 'Aufstehen',
   category: 'Alltag',
-  desc: 'Blinzelt aus dem Schlaf, richtet sich in fünf kleinen Winkelstufen in den Schneidersitz auf, schüttelt den Kopf, hüpft auf die Füße und steht.',
-  still: 16,
-  frames: ({ frame, n, blink, look, cloud, crossLegs, lying, zSlot, rotateFrame }) => {
-    const dust = [cloud(-5, 17), cloud(23, 17)];
-    const sit = (extra = [], opt = {}) => frame([crossLegs, blink, ...extra], 80, { dy: 1, ...opt });
-    const tilt = deg => rotateFrame(sit([], { headDy: 1 }), deg, 10, 28, 50);
+  desc: 'Blinzelt aus dem Schlaf, hebt zuerst den Kopf, drückt sich über drei Neigungsstufen auf die Hand hoch, kniet, kommt über die Hocke in den Stand und federt nach.',
+  still: 7,
+  frames: ({ frame, n, squat, kneel, lean, lying, zSlot }) => {
+    const V = { view: '-' };
     return [
-      frame([lying(-1, 3, 'zu'), zSlot(0, -10, -3)], 240),
-      frame([lying(-1, 3, 'zu')], 160),
-      frame([lying(-1, 3, 'auf')], 260),                                   // Augen auf
-      frame([lying(-1, 3, 'auf'), ...dust], 90),
-      tilt(70), tilt(56), tilt(42), tilt(28), tilt(14),                    // richtet sich in fünf kleinen Stufen auf
-      sit(dust, { headDy: 1 }),                                            // sitzt
-      frame([crossLegs, blink], 200, { dy: 1, headDy: 1 }),                // noch schlaftrunken
-      frame([crossLegs, look(-1)], 200, { dy: 1 }),
-      frame([crossLegs, look(1)], 200, { dy: 1 }),                         // schüttelt den Kopf
-      frame([crossLegs], 70),                                              // hüpft hoch (Zwischenposition)
-      frame([blink], 110, { headDy: 1 }),                                  // steht, Kopf sinkt ein
-      frame(n, 300)
+      frame([lying(-1, 3, 'zu'), zSlot(0, -10, -3)], 240, V),
+      frame([lying(-1, 3, 'zu')], 160, V),
+      frame([lying(-1, 3, 'auf')], 260, V),                                // Augen auf
+      frame([lying(-1, 3, 'zu')], 90, V),                                  // blinzelt
+      frame([lying(-1, 3, 'auf')], 200, V),
+      frame([lying(-1, 3, 'auf', 2)], 140, V),                             // Kopf hebt sich zuerst
+      frame([lean(63, 'auf')], 140, V), frame([lean(45, 'auf')], 160, V), frame([lean(26, 'auf')], 130, V), // drückt sich hoch
+      frame([kneel], 120, { dy: 2 }),                                      // kniet
+      frame([squat], 110, { dy: 1 }),                                      // Hocke
+      frame(n, 80),                                                        // steht
+      frame(n, 110, { headDy: 1 }),                                        // federt nach
+      frame(n, 700)
     ];
   }
 };

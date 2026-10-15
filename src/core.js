@@ -7,7 +7,8 @@
 import { GW, GH, OX, OY, HEAD, BODY, VIEWS } from './model.js';
 
 /** Baut einen Frame. opt: { view:'F'|'Q'|'QL'|'S'|'SL'|'QB'|'QBL'|'B'|'-' (ohne Figur), dx, dy, headDy, pal, outfit, … }
- *  outfit (aus outfits.js) wird vor den Posen-Bausteinen gezeichnet; seine Farben liegen über der Kombi. */
+ *  outfit (aus outfits.js) wird vor den Posen-Bausteinen gezeichnet; seine Farben liegen über der Kombi.
+ *  Bausteine bekommen opt als dritten Parameter; Figuren-Bausteine (m.figure, z. B. Liegen) zeichnen darüber outfit.figures[id]. */
 export function frame(mods, ms, opt = {}) {
   const g = Array.from({ length: GH }, () => Array(GW).fill('.'));
   const dy = opt.dy || 0, dx = opt.dx || 0, hd = opt.headDy || 0;
@@ -21,8 +22,8 @@ export function frame(mods, ms, opt = {}) {
   }
   const S = (x, y, c) => put(x, y + hd, c);
   if (opt.outfit) (opt.outfit.layers[view] ? opt.outfit.layers[view](opt) : []).forEach(m => m(put, S));
-  (mods || []).forEach(m => m(put, S));
-  return { g, ms, view, pal: opt.pal, outfitPal: opt.outfit?.pal };
+  (mods || []).forEach(m => m(put, S, opt));
+  return { g, ms, view, pal: opt.pal, outfitPal: opt.outfit?.pal, figures: (mods || []).filter(m => m.figure).map(m => m.figure) };
 }
 
 export const n = [];

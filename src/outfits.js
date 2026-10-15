@@ -3,6 +3,8 @@
 //   pal:    Palette-Tokens, z. B. Anzug N/n/l, Akzent A/a, eigene Tokens (U/u …)
 //   layers: { <Ansicht>: (opt) => [Bausteine] } – werden VOR den Posen-Bausteinen gezeichnet.
 //           opt = Frame-Optionen der Pose (z. B. opt.wobble für wippenden Bommel).
+//   after:  { <Ansicht>: (opt) => [Bausteine] } – NACH den Posen-Bausteinen, Bausteine bekommen zusätzlich get(x, y) zum Lesen
+//           des Bildes (Korrekturen, die von der Pose abhängen, z. B. Saum weicht Schuhen aus).
 //   figures: { <Figur-ID>: (opt) => [Bausteine] } – Accessoires für eigene Figuren in Ansicht '-' (Liegen, Neigung; props.js),
 //           in Sprite-Koordinaten der Figur, gezeichnet direkt NACH der Figur (opt.tip z. B. für den Zustand des Mützenzipfels).
 // Eine Pose passt zu einem Outfit, wenn alle ihre Frames Ansichten nutzen, für die das Outfit layers hat (bzw. figures für ihre Figuren).
@@ -15,6 +17,8 @@ const santaSuit = p => {
   for (let x = 3; x <= 18; x++) { p(x, 14, 'k'); p(x, 15, 'W'); }
   p(18, 15, 'w'); for (let x = 9; x <= 12; x++) p(x, 14, 'H');
 };
+/** Pelzsaum weicht aus: Liegt direkt darunter Weiß (Schuhe in der Hocke, Kick), wird der Saum dort zur Kontur, statt mit ihm zu verschmelzen. */
+const santaHemApart = (p, S, opt, get) => { for (let x = 3; x <= 18; x++) if ('Ww'.includes(get(x, 15)) && 'Wwx'.includes(get(x, 16))) p(x, 15, 'O'); };
 /** Mütze: Pelzband y 0–1 mit eigener Kontur zum Kopf (y 2), Zipfel nach rechts, Bommel wippt (sw 0/1). */
 const santaHat = (sw = 0) => (p, S) => {
   for (let x = 4; x <= 17; x++) { S(x, 0, 'W'); S(x, 1, 'W'); }
@@ -221,6 +225,7 @@ export const OUTFITS = [
     desc: 'Roter Anzug mit Gürtel und Pelzsaum, Weihnachtsmütze mit Bommel. Krawatte/Einstecktuch bleiben Messing.',
     pal: { N: '#B8352E', n: '#8A2520', l: '#CC6A62', A: '#E3A33B', a: '#A86F18', U: '#B8352E', u: '#8A2520' },
     layers: { F: (opt) => [santaSuit, santaHat(opt.wobble || 0)] },
+    after: { F: () => [santaHemApart] },
     figures: Object.fromEntries(Object.entries(SANTA_FIG).map(([id, f]) => [id, (opt) => [...f.parts, f.tips[opt.tip] || f.tips[f.rest]].map(([i0, j0, rows]) => sprite(rows, i0, j0))]))
   }
 ];

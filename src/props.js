@@ -7,7 +7,9 @@ export const star = (x, y) => spark(x, y, true);
 export const dot = (x, y, s) => p => { for (let i = 0; i < s; i++) for (let j = 0; j < s; j++) p(x + i, y + j, 'C'); };
 export const puff = (x, y, c = 'Z') => L([[x, y, c], [x + 1, y, c], [x, y - 1, c]]);
 /** Staubwolke (3 breit, gewölbt): liest sich mit Kontur als Wolke statt als Strich. */
-export const cloud = (x, y, c = 'Z') => L([[x, y, c], [x + 1, y, c], [x + 2, y, c], [x, y - 1, c], [x + 1, y - 1, c], [x + 1, y - 2, c]]);
+export const cloud = (x, y, c = 'Z', flip = false) => L(flip
+  ? [[x, y, c], [x + 1, y, c], [x + 2, y, c], [x + 1, y - 1, c], [x + 2, y - 1, c], [x + 1, y - 2, c]] // gespiegelt (rechte Seite)
+  : [[x, y, c], [x + 1, y, c], [x + 2, y, c], [x, y - 1, c], [x + 1, y - 1, c], [x + 1, y - 2, c]]);
 export const sweat = L([[19, 2, 'B'], [19, 3, 'B'], [18, 3, 'B']]);
 export const sweatL = L([[2, 2, 'B'], [2, 3, 'B'], [3, 3, 'B']]);
 export const bang = L([[22, -3, 'A'], [22, -2, 'A'], [22, -1, 'A'], [22, 1, 'A']]);
@@ -241,10 +243,80 @@ const LIE = [
   '.ccCCCCccnnnnnnnnnnnnnx.',
   '..cccccc..nnnnnnnnnn..x.'
 ];
-/** Liegende Melly (Augen zu = 1 px breite Striche). eyes: 'zu' (Standard) oder 'auf'. */
-export const lying = (x0 = 0, y0 = 1, eyes = 'zu') => p => {
-  LIE.forEach((r, j) => [...r].forEach((c, i) => { if (c !== '.') p(x0 + i, y0 + j, c); }));
-  if (eyes === 'auf') [[4, 5], [4, 6], [4, 9], [4, 10]].forEach(([x, y]) => p(x0 + x, y0 + y, 'E'));
+/** Liegende Melly (Augen zu = 1 px breite Striche). eyes: 'zu' (Standard) oder 'auf'. headLift hebt den Kopf an (legt sich zuletzt ab).
+ *  Ansicht '-' verwenden, sonst ragt die Stehfigur heraus. */
+export const lying = (x0 = 0, y0 = 1, eyes = 'zu', headLift = 0) => p => {
+  const put = (i, j, c) => p(x0 + i, y0 + j - (i <= 8 ? headLift : 0), c);
+  LIE.forEach((r, j) => [...r].forEach((c, i) => { if (c !== '.') put(i, j, c); }));
+  if (eyes === 'auf') [[4, 5], [4, 6], [4, 9], [4, 10]].forEach(([x, y]) => put(x, y, 'E'));
+};
+
+// ---------- Hinlegen / Aufstehen (vorne): Stand → Hocke → Knien → Neigung → Liegen ----------
+const clrFeet = p => { for (let x = 0; x < 22; x++) p(x, 17, '.'); };
+/** Hocke (mit dy 1): Körper sinkt auf die Schuhe, Knie gehen auseinander, Schuhe bleiben auf y 17. */
+export const squat = p => { clrFeet(p); L([[3, 16, 'W'], [4, 16, 'W'], [5, 16, 'W'], [6, 16, 'w'], [15, 16, 'W'], [16, 16, 'W'], [17, 16, 'W'], [18, 16, 'w']])(p); };
+/** Knien (mit dy 2): Füße unter dem Körper, linke Hand stützt am Boden (Figur −1..0 / 16..17, wie in lean). */
+export const kneel = p => { clrFeet(p); limb('L', [[1, 10, 'N'], [2, 10, 'N'], [1, 11, 'N'], [2, 11, 'N'], [0, 12, 'N'], [1, 12, 'N'], [0, 13, 'N'], [1, 13, 'N'], [-1, 14, 'C'], [0, 14, 'C'], [-1, 15, 'C'], [0, 15, 'C']])(p); };
+// Gezeichnete Neigungsstufen (keine freie Pixelrotation): Körper führt, Kopf zieht nach, Hand bleibt am Boden, Schuh rutscht nach rechts.
+const LEAN = {
+  26: [-1, 3, [
+    '.........CCCCccc......',
+    '.......CCCCCCCCcc.....',
+    '.....CCCCCCCCCCCcc....',
+    '.....CCCCCCCCCCCcc....',
+    '....CCCCCCCCEECPCc....',
+    '...CCCCCCCCCCCCCCNn...',
+    '...CCCCCCCCCCCCNNNnN..',
+    '...CCCEECCCCCWnNNNNnN.',
+    '...CCCCCCCCaaWnNNAAnN.',
+    '...CCPCCCWWAANnNNNNNC.',
+    '....CCCNNnWnAANNNNNNn.',
+    '.....NNNNNNnAANNNNnNNn',
+    '.NNNNNNNNNNNNNNNNNNNN.',
+    'CCnnnNNNNNNNNNNNNNN...',
+    'CC..nnnNNNNNNNNnN.WWw.']],
+  45: [-1, 1, [
+    '.........CCC...........',
+    '.......CCCCCCcc........',
+    '......CCCCCCCCcc.......',
+    '.....CCCCCCCCCcc.......',
+    '....CCCCCCCCCPcn.......',
+    '...CCCCCCEECCCNNnN.....',
+    '...CCCCCCCCCCNNNNnN....',
+    '..CCCCCCCCCCWnNNNNnN...',
+    '..CCCCCCCCCWWnNAANNC...',
+    '..CCCEECCCaaWnNNNNNNn..',
+    '..CCCCCCCWWAAnNNNNNnNn.',
+    '...CCCCCNnWnAANNNNnNN..',
+    '...CCPCNNNNnnAANNNNN..w',
+    '....CCNNNNNNNNNNNNN..WW',
+    '.NNNNNNNNNNNNNNNNN..WW.',
+    'CCnnnNNNNNNNNNNNn......',
+    'CC..nnnnnNNNNNNN.......']],
+  63: [-1, 1, [
+    '.......CCCC.............',
+    '.....CCCCCCcc...........',
+    '....CCCCCCccc...........',
+    '...CCCCCCCPCc...........',
+    '...CCCCCCCCCNnnNN.......',
+    '..CCCCCEECCCNNNnnN......',
+    '..CCCCCCCCCnNNNNNnC.....',
+    '.CCCCCCCCCCWnNAANNNnn...',
+    '.CCCCCCCCCaWWNNNNNNNN...',
+    '.CCCCCCCCCaAAnNNNNnnN..w',
+    '.CCCCCCCCWWnAAANNNNNN.WW',
+    '.CCCEECCCnnnnAANNNNN..W.',
+    '..CCCCCCNNNNNNNNNNNN....',
+    '...CCPCCNNNNNNNNNNn.....',
+    '.NNCCCCNNNNNNNNNNNN.....',
+    'CCnnnCNNNNNNNNNNNN......',
+    'CC..nnnnnnnnNNNnNN......']]
+};
+const LEAN_OPEN = { 26: [[5, 9], [6, 9], [11, 6], [12, 6]], 45: [[4, 9], [5, 9], [8, 5], [9, 5]], 63: [[3, 11], [4, 11], [6, 5], [7, 5]] };
+/** Seitliche Neigung zwischen Knien und Liegen: deg 26 | 45 | 63 (26,5° / 45° / 63,5°), eyes 'halb' (müde, Standard) oder 'auf'. Ansicht '-'. */
+export const lean = (deg, eyes = 'halb') => p => {
+  const [x0, y0, rows] = LEAN[deg]; sprite(rows, x0, y0)(p);
+  if (eyes === 'auf') LEAN_OPEN[deg].forEach(([x, y]) => p(x, y, 'E'));
 };
 
 // ---------- Schneidersitz (vorne): gekreuzte Beine vor dem Sakko (Schienbeine kreuzen mittig, Schuhe unter den Knien), Hände auf den Knien, Sitzfläche y 17 ----------

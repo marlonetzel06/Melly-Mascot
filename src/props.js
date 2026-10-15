@@ -224,6 +224,15 @@ export const rect = (x0 = -5, x1 = 26, y0 = 16, y1 = 21) => p => {
   for (let y = y0 + 1; y <= y1; y++) for (let x = x0; x <= x1; x++) p(x, y, x === x1 || y === y1 ? 'w' : 'W');
 };
 
+// ---------- Eigene Figur in Ansicht '-' (Liegen, Neigung) ----------
+/** Figuren-Baustein: draw(put) zeichnet die Figur in Sprite-Koordinaten, at(i, j) → [x, y] legt sie in die Szene.
+ *  Danach zeichnet das Outfit seine Accessoires für diese Figur (outfit.figures[id]) mit derselben Lage darüber. */
+const figure = (id, at, draw) => Object.assign((p, S, opt) => {
+  const put = (i, j, c) => { const [x, y] = at(i, j); p(x, y, c); };
+  draw(put);
+  (opt?.outfit?.figures?.[id]?.(opt) || []).forEach(m => m(put, put));
+}, { figure: id });
+
 // ---------- Liegend auf der Seite (vorne, Kopf links, liegt auf y 15 auf) ----------
 // Eigene Figur statt gedrehter Ansicht: flach aufliegend, oberer Arm über dem Körper, unterer verdeckt, Beine angewinkelt.
 const LIE = [
@@ -244,12 +253,11 @@ const LIE = [
   '..cccccc..nnnnnnnnnn..x.'
 ];
 /** Liegende Melly (Augen zu = 1 px breite Striche). eyes: 'zu' (Standard) oder 'auf'. headLift hebt den Kopf an (legt sich zuletzt ab).
- *  Ansicht '-' verwenden, sonst ragt die Stehfigur heraus. */
-export const lying = (x0 = 0, y0 = 1, eyes = 'zu', headLift = 0) => p => {
-  const put = (i, j, c) => p(x0 + i, y0 + j - (i <= 8 ? headLift : 0), c);
+ *  Ansicht '-' verwenden, sonst ragt die Stehfigur heraus. Figur 'lie': Outfit-Accessoires in Sprite-Koordinaten, Spalte ≤ 8 hebt mit dem Kopf. */
+export const lying = (x0 = 0, y0 = 1, eyes = 'zu', headLift = 0) => figure('lie', (i, j) => [x0 + i, y0 + j - (i <= 8 ? headLift : 0)], put => {
   LIE.forEach((r, j) => [...r].forEach((c, i) => { if (c !== '.') put(i, j, c); }));
   if (eyes === 'auf') [[4, 5], [4, 6], [4, 9], [4, 10]].forEach(([x, y]) => put(x, y, 'E'));
-};
+});
 
 // ---------- Hinlegen / Aufstehen (vorne): Stand → Hocke → Knien → Neigung → Liegen ----------
 const clrFeet = p => { for (let x = 0; x < 22; x++) p(x, 17, '.'); };
@@ -313,10 +321,14 @@ const LEAN = {
     'CC..nnnnnnnnNNNnNN......']]
 };
 const LEAN_OPEN = { 26: [[5, 9], [6, 9], [11, 6], [12, 6]], 45: [[4, 9], [5, 9], [8, 5], [9, 5]], 63: [[3, 11], [4, 11], [6, 5], [7, 5]] };
-/** Seitliche Neigung zwischen Knien und Liegen: deg 26 | 45 | 63 (26,5° / 45° / 63,5°), eyes 'halb' (müde, Standard) oder 'auf'. Ansicht '-'. */
-export const lean = (deg, eyes = 'halb') => p => {
-  const [x0, y0, rows] = LEAN[deg]; sprite(rows, x0, y0)(p);
-  if (eyes === 'auf') LEAN_OPEN[deg].forEach(([x, y]) => p(x, y, 'E'));
+/** Seitliche Neigung zwischen Knien und Liegen: deg 26 | 45 | 63 (26,5° / 45° / 63,5°), eyes 'halb' (müde, Standard) oder 'auf'. Ansicht '-'.
+ *  Figur 'lean<deg>': Outfit-Accessoires in Sprite-Koordinaten. */
+export const lean = (deg, eyes = 'halb') => {
+  const [x0, y0, rows] = LEAN[deg];
+  return figure(`lean${deg}`, (i, j) => [x0 + i, y0 + j], put => {
+    sprite(rows, 0, 0)(put);
+    if (eyes === 'auf') LEAN_OPEN[deg].forEach(([x, y]) => put(x - x0, y - y0, 'E'));
+  });
 };
 
 // ---------- Schneidersitz (vorne): gekreuzte Beine vor dem Sakko (Schienbeine kreuzen mittig, Schuhe unter den Knien), Hände auf den Knien, Sitzfläche y 17 ----------

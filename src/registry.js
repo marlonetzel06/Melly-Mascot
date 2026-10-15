@@ -62,5 +62,5 @@ export const buildFrames = (pose, outfit) => {
   if (!o) return pose.frames(LIB);
   return pose.frames({ ...LIB, frame: (mods, ms, opt = {}) => core.frame(mods, ms, { ...opt, outfit: o }) });
 };
-/** Passt die Pose zum Outfit? (alle Ansichten der Pose haben Outfit-Layer) */
-export const fitsOutfit = (pose, outfit) => { const o = getOutfit(outfit); return !!o && pose.frames(LIB).every(f => o.layers[f.view]); };
+/** Passt die Pose zum Outfit? (alle Ansichten der Pose haben Outfit-Layer; Frames mit eigener Figur, z. B. Liegen, brauchen outfit.figures) */
+export const fitsOutfit = (pose, outfit) => { const o = getOutfit(outfit); return !!o && pose.frames(LIB).every(f => f.figures.length ? f.figures.every(id => o.figures?.[id]) : o.layers[f.view]); };

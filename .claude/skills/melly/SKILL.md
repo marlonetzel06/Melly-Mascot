@@ -5,7 +5,7 @@ description: "Melly – Marlons Pixel-Maskottchen (Creme-Blob im Anzug). Liefert
 
 # Melly
 
-Quelle der Wahrheit: Repo **`C:\Users\MEtzel\Melly-Mascot`** (GitHub `marlonetzel06/Melly-Mascot`). Alle Befehle im Repo-Root ausführen (bei Worktree/Klon: dessen Root). Vorher `BRAND.md` lesen – sie ist verbindlich.
+Quelle der Wahrheit: das Repo (GitHub `marlonetzel06/Melly-Mascot`). Alle Befehle im Repo-Root ausführen (bei Worktree/Klon: dessen Root). Vorher `BRAND.md` lesen – sie ist verbindlich.
 
 ## Begriffe
 - **Modell** = die Figur selbst (fix) · **Kombi** = Anzug- + Akzentfarbe (6 Stück) · **Outfit** = Kostüm über dem Modell (eigene Farben + Accessoires, z. B. `weihnachten`) · **Pose** = Animation.

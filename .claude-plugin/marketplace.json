@@ -1,0 +1,12 @@
+{
+  "name": "melly-mascot",
+  "description": "Melly, das Pixel-Maskottchen als Claude-Code-Mod",
+  "owner": { "name": "Marlon Etzel" },
+  "plugins": [
+    {
+      "name": "melly-mascot",
+      "source": "./mod/melly-mascot",
+      "description": "Melly, das Pixel-Maskottchen, lebt über der Prompt-Leiste und reagiert auf Claude, Tippen und Inaktivität."
+    }
+  ]
+}

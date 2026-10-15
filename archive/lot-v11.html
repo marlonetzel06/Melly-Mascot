@@ -176,7 +176,7 @@ stage('cmp', render(make({torso:'v11'}),9), 'v11 · hellblaues Hemd');
 stage('tie', render(make({torso:'v11'}),8), 'dunkel');
 stage('tie', render(make({torso:'v11', brassTie:true}),8), 'Messing');
 ['neutral','fröhlich','überrascht','„Zeig mal.“','konzentriert','begeistert'].forEach(f => stage('faces2', render(make({torso:'v11', face:FACES[f]}),5), f));
-stage('bg2', render(make({torso:'v11'}),6), 'M&M Navy', '#041C2C', '#9fb3c2');
+stage('bg2', render(make({torso:'v11'}),6), 'Dunkelblau', '#041C2C', '#9fb3c2');
 stage('bg2', render(make({torso:'v11'}),6), 'Schwarz', '#000', '#9fb3c2');
 stage('bg2', render(make({torso:'v11'}),6), 'Cyan (Beispiel)', '#29A9E1', '#04324a');
 stage('bg2', render(make({torso:'v11'}),1), '1×');

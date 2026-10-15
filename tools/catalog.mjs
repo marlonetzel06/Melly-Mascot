@@ -55,7 +55,7 @@ md += `## Nutzung
 
 Kombi-Ordner: ${COMBOS.map(c => `\`${slug(c[0])}\``).join(', ')}.
 Dateien: \`${base}/<kombi>/gif/<id>.gif\` · \`png/<id>.png\` (Standbild) · \`png/ansicht-*.png\` · \`png/mimik-*.png\` · \`sheet/<id>.png\` + \`.json\`. Outfits: \`${base}/outfit-<id>/…\` (gleiche Struktur).
-Neue Posen baut der Skill **melly** (\`skill/melly/SKILL.md\`); Regeln in \`BRAND.md\`.
+Neue Posen baut der Skill **melly** (\`.claude/skills/melly/SKILL.md\`); Regeln in \`BRAND.md\`.
 ${END}`;
 
 const readme = existsSync('README.md') ? readFileSync('README.md', 'utf8') : '# Melly-Mascot\n';

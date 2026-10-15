@@ -2,9 +2,9 @@
 
 **Melly** ist ein Pixel-Maskottchen, das komplett aus Code besteht: ein Creme-Blob im Einreiher. Ein Nebenprojekt, in dem ich ausprobiere, wie weit man Figur, Animationen und Tooling agentisch mit KI-Unterstützung bauen kann.
 
-<p align="center"><img src="dist/video/melly-intro.gif" width="360" alt="Melly stellt sich vor – durchgehendes Intro mit allen 6 Anzug-Kombis"></p>
+<p align="center"><img src="dist/video/melly-intro.gif" width="360" alt="Meet Melly – Intro-Clip mit Posen und Anzug-Kombis"></p>
 
-<p align="center"><sub>Durchgehendes Intro mit allen 6 Anzug-Kombis · <a href="dist/video/melly-intro-4x5.mp4">MP4 in voller Auflösung</a></sub></p>
+<p align="center"><sub>Intro „Meet Melly“ · <a href="dist/video/melly-intro.mp4">MP4 in voller Auflösung</a> (4:5, 1080×1350)</sub></p>
 
 ## Was drin steckt
 - **Modell und Posen als Code** (`src/`): Raster, Paletten, Bausteine und alle Animationen als JavaScript. Keine Handzeichnungen, jede Pose ist reproduzierbar.

@@ -1,5 +1,21 @@
 # Melly-Mascot
-Hier wird das Private Mascot von Marlon abelegt und dient als Basis zur erstellung für neue Posen etc.
+
+**Melly** ist ein Pixel-Maskottchen, das komplett aus Code besteht: ein Creme-Blob im Einreiher. Ein Nebenprojekt, in dem ich ausprobiere, wie weit man Figur, Animationen und Tooling agentisch mit KI-Unterstützung bauen kann.
+
+## Was drin steckt
+- **Modell und Posen als Code** (`src/`): Raster, Paletten, Bausteine und alle Animationen als JavaScript. Keine Handzeichnungen, jede Pose ist reproduzierbar.
+- **Renderer und Export** (`tools/`): GIF, PNG und Sprite-Sheets in 6 Anzug-Kombis und mit Outfits, dazu Kontaktbögen zur Selbstprüfung.
+- **Galerie** (`index.html`): lokale Übersicht mit Kombi-Umschalter.
+- **Claude-Code-Skill** (`.claude/skills/melly/`): ein Agent baut damit neue Posen und Outfits nach festen Regeln (`BRAND.md`).
+- **Claude-Code-Mod** (`mod/melly-mascot/`): Melly lebt über der Prompt-Leiste und reagiert auf Claude, Tippen und Inaktivität.
+
+## Ausprobieren
+```bash
+npm install
+npm run gallery   # Galerie auf http://localhost:8777
+```
+
+> **Source available, nicht Open Source.** © 2026 Marlon Etzel, alle Rechte vorbehalten. Der Code und die Figur „Melly“ sind nur zur Ansicht veröffentlicht; Kopieren, Weiterverwenden oder KI-Training ohne schriftliche Genehmigung ist nicht gestattet. Siehe [LICENSE](LICENSE).
 
 <!-- KATALOG:START -->
 <!-- Automatisch erzeugt mit `npm run catalog` – nicht von Hand bearbeiten. -->
@@ -99,5 +115,5 @@ Alle als animiertes GIF (transparent), Standbild-PNG und Sprite-Sheet in jeder K
 
 Kombi-Ordner: `mittelblau-messing`, `anthrazit-bordeaux`, `hellgrau-navy`, `dunkelgruen-messing`, `sand-navy`, `navy-koralle`.
 Dateien: `dist/v1/<kombi>/gif/<id>.gif` · `png/<id>.png` (Standbild) · `png/ansicht-*.png` · `png/mimik-*.png` · `sheet/<id>.png` + `.json`. Outfits: `dist/v1/outfit-<id>/…` (gleiche Struktur).
-Neue Posen baut der Skill **melly** (`skill/melly/SKILL.md`); Regeln in `BRAND.md`.
+Neue Posen baut der Skill **melly** (`.claude/skills/melly/SKILL.md`); Regeln in `BRAND.md`.
 <!-- KATALOG:END -->

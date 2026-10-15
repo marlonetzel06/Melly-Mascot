@@ -17,33 +17,36 @@ const table = (cells, cols) => {
   for (let i = 0; i < cells.length; i += cols) rows.push('<tr>' + cells.slice(i, i + cols).map(c => `<td align="center" valign="top">${c}</td>`).join('') + '</tr>');
   return `<table>\n${rows.join('\n')}\n</table>`;
 };
+const details = (summary, inner) => `<details>\n<summary>${summary}</summary>\n\n${inner}\n</details>\n\n`;
 
 let md = `${START}\n<!-- Automatisch erzeugt mit \`npm run catalog\` – nicht von Hand bearbeiten. -->\n\n`;
 md += `<p align="center">${img(`${base}/${main}/gif/winken.gif`, 288, 'Melly winkt')}</p>\n\n`;
 md += `**Melly** ist ein Pixel-Maskottchen als Code: Creme-Blob im Einreiher, Name aus dem Kürzel MEL. ${POSES.length} Posen · ${COMBOS.length} Anzug-Kombis · ${OUTFITS.length} Outfit(s) · ${TURNAROUND.length} Ansichten · ${EXPRESSIONS.length} Gesichtsausdrücke. Asset-Stand: \`${version}\`.\n\n`;
 
-md += `## Anzug-Kombis\nKrawatte und Einstecktuch haben immer die Akzentfarbe.\n\n`;
-md += table(COMBOS.map(c => `${img(`${base}/${slug(c[0])}/png/mimik-neutral.png`, 96, c[0])}<br><sub>${c[0].replace(' · ', '<br>')}</sub>`), 6) + '\n\n';
+md += `## Katalog\nKomplette Figur-Referenz – zum Aufklappen.\n\n`;
+md += details(`<b>Anzug-Kombis</b> · ${COMBOS.length}`, `Krawatte und Einstecktuch haben immer die Akzentfarbe.\n\n` + table(COMBOS.map(c => `${img(`${base}/${slug(c[0])}/png/mimik-neutral.png`, 96, c[0])}<br><sub>${c[0].replace(' · ', '<br>')}</sub>`), 6));
 
-md += `## Outfits\nKostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoires). Ordner: \`${base}/outfit-<id>/\`.\n\n`;
+let outfitsInner = `Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoires). Ordner: \`${base}/outfit-<id>/\`.\n\n`;
 for (const o of OUTFITS) {
   const own = POSES.filter(p => p.outfit === o.id);
   const picks = ['winken', 'jubeln', 'daumen-hoch', 'kaffee', 'schlafen'].map(i => POSES.find(p => p.id === i)).filter(p => p && fitsOutfit(p, o.id));
   const fits = POSES.filter(p => (!p.outfit || p.outfit === o.id) && fitsOutfit(p, o.id)).length;
-  md += `### ${o.title} (\`${o.id}\`)\n${o.desc} Läuft mit ${fits} Posen.\n\n`;
-  md += table([...own, ...picks].map(p => `${img(`${base}/outfit-${o.id}/gif/${p.id}.gif`, 144, p.title)}<br><b>${p.title}</b><br><code>${p.id}</code>`), 3) + '\n\n';
+  outfitsInner += `**${o.title}** (\`${o.id}\`) — ${o.desc} Läuft mit ${fits} Posen.\n\n`;
+  outfitsInner += table([...own, ...picks].map(p => `${img(`${base}/outfit-${o.id}/gif/${p.id}.gif`, 144, p.title)}<br><b>${p.title}</b><br><code>${p.id}</code>`), 3) + '\n\n';
 }
+md += details(`<b>Outfits</b> · ${OUTFITS.length}`, outfitsInner.trimEnd());
 
-md += `## Ansichten\n` + table(TURNAROUND.map(v => `${img(`${base}/${main}/png/ansicht-${slug(VIEW_LABELS[v])}.png`, 72, VIEW_LABELS[v])}<br><sub>${VIEW_LABELS[v]}</sub>`), 8) + '\n\n';
+md += details(`<b>Ansichten</b> · ${TURNAROUND.length}`, table(TURNAROUND.map(v => `${img(`${base}/${main}/png/ansicht-${slug(VIEW_LABELS[v])}.png`, 72, VIEW_LABELS[v])}<br><sub>${VIEW_LABELS[v]}</sub>`), 8));
 
-md += `## Mimik\n` + table(EXPRESSIONS.map(e => `${img(`${base}/${main}/png/mimik-${e.id}.png`, 72, e.title)}<br><sub>${e.title}</sub>`), 5) + '\n\n';
+md += details(`<b>Mimik</b> · ${EXPRESSIONS.length}`, table(EXPRESSIONS.map(e => `${img(`${base}/${main}/png/mimik-${e.id}.png`, 72, e.title)}<br><sub>${e.title}</sub>`), 5));
 
-md += `## Posen & Animationen\nAlle als animiertes GIF (transparent), Standbild-PNG und Sprite-Sheet in jeder Kombi. Gezeigt: ${COMBOS[0][0]}.\n\n`;
+let posenInner = `Alle als animiertes GIF (transparent), Standbild-PNG und Sprite-Sheet in jeder Kombi. Gezeigt: ${COMBOS[0][0]}.\n\n`;
 for (const cat of CATEGORIES) {
   const list = POSES.filter(p => p.category === cat);
   if (!list.length) continue;
-  md += `### ${cat}\n` + table(list.map(p => `${img(`${base}/${p.outfit ? 'outfit-' + p.outfit : main}/gif/${p.id}.gif`, 144, p.title)}<br><b>${p.title}</b><br><code>${p.id}</code><br><sub>${p.desc}</sub>`), 3) + '\n\n';
+  posenInner += `#### ${cat}\n` + table(list.map(p => `${img(`${base}/${p.outfit ? 'outfit-' + p.outfit : main}/gif/${p.id}.gif`, 144, p.title)}<br><b>${p.title}</b><br><code>${p.id}</code><br><sub>${p.desc}</sub>`), 3) + '\n\n';
 }
+md += details(`<b>Posen &amp; Animationen</b> · ${POSES.length}`, posenInner.trimEnd());
 
 md += `## Nutzung
 | Zweck | Befehl |

@@ -1,13 +1,13 @@
 # Melly · Regeln
 
-Melly ist Marlons persönliches Pixel-Maskottchen: ein Creme-Blob im Einreiher. Name aus dem M&M-Kürzel **MEL**.
+Melly ist Marlons persönliches Pixel-Maskottchen: ein Creme-Blob im Einreiher. Name vom Kürzel **MEL**.
 
 ## Modell (fix)
 - Raster 22×19 px (Figur), Arbeitsfläche 36×32 (`src/model.js`: `GW/GH/OX/OY`).
 - Creme-Körper `C`, Schatten rechts `c` (Licht von links). Augen 2×2 `E`, Bäckchen `P`. **Kein Mund** – Ausnahmen: überrascht (kleines o), Gähnen.
 - Einreiher `N`/`n`, weißes Hemd `W`, **Krawatte = Einstecktuch = Akzentfarbe `A`**, dunklerer Knoten `a`. Weiße Sneaker.
-- Kontur `O` wird automatisch gesetzt und ist **überall dunkel** – funktioniert auf Weiß, Papier, M&M-Navy, Schwarz, Cyan.
-- 6 Anzug-Kombis (`COMBOS`). Neue Kombi: Anzugfarbe muss sich vom M&M-Navy `#041C2C` abheben; Akzent kontrastiert zum Anzug.
+- Kontur `O` wird automatisch gesetzt und ist **überall dunkel** – funktioniert auf Weiß, Papier, Dunkelblau, Schwarz, Cyan.
+- 6 Anzug-Kombis (`COMBOS`). Neue Kombi: Anzugfarbe muss sich vom Dunkelblau `#041C2C` abheben; Akzent kontrastiert zum Anzug.
 - **Outfits** (`src/outfits.js`) verkleiden Melly für Anlässe (z. B. Weihnachtsmann). Sie ändern Farben und legen Accessoires darüber, nie das Modell selbst. Augen, Kontur und Silhouette bleiben erkennbar Melly; Krawatte/Einstecktuch bleiben sichtbar. Outfit-Anzüge brauchen denselben Kontrast zu Navy wie Kombis: nicht dunkler als ca. `#34373E` (Schwarz → Anthrazit-Schwarz, sonst verschwinden die Ärmel auf Navy).
 - Ansichten: `F` vorne, `Q`/`QL` 3/4, `S`/`SL` Profil, `QB`/`QBL` 3/4 hinten, `B` hinten.
 

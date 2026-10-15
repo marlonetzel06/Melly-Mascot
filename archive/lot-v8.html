@@ -35,7 +35,7 @@
   <div class="row" id="blob"></div>
 
   <h2>3 · Eine Version für alle Hintergründe · Anzugfarbe</h2>
-  <p class="desc">Dunkle Kontur überall. Entscheidend ist, dass der Anzug heller ist als das M&amp;M-Navy.</p>
+  <p class="desc">Dunkle Kontur überall. Entscheidend ist, dass der Anzug heller ist als das Dunkelblau.</p>
   <div id="bg"></div>
 
   <h2>4 · Mimik v2 (mit Augenbrauen)</h2>
@@ -144,7 +144,7 @@ stage('suit', render(make({torso:'bow'}),8), 'B · Einreiher + Fliege');
   BASE_PX.T = '#E3A33B';
 });
 
-const BGS = [['#FFFFFF','Weiß','#6B7280'],['#F5F3EE','Papier','#6B7280'],['#041C2C','M&M Navy','#9fb3c2'],['#000000','Schwarz','#9fb3c2'],['#29A9E1','Cyan (Beispiel)','#04324a']];
+const BGS = [['#FFFFFF','Weiß','#6B7280'],['#F5F3EE','Papier','#6B7280'],['#041C2C','Dunkelblau','#9fb3c2'],['#000000','Schwarz','#9fb3c2'],['#29A9E1','Cyan (Beispiel)','#04324a']];
 [['#1F3A57','Navy (wie bisher)'],['#2E5A8A','Mittelblau'],['#3D4654','Anthrazit']].forEach(([suit,name]) => {
   const wrap = document.getElementById('bg');
   wrap.insertAdjacentHTML('beforeend', `<div class="lbl">${name} ${suit}</div>`);

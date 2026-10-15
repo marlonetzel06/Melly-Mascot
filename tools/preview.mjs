@@ -1,4 +1,4 @@
-// Kontaktbogen zur Selbstprüfung: alle Frames einer Pose, oben auf Weiß, unten auf M&M-Navy, mit Index + Dauer.
+// Kontaktbogen zur Selbstprüfung: alle Frames einer Pose, oben auf Weiß, unten auf Dunkelblau, mit Index + Dauer.
 // node tools/preview.mjs <pose-id|all> [--combo 0] [--outfit <id>|none] [--scale 6] [--out out/preview]
 import { POSES, getPose, buildFrames, fitsOutfit } from '../src/registry.js';
 import { COMBOS, slug } from '../src/model.js';

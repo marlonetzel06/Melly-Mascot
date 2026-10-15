@@ -35,7 +35,7 @@ Krawatte und Einstecktuch haben immer die Akzentfarbe.
 Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoires). Ordner: `dist/v1/outfit-<id>/`.
 
 ### Weihnachtsmann (`weihnachten`)
-Roter Anzug mit Gürtel und Pelzsaum, Weihnachtsmütze mit Bommel. Krawatte/Einstecktuch bleiben Messing. Läuft mit 37 Posen.
+Roter Anzug mit Gürtel und Pelzsaum, Weihnachtsmütze mit Bommel. Krawatte/Einstecktuch bleiben Messing. Läuft mit 41 Posen.
 
 <table>
 <tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/weihnachtsmann.gif" width="144" alt="Weihnachtsmann"><br><b>Weihnachtsmann</b><br><code>weihnachtsmann</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td></tr>

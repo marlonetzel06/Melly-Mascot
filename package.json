@@ -2,6 +2,7 @@
   "name": "melly-mascot",
   "version": "1.0.0",
   "private": true,
+  "license": "UNLICENSED",
   "description": "Melly – Pixel-Maskottchen als Code: Modell, Posen, Galerie, Export",
   "type": "module",
   "scripts": {

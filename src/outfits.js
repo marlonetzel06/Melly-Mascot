@@ -6,6 +6,9 @@
 //   after:  { <Ansicht>: (opt) => [Bausteine] } – NACH den Posen-Bausteinen, Bausteine bekommen zusätzlich get(x, y) zum Lesen
 //           des Bildes (Korrekturen, die von der Pose abhängen, z. B. Saum weicht Schuhen aus).
 //   hat:    true = Kopfbedeckung; Effekte über dem Kopf (Glühbirne, Dampf, Ausrufezeichen) weichen zur Seite aus.
+//   doff:   true = Kopfbedeckung wird vor dem Hinlegen abgenommen und neben die Figur gestellt (Posen hinlegen/aufstehen/liegen-*
+//           wählen dann ihre Ablage-Variante); Frame-Option hut = [dx, dy] (in der Hand) bzw. [dx, dy, 'hinten'] (abgestellt), ohne hut auf dem Kopf.
+//           Liegen/Neigung brauchen dann keine figures.
 //   figures: { <Figur-ID>: (opt) => [Bausteine] } – Accessoires für eigene Figuren in Ansicht '-' (Liegen, Neigung; props.js),
 //           in Sprite-Koordinaten der Figur, gezeichnet direkt NACH der Figur (opt.tip z. B. für den Zustand des Mützenzipfels).
 // Eine Pose passt zu einem Outfit, wenn alle ihre Frames Ansichten nutzen, für die das Outfit layers hat (bzw. figures für ihre Figuren).
@@ -286,70 +289,16 @@ const helmet = view => (p, S) => helmetPx(view).forEach(([x, y, c]) => S(x, y, c
 /** Brauen hoch oben (y ≤ 2, z. B. skeptisch, überrascht) landen sonst schwarz auf dem Schirm: dort gilt wieder der Helm (Brauen verdeckt). */
 const helmetOverBrows = view => (p, S, opt, get) => helmetPx(view).forEach(([x, y, c]) => { if (get(x, y + (opt.headDy || 0)) === 'E') S(x, y, c); });
 
-/** Liegen und Neigung (Figuren aus props.js): Helm am gekippten Kopf, [i0, j0, Zeilen] in Sprite-Koordinaten der Figur.
- *  Neigung: Helm mitgedreht (Schatten t bleibt auf der Helm-Rückseite wie bei der Figur), Liegen: neu beleuchtet (Schatten unten wie LIE). */
-const HELMET_FIG = {
-  lean26: [1, -4, [
-    '....ITTttt....',
-    '..TIIItTTttt..',
-    '..XTIItTTTTttt',
-    '.ITTIIItTTttTt',
-    'TTTTTIITttTTDD',
-    'TTTTTIttTTDD..',
-    'TTTTttTTDD....',
-    'TTttTTDD......',
-    'ttTTDD........',
-    'TTDD..........',
-    'DD............']],
-  lean45: [-2, -2, [
-    '......ttt.....',
-    '....TTttttttTt',
-    '...ItTTTTTtTtD',
-    '..IIItTTTtTTD.',
-    '.TTIIItTtTTD..',
-    '.TTTIIItTTD...',
-    'TITTTItTTD....',
-    'TITTTtTTD.....',
-    'TTTTtTTD......',
-    '.TTtTTD.......',
-    '.TtTTD........',
-    '..TTD.........',
-    '.TTD..........',
-    '.TD...........']],
-  lean63: [-4, -1, [
-    '..........TD',
-    '....ttttttTD',
-    '....tttttTD.',
-    '..TTTTTTtTD.',
-    '.IttTTTtTD..',
-    '.IIIttTtTD..',
-    'TTIIIItTD...',
-    'TTTTIItTD...',
-    '.TTTTtTD....',
-    '.XTTTtTD....',
-    '.ITTtTD.....',
-    '.TTTtTD.....',
-    '..TtTD......',
-    '..TtTD......',
-    '...TD.......',
-    '...TD.......']],
-  lie: [-5, -1, [
-    '......TD',
-    '....TtTD',
-    '..TTTtTD',
-    '.TXTTtTD',
-    '.TITTtTD',
-    'TTTTTtTD',
-    'TTTTTtTD',
-    'IIIIItTD',
-    'IIIIItTD',
-    'ttttttTD',
-    'TTTTTtTD',
-    '.TTTTtTD',
-    '.tTTTtTD',
-    '..ttttTD',
-    '....ttTD',
-    '......TD']]
+/** Abgenommener Helm (opt.hut = [dx, dy] relativ zum Sitz auf dem Kopf, immer Frontansicht):
+ *  in der Hand vor dem Körper (layers, Arme liegen darüber), oder mit 'hinten' (after) abgestellt hinter der Figur – füllt nur freie Pixel und setzt dort, wo er an die Figur stößt,
+ *  eine Kontur, damit Kopf und Helm nicht verschmelzen. dx/dy des Frames werden ausgeglichen (abgestellt = bleibt stehen, wenn die Figur rutscht). */
+const helmetOff = ([hx, hy, back]) => (p, S, opt, get) => {
+  const ox = back ? -(opt.dx || 0) : 0, oy = back ? -(opt.dy || 0) : 0;
+  const px = helmetPx('F').map(([x, y, c]) => [x + hx + ox, y + hy + oy, c]);
+  if (!back) return px.forEach(([x, y, c]) => p(x, y, c));
+  const mine = new Set(px.map(([x, y]) => `${x},${y}`));
+  const solid = (x, y) => !mine.has(`${x},${y}`) && (get(x, y) ?? '.') !== '.';
+  px.forEach(([x, y, c]) => { if (get(x, y) === '.') p(x, y, [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => solid(x + a, y + b)) ? 'O' : c); });
 };
 
 export const OUTFITS = [
@@ -366,12 +315,12 @@ export const OUTFITS = [
   {
     id: 'bauhelm',
     title: 'Bauhelm',
-    desc: 'Gelber Bauarbeiterhelm mit Grat, Kopfband und zweistufigem Schirm (hinten mit Nackenband), in allen Ansichten. Anzug bleibt in der Kombi – Melly als Bauleiter.',
+    desc: 'Gelber Bauarbeiterhelm mit Grat, Kopfband und zweistufigem Schirm (hinten mit Nackenband), in allen Ansichten; zum Hinlegen nimmt Melly ihn ab und stellt ihn neben sich. Anzug bleibt in der Kombi – Melly als Bauleiter.',
     hat: true,
     pal: { T: '#F2C230', t: '#C99A1C', I: '#FBE48C', D: '#9A7212' },
-    layers: Object.fromEntries(['F', 'Q', 'QL', 'S', 'SL', 'QB', 'QBL', 'B'].map(v => [v, () => [helmet(v)]])),
-    after: Object.fromEntries(['F', 'Q', 'QL', 'S', 'SL', 'QB', 'QBL', 'B'].map(v => [v, () => [helmetOverBrows(v)]])),
-    figures: Object.fromEntries(Object.entries(HELMET_FIG).map(([id, [i0, j0, rows]]) => [id, () => [sprite(rows, i0, j0)]]))
+    doff: true,
+    layers: Object.fromEntries(['F', 'Q', 'QL', 'S', 'SL', 'QB', 'QBL', 'B'].map(v => [v, (opt) => !opt.hut ? [helmet(v)] : opt.hut[2] ? [] : [helmetOff(opt.hut)]])),
+    after: Object.fromEntries(['F', 'Q', 'QL', 'S', 'SL', 'QB', 'QBL', 'B', '-'].map(v => [v, (opt) => opt.hut ? (opt.hut[2] ? [helmetOff(opt.hut)] : []) : v === '-' ? [] : [helmetOverBrows(v)]]))
   }
 ];
 

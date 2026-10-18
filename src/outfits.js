@@ -220,116 +220,136 @@ const SANTA_FIG = {
 };
 
 // ---------- Bauhelm ----------
-// Kopf-Umriss (y 0–4) ist in allen Ansichten gleich, der Helm sitzt daher überall auf derselben Kalotte (x 4–17, y −5..0);
-// je Ansicht wandern Mittelgrat (Licht I) und Schirm (vorn länger), Schatten t rechts (Licht von links). Spalte 0 = x 2.
+// Kopf-Umriss (y 0–4) ist in allen Ansichten gleich, der Helm sitzt daher überall gleich tief: Kalotte y −5..−1, Kopfband-Naht y 0,
+// Schirm y 1 (Oberseite T) + y 2 (Kante D, trennt zur Stirn statt einer Konturzeile). Grat I mit Schattenkante t (Relief), Glanz X/I links oben,
+// Schatten t rechts (Licht von links). Profil: Zubehör-Schlitz; hinten: Nackenband k mit Drehrad G. Spalte 0 = x 2, Zeile 0 = y −5.
 const HELMET = {
   F: [
     '......TTIItt......',
-    '....TTTTIITTtt....',
-    '...TITTTIITTTtt...',
-    '...TTTTTIITTTtt...',
-    '..TTTTTTIITTTTtt..',
-    '..TTTTTTIITTTTtt..',
-    'tttttttttttttttttt'],
+    '....TITTIItTtt....',
+    '...TIXTTIItTTtt...',
+    '...TTTTTIItTTtt...',
+    '..TTTTTTIItTTTtt..',
+    '..ttttttttttttDD..',
+    'TTTTTTTTTTTTTTTTtt',
+    'DDDDDDDDDDDDDDDDDD'],
   Q: [
     '......TTTTIt......',
-    '....TTTTTTIItt....',
-    '...TITTTTTIITtt...',
-    '...TTTTTTTIITtt...',
-    '..TTTTTTTTIITTtt..',
-    '..TTTTTTTTIITTtt..',
-    '.ttttttttttttttttttt'],
+    '....TITTTTIItt....',
+    '...TIXTTTTIItTt...',
+    '...TTTTTTTIItTt...',
+    '..TTTTTTTTIItTtt..',
+    '..ttttttttttttDD..',
+    '.TTTTTTTTTTTTTTTTTtt',
+    '.DDDDDDDDDDDDDDDDDDD'],
   S: [
-    '......TTTTtt......',
-    '....TITTTTTTtt....',
-    '...TITTTTTTTTtt...',
+    '......TIITtt......',
+    '....TIITTTTTtt....',
+    '...TIXTTTTTTTtt...',
     '...TTTTTTTTTTtt...',
-    '..TTTTTTTTTTTTtt..',
-    '..TTTTTTTTTTTTtt..',
-    '.ttttttttttttttttttt'],
+    '..TTTTTDDTTTTTtt..',
+    '..ttttttttttttDD..',
+    '.TTTTTTTTTTTTTTTTTtt',
+    '.DDDDDDDDDDDDDDDDDDD'],
   QB: [
-    '......IITTtt......',
-    '....TTIITTTTtt....',
-    '...TTIITTTTTTtt...',
-    '...TTIITTTTTTtt...',
-    '..TTTIITTTTTTTtt..',
-    '..TTTIITTTTTTTtt..',
-    '.ttttttttttttttttttt'],
+    '......IItTtt......',
+    '....TTIItTTTtt....',
+    '...TTTIItTTTTtt...',
+    '...TTTIItTTTTtt...',
+    '..TTTTIItTTTTTtt..',
+    '..ttttttttttttDD..',
+    '.TTTTTTTTTTTTTTTTTtt',
+    '.DDDDDDDDDDDDDDDDDDD',
+    '..................',
+    '..GGGkkGGGGGGGG...',
+    '.....kk...........'],
   B: [
     '......TTIItt......',
-    '....TTTTIITTtt....',
-    '...TTTTTIITTTtt...',
-    '...TTTTTIITTTtt...',
-    '..TTTTTTIITTTTtt..',
-    '..TTTTTTIITTTTtt..',
-    'tttttttttttttttttt']
+    '....TTTTIItTtt....',
+    '...TTTTTIItTTtt...',
+    '...TTTTTIItTTtt...',
+    '..TTTTTTIItTTTtt..',
+    '..ttttttttttttDD..',
+    'TTTTTTTTTTTTTTTTtt',
+    'DDDDDDDDDDDDDDDDDD',
+    '..................',
+    '..GGGGGGkkGGGGGG..',
+    '........kk........']
 };
-/** Helm einer Ansicht; L-Ansichten gespiegelt (wie das Modell). Kontur zum Kopf (y 1) trennt Schirm und Stirn. */
-const helmet = view => (p, S) => {
-  const left = view.endsWith('L'), rows = HELMET[left ? view.slice(0, -1) : view];
-  rows.forEach((r, j) => [...r].forEach((c, i) => { if (c !== '.') S(left ? 19 - i : 2 + i, j - 6, c); }));
-  for (let x = 5; x <= 16; x++) S(x, 1, 'O');
+/** Pixel des Helms einer Ansicht als [x, y, Token]; L-Ansichten gespiegelt (wie das Modell). */
+const helmetPx = view => {
+  const left = view.endsWith('L'), out = [];
+  HELMET[left ? view.slice(0, -1) : view].forEach((r, j) => [...r].forEach((c, i) => { if (c !== '.') out.push([left ? 19 - i : 2 + i, j - 5, c]); }));
+  return out;
 };
+const helmet = view => (p, S) => helmetPx(view).forEach(([x, y, c]) => S(x, y, c));
+/** Brauen hoch oben (y ≤ 2, z. B. skeptisch, überrascht) landen sonst schwarz auf dem Schirm: dort gilt wieder der Helm (Brauen verdeckt). */
+const helmetOverBrows = view => (p, S, opt, get) => helmetPx(view).forEach(([x, y, c]) => { if (get(x, y + (opt.headDy || 0)) === 'E') S(x, y, c); });
 
 /** Liegen und Neigung (Figuren aus props.js): Helm am gekippten Kopf, [i0, j0, Zeilen] in Sprite-Koordinaten der Figur.
  *  Neigung: Helm mitgedreht (Schatten t bleibt auf der Helm-Rückseite wie bei der Figur), Liegen: neu beleuchtet (Schatten unten wie LIE). */
 const HELMET_FIG = {
-  lean26: [-1, -5, [
-    '.....IITTtt......',
-    '....TIITTTTttt...',
-    '...TTIIITTTTtt...',
-    '..TTTTIITTTTTttt.',
-    '..TTTTIIITTTtt...',
-    '.TITTTTIITttOO...',
-    '.TTTTTTIttOO.....',
-    '.TTTTTttOO.......',
-    '..TTttOO.........',
-    '..ttOO...........']],
-  lean45: [-3, -3, [
-    '.......tt.....',
-    '.....TTTtt....',
-    '....TTTTTTtttOO',
-    '...IITTTTTTtOO.',
-    '..TIIITTTTtOO.',
-    '.TTTIIITTtOO..',
-    '.TTTTIIItOO...',
-    'TITTTTItOO....',
-    'TITTTTtOO.....',
-    '.TTTTtOO......',
-    '.TTTtOO.......',
-    '..TtOO........',
-    '..tO..........']],
-  lean63: [-5, 0, [
-    '.....tttt..',
-    '...tTTTTtt.',
-    '..TTTTTTTtO',
-    '.IITTTTTtO.',
-    '.IIIITTTtO.',
-    'TTTIIIItO..',
-    'TTTTTIItO..',
-    'TTTTTTtO...',
-    'TITTTTtO...',
-    '.TTTTtO....',
-    '..TTTtO....',
-    '..TTtO.....',
-    '...TtO.....']],
+  lean26: [1, -4, [
+    '....ITTttt....',
+    '..TIIItTTttt..',
+    '..XTIItTTTTttt',
+    '.ITTIIItTTttTt',
+    'TTTTTIITttTTDD',
+    'TTTTTIttTTDD..',
+    'TTTTttTTDD....',
+    'TTttTTDD......',
+    'ttTTDD........',
+    'TTDD..........',
+    'DD............']],
+  lean45: [-2, -2, [
+    '......ttt.....',
+    '....TTttttttTt',
+    '...ItTTTTTtTtD',
+    '..IIItTTTtTTD.',
+    '.TTIIItTtTTD..',
+    '.TTTIIItTTD...',
+    'TITTTItTTD....',
+    'TITTTtTTD.....',
+    'TTTTtTTD......',
+    '.TTtTTD.......',
+    '.TtTTD........',
+    '..TTD.........',
+    '.TTD..........',
+    '.TD...........']],
+  lean63: [-4, -1, [
+    '..........TD',
+    '....ttttttTD',
+    '....tttttTD.',
+    '..TTTTTTtTD.',
+    '.IttTTTtTD..',
+    '.IIIttTtTD..',
+    'TTIIIItTD...',
+    'TTTTIItTD...',
+    '.TTTTtTD....',
+    '.XTTTtTD....',
+    '.ITTtTD.....',
+    '.TTTtTD.....',
+    '..TtTD......',
+    '..TtTD......',
+    '...TD.......',
+    '...TD.......']],
   lie: [-5, -1, [
-    '....t.',
-    '...Tt.',
-    '..TTtO',
-    '.TITtO',
-    '.TTTtO',
-    '.TTTtO',
-    'TTTTtO',
-    'IIIItO',
-    'IIIItO',
-    'TTTTtO',
-    'TTTTtO',
-    '.TTTtO',
-    '.TTTtO',
-    '.ttTtO',
-    '..ttt.',
-    '....t.']]
+    '......TD',
+    '....TtTD',
+    '..TTTtTD',
+    '.TXTTtTD',
+    '.TITTtTD',
+    'TTTTTtTD',
+    'TTTTTtTD',
+    'IIIIItTD',
+    'IIIIItTD',
+    'ttttttTD',
+    'TTTTTtTD',
+    '.TTTTtTD',
+    '.tTTTtTD',
+    '..ttttTD',
+    '....ttTD',
+    '......TD']]
 };
 
 export const OUTFITS = [
@@ -346,10 +366,11 @@ export const OUTFITS = [
   {
     id: 'bauhelm',
     title: 'Bauhelm',
-    desc: 'Gelber Bauarbeiterhelm mit Mittelgrat und Schirm, in allen Ansichten. Anzug bleibt in der Kombi – Melly als Bauleiter.',
+    desc: 'Gelber Bauarbeiterhelm mit Grat, Kopfband und zweistufigem Schirm (hinten mit Nackenband), in allen Ansichten. Anzug bleibt in der Kombi – Melly als Bauleiter.',
     hat: true,
-    pal: { T: '#F2C230', t: '#C99A1C', I: '#FBE48C' },
+    pal: { T: '#F2C230', t: '#C99A1C', I: '#FBE48C', D: '#9A7212' },
     layers: Object.fromEntries(['F', 'Q', 'QL', 'S', 'SL', 'QB', 'QBL', 'B'].map(v => [v, () => [helmet(v)]])),
+    after: Object.fromEntries(['F', 'Q', 'QL', 'S', 'SL', 'QB', 'QBL', 'B'].map(v => [v, () => [helmetOverBrows(v)]])),
     figures: Object.fromEntries(Object.entries(HELMET_FIG).map(([id, [i0, j0, rows]]) => [id, () => [sprite(rows, i0, j0)]]))
   }
 ];

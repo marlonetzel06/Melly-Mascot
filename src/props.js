@@ -11,8 +11,10 @@ export const puff = (x, y, c = 'Z') => (p, S, opt) => { const h = opt?.outfit?.h
 export const cloud = (x, y, c = 'Z', flip = false) => L(flip
   ? [[x, y, c], [x + 1, y, c], [x + 2, y, c], [x + 1, y - 1, c], [x + 2, y - 1, c], [x + 1, y - 2, c]] // gespiegelt (rechte Seite)
   : [[x, y, c], [x + 1, y, c], [x + 2, y, c], [x, y - 1, c], [x + 1, y - 1, c], [x + 1, y - 2, c]]);
-export const sweat = L([[19, 2, 'B'], [19, 3, 'B'], [18, 3, 'B']]);
-export const sweatL = L([[2, 2, 'B'], [2, 3, 'B'], [3, 3, 'B']]);
+/** Schweißtropfen an der Schläfe; mit Kopfbedeckung (outfit.hat) unter die Schirmspitze gerückt. */
+const drop = (cells, dx) => (p, S, opt) => { const h = opt?.outfit?.hat; L(cells.map(([x, y, c]) => [x + (h ? dx : 0), y + (h ? 3 : 0), c]))(p); };
+export const sweat = drop([[19, 2, 'B'], [19, 3, 'B'], [18, 3, 'B']], 1);
+export const sweatL = drop([[2, 2, 'B'], [2, 3, 'B'], [3, 3, 'B']], -1);
 export const bang = L([[22, -3, 'A'], [22, -2, 'A'], [22, -1, 'A'], [22, 1, 'A']]);
 /** Ausrufezeichen über dem Kopf (Profil); mit Kopfbedeckung (outfit.hat) vor die Stirn gerückt. */
 export const sBang = (p, S, opt) => { const x = opt?.outfit?.hat ? 25 : 15; L([[x, -5, 'R'], [x, -4, 'R'], [x, -3, 'R'], [x, -1, 'R']])(p); };
@@ -21,7 +23,7 @@ const Z4 = ['####', '..#.', '.#..', '####'], Z5 = ['#####', '...#.', '..#..', '.
 const zs = rows => rows.map(r => r.replace(/#/g, 'Z'));
 const SLOTS = [[18, 1, Z4], [20, -3, Z4], [22, -7, Z5], [24, -12, Z5]];
 /** Z-Slot i (0 unten … 3 oben); mit Kopfbedeckung (outfit.hat) rücken die unteren Slots vom Schirm/Bommel weg nach rechts. */
-export const zSlot = (i, ox = 0, oy = 0) => (p, S, opt) => { const [x, y, m] = SLOTS[i], h = opt?.outfit?.hat ? [3, 3, 2, 0][i] : 0, v = opt?.outfit?.hat && i === 0 ? 1 : 0; sprite(zs(m), x + ox + h, y + oy + v)(p); };
+export const zSlot = (i, ox = 0, oy = 0) => (p, S, opt) => { const [x, y, m] = SLOTS[i], h = opt?.outfit?.hat ? [4, 3, 2, 0][i] : 0, v = opt?.outfit?.hat && i === 0 ? 3 : 0; sprite(zs(m), x + ox + h, y + oy + v)(p); };
 export const heart = L([[20, 2, 'R'], [22, 2, 'R'], [19, 3, 'R'], [20, 3, 'R'], [21, 3, 'R'], [22, 3, 'R'], [23, 3, 'R'], [20, 4, 'R'], [21, 4, 'R'], [22, 4, 'R'], [21, 5, 'R']]);
 
 // Kopf-Rotfärbung für „Sauer“ (als frame-Option pal)

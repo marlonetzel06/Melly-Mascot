@@ -5,7 +5,8 @@ import { L, sprite, clrL, clrR, caret, limb, arm } from './core.js';
 export const spark = (x, y, big) => p => { p(x, y, 'H'); if (big) { p(x - 1, y, 'H'); p(x + 1, y, 'H'); p(x, y - 1, 'H'); p(x, y + 1, 'H'); } };
 export const star = (x, y) => spark(x, y, true);
 export const dot = (x, y, s) => p => { for (let i = 0; i < s; i++) for (let j = 0; j < s; j++) p(x + i, y + j, 'C'); };
-export const puff = (x, y, c = 'Z') => L([[x, y, c], [x + 1, y, c], [x, y - 1, c]]);
+/** Dampfwölkchen; mit Kopfbedeckung (outfit.hat) 3 px weiter nach außen, sonst klebt es an Krempe/Schirm. */
+export const puff = (x, y, c = 'Z') => (p, S, opt) => { const o = opt?.outfit?.hat ? (x < 11 ? -3 : 3) : 0; L([[x + o, y, c], [x + o + 1, y, c], [x + o, y - 1, c]])(p); };
 /** Staubwolke (3 breit, gewölbt): liest sich mit Kontur als Wolke statt als Strich. */
 export const cloud = (x, y, c = 'Z', flip = false) => L(flip
   ? [[x, y, c], [x + 1, y, c], [x + 2, y, c], [x + 1, y - 1, c], [x + 2, y - 1, c], [x + 1, y - 2, c]] // gespiegelt (rechte Seite)
@@ -13,12 +14,14 @@ export const cloud = (x, y, c = 'Z', flip = false) => L(flip
 export const sweat = L([[19, 2, 'B'], [19, 3, 'B'], [18, 3, 'B']]);
 export const sweatL = L([[2, 2, 'B'], [2, 3, 'B'], [3, 3, 'B']]);
 export const bang = L([[22, -3, 'A'], [22, -2, 'A'], [22, -1, 'A'], [22, 1, 'A']]);
-export const sBang = L([[15, -5, 'R'], [15, -4, 'R'], [15, -3, 'R'], [15, -1, 'R']]);
+/** Ausrufezeichen über dem Kopf (Profil); mit Kopfbedeckung (outfit.hat) vor die Stirn gerückt. */
+export const sBang = (p, S, opt) => { const x = opt?.outfit?.hat ? 23 : 15; L([[x, -5, 'R'], [x, -4, 'R'], [x, -3, 'R'], [x, -1, 'R']])(p); };
 export const tick = (x, y) => L([[x, y + 1, 'V'], [x + 1, y + 2, 'V'], [x + 2, y + 1, 'V'], [x + 3, y, 'V']]);
 const Z4 = ['####', '..#.', '.#..', '####'], Z5 = ['#####', '...#.', '..#..', '.#...', '#####'];
 const zs = rows => rows.map(r => r.replace(/#/g, 'Z'));
 const SLOTS = [[18, 1, Z4], [20, -3, Z4], [22, -7, Z5], [24, -12, Z5]];
-export const zSlot = (i, ox = 0, oy = 0) => { const [x, y, m] = SLOTS[i]; return sprite(zs(m), x + ox, y + oy); };
+/** Z-Slot i (0 unten … 3 oben); mit Kopfbedeckung (outfit.hat) rücken die unteren Slots vom Schirm/Bommel weg nach rechts. */
+export const zSlot = (i, ox = 0, oy = 0) => (p, S, opt) => { const [x, y, m] = SLOTS[i], h = opt?.outfit?.hat ? [3, 3, 2, 0][i] : 0; sprite(zs(m), x + ox + h, y + oy)(p); };
 export const heart = L([[20, 2, 'R'], [22, 2, 'R'], [19, 3, 'R'], [20, 3, 'R'], [21, 3, 'R'], [22, 3, 'R'], [23, 3, 'R'], [20, 4, 'R'], [21, 4, 'R'], [22, 4, 'R'], [21, 5, 'R']]);
 
 // Kopf-Rotfärbung für „Sauer“ (als frame-Option pal)
@@ -100,11 +103,12 @@ export const mug = (pos, steam) => (p, S) => {
 };
 
 // ---------- Glühbirne ----------
-export const bulb = (on) => p => {
-  const g = on ? 'Y' : 'w';
-  ['.###.', '#####', '#####', '.###.'].forEach((r, j) => [...r].forEach((c, i) => { if (c === '#') p(8 + i, -8 + j, g); }));
-  p(9, -4, 'g'); p(10, -4, 'g'); p(11, -4, 'g'); p(10, -3, 'g');
-  if (on) { p(9, -7, 'X'); [[6, -7], [14, -7], [10, -10], [7, -10], [13, -10]].forEach(([x, y]) => p(x, y, 'Y')); }
+/** Über dem Kopf; mit Kopfbedeckung (outfit.hat) links oben daneben, da über Mütze/Helm kein Platz bleibt (Oberkante y −10). */
+export const bulb = (on) => (p, S, opt) => {
+  const g = on ? 'Y' : 'w', o = opt?.outfit?.hat ? -12 : 0, q = (x, y, c) => p(x + o, y, c);
+  ['.###.', '#####', '#####', '.###.'].forEach((r, j) => [...r].forEach((c, i) => { if (c === '#') q(8 + i, -8 + j, g); }));
+  q(9, -4, 'g'); q(10, -4, 'g'); q(11, -4, 'g'); q(10, -3, 'g');
+  if (on) { q(9, -7, 'X'); [[6, -7], [14, -7], [10, -10], [7, -10], [13, -10]].forEach(([x, y]) => q(x, y, 'Y')); }
 };
 
 // ---------- Facepalm-Hand (Fäustling) & Gähn-Mund ----------

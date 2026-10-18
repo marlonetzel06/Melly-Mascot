@@ -172,10 +172,10 @@ export const toeUp = p => { p(16, 17, '.'); p(17, 17, '.'); };
 export const tapMark = p => { p(19, 17, 'w'); p(20, 16, 'w'); };
 
 /** Lauf-Zyklus im Profil (rechts), 8 Phasen: Kontakt, halber Schritt, Passieren (hoch), halber Schritt, … – Arm pendelt gegenläufig im Bogen.
- *  Liefert n Frames, dx wächst pro Frame um step. */
-export function walkFrames(count, { x0 = 0, step = 2, ms = 130 } = {}) {
+ *  Liefert n Frames, dx wächst pro Frame um step. fr = Frame-Builder (registry.js reicht den mit Outfit herein). */
+export function walkFrames(count, { x0 = 0, step = 2, ms = 130 } = {}, fr = frame) {
   const seq = [['a', 2, 1, 0], ['a1', 1, 0, 0], ['pass', 0, 0, -1], ['b1', -1, 0, 0], ['b', -2, 1, 0], ['b1', -1, 0, 0], ['pass', 0, 0, -1], ['a1', 1, 0, 0]];
-  return Array.from({ length: count }, (_, i) => { const [m, arm, lift, dy] = seq[i % 8]; return frame([sideFeet(m), sideArm(arm, lift)], ms, { view: 'S', dx: x0 + step * i, dy }); });
+  return Array.from({ length: count }, (_, i) => { const [m, arm, lift, dy] = seq[i % 8]; return fr([sideFeet(m), sideArm(arm, lift)], ms, { view: 'S', dx: x0 + step * i, dy }); });
 }
 
 // ---------- Sitzen auf einer Kante (vorne): Schoß auf der Sitzfläche y 16, Unterschenkel hängen vor dem Element ----------

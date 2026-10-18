@@ -28,7 +28,7 @@ npm run video     # Intro-Video → dist/video/melly-intro-4x5.mp4 (braucht Chro
 
 <p align="center"><img src="dist/v1/mittelblau-messing/gif/winken.gif" width="288" alt="Melly winkt"></p>
 
-**Melly** ist ein Pixel-Maskottchen als Code: Creme-Blob im Einreiher, Name aus dem Kürzel MEL. 69 Posen · 6 Anzug-Kombis · 1 Outfit(s) · 8 Ansichten · 10 Gesichtsausdrücke. Asset-Stand: `v1`.
+**Melly** ist ein Pixel-Maskottchen als Code: Creme-Blob im Einreiher, Name aus dem Kürzel MEL. 69 Posen · 6 Anzug-Kombis · 2 Outfit(s) · 8 Ansichten · 10 Gesichtsausdrücke. Asset-Stand: `v1`.
 
 ## Katalog
 Komplette Figur-Referenz – zum Aufklappen.
@@ -44,7 +44,7 @@ Krawatte und Einstecktuch haben immer die Akzentfarbe.
 </details>
 
 <details>
-<summary><b>Outfits</b> · 1</summary>
+<summary><b>Outfits</b> · 2</summary>
 
 Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoires). Ordner: `dist/v1/outfit-<id>/`.
 
@@ -53,6 +53,13 @@ Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoire
 <table>
 <tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/weihnachtsmann.gif" width="144" alt="Weihnachtsmann"><br><b>Weihnachtsmann</b><br><code>weihnachtsmann</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td></tr>
 <tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code></td></tr>
+</table>
+
+**Bauhelm** (`bauhelm`) — Gelber Bauarbeiterhelm mit Mittelgrat und Schirm, in allen Ansichten. Anzug bleibt in der Kombi – Melly als Bauleiter. Läuft mit 68 Posen.
+
+<table>
+<tr><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td></tr>
+<tr><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code></td></tr>
 </table>
 </details>
 

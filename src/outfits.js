@@ -5,6 +5,7 @@
 //           opt = Frame-Optionen der Pose (z. B. opt.wobble für wippenden Bommel).
 //   after:  { <Ansicht>: (opt) => [Bausteine] } – NACH den Posen-Bausteinen, Bausteine bekommen zusätzlich get(x, y) zum Lesen
 //           des Bildes (Korrekturen, die von der Pose abhängen, z. B. Saum weicht Schuhen aus).
+//   hat:    true = Kopfbedeckung; Effekte über dem Kopf (Glühbirne, Dampf, Ausrufezeichen) weichen zur Seite aus.
 //   figures: { <Figur-ID>: (opt) => [Bausteine] } – Accessoires für eigene Figuren in Ansicht '-' (Liegen, Neigung; props.js),
 //           in Sprite-Koordinaten der Figur, gezeichnet direkt NACH der Figur (opt.tip z. B. für den Zustand des Mützenzipfels).
 // Eine Pose passt zu einem Outfit, wenn alle ihre Frames Ansichten nutzen, für die das Outfit layers hat (bzw. figures für ihre Figuren).
@@ -218,15 +219,142 @@ const SANTA_FIG = {
   }
 };
 
+// ---------- Bauhelm ----------
+// Kopf-Umriss (y 0–4) ist in allen Ansichten gleich, der Helm sitzt daher überall auf derselben Kalotte (x 4–17, y −5..0);
+// je Ansicht wandern Mittelgrat (Licht I) und Schirm (vorn länger), Schatten t rechts (Licht von links). Spalte 0 = x 2.
+const HELMET = {
+  F: [
+    '......TTIItt......',
+    '....TTTTIITTtt....',
+    '...TITTTIITTTtt...',
+    '...TTTTTIITTTtt...',
+    '..TTTTTTIITTTTtt..',
+    '..TTTTTTIITTTTtt..',
+    'tttttttttttttttttt'],
+  Q: [
+    '......TTTTIt......',
+    '....TTTTTTIItt....',
+    '...TITTTTTIITtt...',
+    '...TTTTTTTIITtt...',
+    '..TTTTTTTTIITTtt..',
+    '..TTTTTTTTIITTtt..',
+    '.ttttttttttttttttttt'],
+  S: [
+    '......TTTTtt......',
+    '....TITTTTTTtt....',
+    '...TITTTTTTTTtt...',
+    '...TTTTTTTTTTtt...',
+    '..TTTTTTTTTTTTtt..',
+    '..TTTTTTTTTTTTtt..',
+    '.ttttttttttttttttttt'],
+  QB: [
+    '......IITTtt......',
+    '....TTIITTTTtt....',
+    '...TTIITTTTTTtt...',
+    '...TTIITTTTTTtt...',
+    '..TTTIITTTTTTTtt..',
+    '..TTTIITTTTTTTtt..',
+    'tttttttttttttttttt'],
+  B: [
+    '......TTIItt......',
+    '....TTTTIITTtt....',
+    '...TTTTTIITTTtt...',
+    '...TTTTTIITTTtt...',
+    '..TTTTTTIITTTTtt..',
+    '..TTTTTTIITTTTtt..',
+    'tttttttttttttttttt']
+};
+/** Helm einer Ansicht; L-Ansichten gespiegelt (wie das Modell). Kontur zum Kopf (y 1) trennt Schirm und Stirn. */
+const helmet = view => (p, S) => {
+  const left = view.endsWith('L'), rows = HELMET[left ? view.slice(0, -1) : view];
+  rows.forEach((r, j) => [...r].forEach((c, i) => { if (c !== '.') S(left ? 19 - i : 2 + i, j - 6, c); }));
+  for (let x = 5; x <= 16; x++) S(x, 1, 'O');
+};
+
+/** Liegen und Neigung (Figuren aus props.js): Helm am gekippten Kopf, [i0, j0, Zeilen] in Sprite-Koordinaten der Figur.
+ *  Neigung: Helm mitgedreht (Schatten t bleibt auf der Helm-Rückseite wie bei der Figur), Liegen: neu beleuchtet (Schatten unten wie LIE). */
+const HELMET_FIG = {
+  lean26: [-1, -5, [
+    '.....IITTtt......',
+    '....TIITTTTttt...',
+    '...TTIIITTTTtt...',
+    '..TTTTIITTTTTttt.',
+    '..TTTTIIITTTtt...',
+    '.TITTTTIITttOO...',
+    '.TTTTTTIttOO.....',
+    '.TTTTTttOO.......',
+    '..TTttOO.........',
+    '..ttOO...........',
+    'tt...............']],
+  lean45: [-3, -3, [
+    '.......tt.....',
+    '.....TTTtt....',
+    '....TTTTTTttt.',
+    '...IITTTTTTt..',
+    '..TIIITTTTtOO.',
+    '.TTTIIITTtOO..',
+    '.TTTTIIItOO...',
+    'TITTTTItOO....',
+    'TITTTTtOO.....',
+    '.TTTTtOO......',
+    '.TTTtOO.......',
+    '..TtOO........',
+    '..tO..........',
+    '.t............']],
+  lean63: [-5, 0, [
+    '.....tttt..',
+    '...tTTTTtt.',
+    '..TTTTTTTtO',
+    '.IITTTTTtO.',
+    '.IIIITTTtO.',
+    'TTTIIIItO..',
+    'TTTTTIItO..',
+    'TTTTTTtO...',
+    'TITTTTtO...',
+    '.TTTTtO....',
+    '..TTTtO....',
+    '..TTtO.....',
+    '...TtO.....',
+    '...t.......',
+    '...t.......']],
+  lie: [-5, -1, [
+    '....t.',
+    '...Tt.',
+    '..TTtO',
+    '.TITtO',
+    '.TTTtO',
+    '.TTTtO',
+    'TTTTtO',
+    'IIIItO',
+    'IIIItO',
+    'TTTTtO',
+    'TTTTtO',
+    '.TTTtO',
+    '.TTTtO',
+    '.ttTtO',
+    '..ttt.',
+    '....t.']]
+};
+
 export const OUTFITS = [
   {
     id: 'weihnachten',
     title: 'Weihnachtsmann',
     desc: 'Roter Anzug mit Gürtel und Pelzsaum, Weihnachtsmütze mit Bommel. Krawatte/Einstecktuch bleiben Messing.',
+    hat: true,
     pal: { N: '#B8352E', n: '#8A2520', l: '#CC6A62', A: '#E3A33B', a: '#A86F18', U: '#B8352E', u: '#8A2520' },
     layers: { F: (opt) => [santaSuit, santaHat(opt.wobble || 0)] },
     after: { F: () => [santaHemApart] },
     figures: Object.fromEntries(Object.entries(SANTA_FIG).map(([id, f]) => [id, (opt) => [...f.parts, f.tips[opt.tip] || f.tips[f.rest]].map(([i0, j0, rows]) => sprite(rows, i0, j0))]))
+  },
+  {
+    id: 'bauhelm',
+    title: 'Bauhelm',
+    desc: 'Gelber Bauarbeiterhelm mit Mittelgrat und Schirm, in allen Ansichten. Anzug bleibt in der Kombi – Melly als Bauleiter.',
+    hat: true,
+    pal: { T: '#F2C230', t: '#C99A1C', I: '#FBE48C' },
+    layers: Object.fromEntries(['F', 'Q', 'QL', 'S', 'SL', 'QB', 'QBL', 'B'].map(v => [v, () => [helmet(v)]])),
+    figures: Object.fromEntries(Object.entries(HELMET_FIG).map(([id, [i0, j0, rows]]) => [id, () => [sprite(rows, i0, j0)]]))
   }
 ];
 

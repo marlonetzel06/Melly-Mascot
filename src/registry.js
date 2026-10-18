@@ -60,7 +60,8 @@ export const getPose = id => POSES.find(p => p.id === id);
 export const buildFrames = (pose, outfit) => {
   const o = getOutfit(outfit === undefined ? pose.outfit : outfit);
   if (!o) return pose.frames(LIB);
-  return pose.frames({ ...LIB, frame: (mods, ms, opt = {}) => core.frame(mods, ms, { ...opt, outfit: o }) });
+  const frame = (mods, ms, opt = {}) => core.frame(mods, ms, { ...opt, outfit: o });
+  return pose.frames({ ...LIB, frame, walkFrames: (count, cfg) => core.walkFrames(count, cfg, frame) });
 };
 /** Passt die Pose zum Outfit? (alle Ansichten der Pose haben Outfit-Layer; Frames mit eigener Figur, z. B. Liegen, brauchen outfit.figures) */
 export const fitsOutfit = (pose, outfit) => { const o = getOutfit(outfit); return !!o && pose.frames(LIB).every(f => f.figures.length ? f.figures.every(id => o.figures?.[id]) : o.layers[f.view]); };

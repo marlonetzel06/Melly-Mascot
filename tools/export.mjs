@@ -3,7 +3,7 @@
 //   Kombis:  dist/<v>/<kombi>/…           (alle Posen ohne festes Outfit)
 //   Outfits: dist/<v>/outfit-<id>/…       (alle passenden Posen im Outfit; Outfit-Posen nur hier)
 import { writeFileSync, mkdirSync } from 'node:fs';
-import { POSES, OUTFITS, getPose, getOutfit, buildFrames, fitsOutfit, LIB } from '../src/registry.js';
+import { POSES, OUTFITS, getPose, getOutfit, buildFrames, fitsOutfit, stillIndex, LIB } from '../src/registry.js';
 import { EXPRESSIONS } from '../src/expressions.js';
 import { COMBOS, TURNAROUND, VIEW_LABELS, slug } from '../src/model.js';
 import { frame } from '../src/core.js';
@@ -20,7 +20,7 @@ let files = 0;
 
 function writePose(dir, pose, frames, combo) {
   writeGIF(`${dir}/gif/${pose.id}.gif`, frames.map(f => ({ img: renderRGBA(f, { combo, scale }), ms: f.ms })));
-  writePNG(`${dir}/png/${pose.id}.png`, renderRGBA(frames[pose.still] || frames[0], { combo, scale }));
+  writePNG(`${dir}/png/${pose.id}.png`, renderRGBA(frames[stillIndex(pose, frames)] || frames[0], { combo, scale }));
   const sheet = image(frames.length * GW, GH);
   frames.forEach((f, i) => blit(sheet, renderRGBA(f, { combo, scale: 1 }), i * GW, 0));
   writePNG(`${dir}/sheet/${pose.id}.png`, sheet);

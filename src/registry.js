@@ -63,5 +63,5 @@ export const buildFrames = (pose, outfit) => {
   const frame = (mods, ms, opt = {}) => core.frame(mods, ms, { ...opt, outfit: o });
   return pose.frames({ ...LIB, frame, walkFrames: (count, cfg) => core.walkFrames(count, cfg, frame) });
 };
-/** Passt die Pose zum Outfit? (alle Ansichten der Pose haben Outfit-Layer; Frames mit eigener Figur, z. B. Liegen, brauchen outfit.figures) */
-export const fitsOutfit = (pose, outfit) => { const o = getOutfit(outfit); return !!o && pose.frames(LIB).every(f => f.figures.length ? f.figures.every(id => o.figures?.[id]) : o.layers[f.view]); };
+/** Passt die Pose zum Outfit? (pose.hat === false schließt Outfits mit Kopfbedeckung aus; alle Ansichten der Pose haben Outfit-Layer; Frames mit eigener Figur, z. B. Liegen, brauchen outfit.figures) */
+export const fitsOutfit = (pose, outfit) => { const o = getOutfit(outfit); return !!o && !(o.hat && pose.hat === false) && pose.frames(LIB).every(f => f.figures.length ? f.figures.every(id => o.figures?.[id]) : o.layers[f.view]); };

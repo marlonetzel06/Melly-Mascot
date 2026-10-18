@@ -13,7 +13,7 @@ const scale = Number(args.scale || 6), out = args.out || 'out/preview';
 const poses = id === 'all' ? POSES : [getPose(id) || fail(`Unbekannte Pose '${id}'`)];
 
 for (const pose of poses) {
-  if (args.outfit && args.outfit !== 'none' && !fitsOutfit(pose, args.outfit)) console.warn(`Hinweis: '${pose.id}' nutzt Ansichten ohne Layer im Outfit '${args.outfit}' – dort fehlen die Accessoires (Export überspringt die Pose).`);
+  if (args.outfit && args.outfit !== 'none' && !fitsOutfit(pose, args.outfit)) console.warn(`Hinweis: '${pose.id}' passt nicht zum Outfit '${args.outfit}' (Ansichten ohne Layer oder pose.hat === false) – Export überspringt die Pose.`);
   const frames = buildFrames(pose, args.outfit === undefined ? undefined : args.outfit === 'none' ? null : args.outfit);
   const tw = GW * scale, th = GH * scale, gap = 6, label = 16;
   const sheet = image(frames.length * (tw + gap) + gap, 2 * th + label + 3 * gap, '#F5F3EE');

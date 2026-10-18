@@ -5,8 +5,8 @@ import { L, sprite, clrL, clrR, caret, limb, arm } from './core.js';
 export const spark = (x, y, big) => p => { p(x, y, 'H'); if (big) { p(x - 1, y, 'H'); p(x + 1, y, 'H'); p(x, y - 1, 'H'); p(x, y + 1, 'H'); } };
 export const star = (x, y) => spark(x, y, true);
 export const dot = (x, y, s) => p => { for (let i = 0; i < s; i++) for (let j = 0; j < s; j++) p(x + i, y + j, 'C'); };
-/** Dampfwölkchen; mit Kopfbedeckung (outfit.hat) 3 px weiter nach außen, sonst klebt es an Krempe/Schirm. */
-export const puff = (x, y, c = 'Z') => (p, S, opt) => { const o = opt?.outfit?.hat ? (x < 11 ? -3 : 3) : 0; L([[x + o, y, c], [x + o + 1, y, c], [x + o, y - 1, c]])(p); };
+/** Dampfwölkchen; mit Kopfbedeckung (outfit.hat) 5 px nach außen und 1 höher, sonst verschmilzt die Kontur mit Krempe/Schirm. */
+export const puff = (x, y, c = 'Z') => (p, S, opt) => { const h = opt?.outfit?.hat, o = h ? (x < 11 ? -5 : 5) : 0, v = h ? -1 : 0; L([[x + o, y + v, c], [x + o + 1, y + v, c], [x + o, y + v - 1, c]])(p); };
 /** Staubwolke (3 breit, gewölbt): liest sich mit Kontur als Wolke statt als Strich. */
 export const cloud = (x, y, c = 'Z', flip = false) => L(flip
   ? [[x, y, c], [x + 1, y, c], [x + 2, y, c], [x + 1, y - 1, c], [x + 2, y - 1, c], [x + 1, y - 2, c]] // gespiegelt (rechte Seite)
@@ -15,13 +15,13 @@ export const sweat = L([[19, 2, 'B'], [19, 3, 'B'], [18, 3, 'B']]);
 export const sweatL = L([[2, 2, 'B'], [2, 3, 'B'], [3, 3, 'B']]);
 export const bang = L([[22, -3, 'A'], [22, -2, 'A'], [22, -1, 'A'], [22, 1, 'A']]);
 /** Ausrufezeichen über dem Kopf (Profil); mit Kopfbedeckung (outfit.hat) vor die Stirn gerückt. */
-export const sBang = (p, S, opt) => { const x = opt?.outfit?.hat ? 23 : 15; L([[x, -5, 'R'], [x, -4, 'R'], [x, -3, 'R'], [x, -1, 'R']])(p); };
+export const sBang = (p, S, opt) => { const x = opt?.outfit?.hat ? 25 : 15; L([[x, -5, 'R'], [x, -4, 'R'], [x, -3, 'R'], [x, -1, 'R']])(p); };
 export const tick = (x, y) => L([[x, y + 1, 'V'], [x + 1, y + 2, 'V'], [x + 2, y + 1, 'V'], [x + 3, y, 'V']]);
 const Z4 = ['####', '..#.', '.#..', '####'], Z5 = ['#####', '...#.', '..#..', '.#...', '#####'];
 const zs = rows => rows.map(r => r.replace(/#/g, 'Z'));
 const SLOTS = [[18, 1, Z4], [20, -3, Z4], [22, -7, Z5], [24, -12, Z5]];
 /** Z-Slot i (0 unten … 3 oben); mit Kopfbedeckung (outfit.hat) rücken die unteren Slots vom Schirm/Bommel weg nach rechts. */
-export const zSlot = (i, ox = 0, oy = 0) => (p, S, opt) => { const [x, y, m] = SLOTS[i], h = opt?.outfit?.hat ? [3, 3, 2, 0][i] : 0; sprite(zs(m), x + ox + h, y + oy)(p); };
+export const zSlot = (i, ox = 0, oy = 0) => (p, S, opt) => { const [x, y, m] = SLOTS[i], h = opt?.outfit?.hat ? [3, 3, 2, 0][i] : 0, v = opt?.outfit?.hat && i === 0 ? 1 : 0; sprite(zs(m), x + ox + h, y + oy + v)(p); };
 export const heart = L([[20, 2, 'R'], [22, 2, 'R'], [19, 3, 'R'], [20, 3, 'R'], [21, 3, 'R'], [22, 3, 'R'], [23, 3, 'R'], [20, 4, 'R'], [21, 4, 'R'], [22, 4, 'R'], [21, 5, 'R']]);
 
 // Kopf-Rotfärbung für „Sauer“ (als frame-Option pal)
@@ -196,7 +196,8 @@ export const pan = (tilt, side) => p => {
   if (side === 'L') { clrL(p); L([[2, 10, 'N'], [1, 10, 'N'], [0, 10, 'C'], [0, 11, 'C']])(p); p(-1, 11 - tilt, 'k'); for (let x = -7; x <= -2; x++) { p(x, 11 - tilt, 'G'); p(x, 12 - tilt, 'G'); } return; }
   clrR(p); L([[19, 10, 'N'], [20, 10, 'N'], [21, 10, 'C'], [21, 11, 'C']])(p); p(22, 11 - tilt, 'k'); for (let x = 23; x <= 28; x++) { p(x, 11 - tilt, 'G'); p(x, 12 - tilt, 'G'); }
 };
-export const egg = (x, y, flip) => sprite(flip ? ['.WWW.', 'WWWWW', '.WWW.'] : ['.WWW.', 'WWYWW', '.WWW.'], x, y);
+/** alt = [x, y] statt (x, y), wenn eine Kopfbedeckung (outfit.hat) die Flugbahn über dem Kopf belegt. */
+export const egg = (x, y, flip, alt) => (p, S, opt) => { const [ex, ey] = alt && opt?.outfit?.hat ? alt : [x, y]; sprite(flip ? ['.WWW.', 'WWWWW', '.WWW.'] : ['.WWW.', 'WWYWW', '.WWW.'], ex, ey)(p); };
 export const splat = (x) => L([[x, 17, 'W'], [x + 1, 17, 'W'], [x + 2, 17, 'Y'], [x + 3, 17, 'W'], [x + 4, 17, 'W'], [x + 1, 16, 'W'], [x + 3, 16, 'W']]);
 export const panSteam = (k, side) => { const o = side === 'L' ? -30 : 0; return L(k ? [[24 + o, 8, 'g'], [25 + o, 7, 'g'], [24 + o, 6, 'g']] : [[27 + o, 8, 'g'], [26 + o, 7, 'g'], [27 + o, 6, 'g']]); };
 

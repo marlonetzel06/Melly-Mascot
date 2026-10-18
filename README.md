@@ -55,7 +55,7 @@ Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoire
 <tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code></td></tr>
 </table>
 
-**Bauhelm** (`bauhelm`) — Gelber Bauarbeiterhelm mit Mittelgrat und Schirm, in allen Ansichten. Anzug bleibt in der Kombi – Melly als Bauleiter. Läuft mit 68 Posen.
+**Bauhelm** (`bauhelm`) — Gelber Bauarbeiterhelm mit Mittelgrat und Schirm, in allen Ansichten. Anzug bleibt in der Kombi – Melly als Bauleiter. Läuft mit 67 Posen.
 
 <table>
 <tr><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td></tr>

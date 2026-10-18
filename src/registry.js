@@ -65,3 +65,5 @@ export const buildFrames = (pose, outfit) => {
 };
 /** Passt die Pose zum Outfit? (pose.hat === false schließt Outfits mit Kopfbedeckung aus; alle Ansichten der Pose haben Outfit-Layer; Frames mit eigener Figur, z. B. Liegen, brauchen outfit.figures, außer die Kopfbedeckung wird abgenommen: outfit.doff) */
 export const fitsOutfit = (pose, outfit) => { const o = getOutfit(outfit); return !!o && !(o.hat && pose.hat === false) && pose.frames(LIB).every(f => f.figures.length ? o.doff || f.figures.every(id => o.figures?.[id]) : o.layers[f.view]); };
+/** Index des Standbilds: per Frame-Option still markiert, sonst pose.still. */
+export const stillIndex = (pose, frames) => { const i = frames.findIndex(f => f.still); return i >= 0 ? i : pose.still; };

@@ -1,6 +1,6 @@
 // Kontaktbogen zur Selbstprüfung: alle Frames einer Pose, oben auf Weiß, unten auf Dunkelblau, mit Index + Dauer.
 // node tools/preview.mjs <pose-id|all> [--combo 0] [--outfit <id>|none] [--scale 6] [--out out/preview]
-import { POSES, getPose, buildFrames, fitsOutfit } from '../src/registry.js';
+import { POSES, getPose, buildFrames, fitsOutfit, stillIndex } from '../src/registry.js';
 import { COMBOS, slug } from '../src/model.js';
 import { renderRGBA, GW, GH } from '../src/render.js';
 import { image, blit, fillRect, text, writePNG, parseArgs } from './lib.mjs';
@@ -24,7 +24,7 @@ for (const pose of poses) {
     const img = renderRGBA(f, { combo, scale });
     blit(sheet, img, x, gap);
     blit(sheet, img, x, gap * 2 + th + label);
-    if (i === pose.still) fillRect(sheet, x, gap + th + 1, tw, 2, '#E3A33B');
+    if (i === stillIndex(pose, frames)) fillRect(sheet, x, gap + th + 1, tw, 2, '#E3A33B');
     text(sheet, `${i} ${f.ms}`, x + 2, gap + th + 5);
   });
   const file = `${out}/${pose.id}${args.outfit && args.outfit !== 'none' ? '--' + args.outfit : ''}.png`;

@@ -6,7 +6,8 @@
 
 import { GW, GH, OX, OY, HEAD, BODY, VIEWS } from './model.js';
 
-/** Baut einen Frame. opt: { view:'F'|'Q'|'QL'|'S'|'SL'|'QB'|'QBL'|'B'|'-' (ohne Figur), dx, dy, headDy, pal, outfit, … }
+/** Baut einen Frame. opt: { view:'F'|'Q'|'QL'|'S'|'SL'|'QB'|'QBL'|'B'|'-' (ohne Figur), dx, dy, headDy, pal, outfit, still, … }
+ *  still: true markiert das Standbild (überschreibt pose.still, z. B. in Outfit-Varianten mit anderer Frame-Folge).
  *  outfit (aus outfits.js) wird vor den Posen-Bausteinen gezeichnet; seine Farben liegen über der Kombi.
  *  Bausteine bekommen opt als dritten Parameter; Figuren-Bausteine (m.figure, z. B. Liegen) zeichnen darüber outfit.figures[id].
  *  outfit.after[view] läuft nach den Posen-Bausteinen; seine Bausteine lesen zusätzlich das Bild: (p, S, opt, get(x, y)). */
@@ -26,7 +27,7 @@ export function frame(mods, ms, opt = {}) {
   if (opt.outfit) (opt.outfit.layers[view] ? opt.outfit.layers[view](opt) : []).forEach(m => m(put, S));
   (mods || []).forEach(m => m(put, S, opt));
   if (opt.outfit?.after?.[view]) opt.outfit.after[view](opt).forEach(m => m(put, S, opt, get));
-  return { g, ms, view, pal: opt.pal, outfitPal: opt.outfit?.pal, figures: (mods || []).filter(m => m.figure).map(m => m.figure) };
+  return { g, ms, view, still: !!opt.still, pal: opt.pal, outfitPal: opt.outfit?.pal, figures: (mods || []).filter(m => m.figure).map(m => m.figure) };
 }
 
 export const n = [];

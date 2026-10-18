@@ -298,7 +298,9 @@ const helmetOff = ([hx, hy, back]) => (p, S, opt, get) => {
   if (!back) return px.forEach(([x, y, c]) => p(x, y, c));
   const mine = new Set(px.map(([x, y]) => `${x},${y}`));
   const solid = (x, y) => !mine.has(`${x},${y}`) && (get(x, y) ?? '.') !== '.';
-  px.forEach(([x, y, c]) => { if (get(x, y) === '.') p(x, y, [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => solid(x + a, y + b)) ? 'O' : c); });
+  // Lücken in der Figur (Zeile zwischen Sakko und Schuhen) bleiben frei: dort schiene der Helm sonst durch die Figur hindurch.
+  const gap = (x, y) => solid(x, y - 1) && (solid(x, y + 1) || solid(x, y + 2));
+  px.forEach(([x, y, c]) => { if (get(x, y) === '.' && !gap(x, y)) p(x, y, [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => solid(x + a, y + b)) ? 'O' : c); });
 };
 
 export const OUTFITS = [

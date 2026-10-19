@@ -49,18 +49,27 @@ import * as core from './core.js';
 import * as props from './props.js';
 import * as model from './model.js';
 import { OUTFITS, getOutfit } from './outfits.js';
+import { ACCESSORIES, getAccessory } from './accessories.js';
 
 export const LIB = { ...model, ...core, ...props };
 export const POSES = [p0, p1, p2, p3, p4, p5, p6, p7, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, ...zeigen];
 export const CATEGORIES = ['Bewegung', 'Arbeit', 'Reaktion', 'Alltag', 'Kante', 'Zeigen'];
-export { OUTFITS, getOutfit };
+export { OUTFITS, getOutfit, ACCESSORIES, getAccessory };
 export const getPose = id => POSES.find(p => p.id === id);
 
-/** Frames einer Pose. outfit: Outfit-ID, null = ohne Outfit, undefined = Outfit der Pose (pose.outfit). */
-export const buildFrames = (pose, outfit) => {
+/** Frames einer Pose. outfit: Outfit-ID, null = ohne Outfit, undefined = Outfit der Pose (pose.outfit).
+ *  accessories: Accessoire-IDs, die zusätzlich getragen werden (die der Pose, pose.accessories, kommen immer dazu). */
+export const buildFrames = (pose, outfit, accessories = []) => {
   const o = getOutfit(outfit === undefined ? pose.outfit : outfit);
-  if (!o) return pose.frames(LIB);
-  return pose.frames({ ...LIB, frame: (mods, ms, opt = {}) => core.frame(mods, ms, { ...opt, outfit: o }) });
+  const acc = [...new Set([...(pose.accessories || []), ...accessories])].map(getAccessory).filter(Boolean);
+  if (!o && !acc.length) return pose.frames(LIB);
+  const build = (mods, ms, opt) => Object.assign(core.frame(mods, ms, { ...opt, outfit: o, accessories: acc }), { src: [mods, ms, opt] });
+  const frames = pose.frames({ ...LIB, frame: (mods, ms, opt = {}) => build(mods, ms, opt), walkFrames: (n, o = {}) => core.walkFrames(n, { ...o, frame: (mods, ms, opt = {}) => build(mods, ms, opt) }) });
+  if (frames[pose.still]) frames[pose.still].isStill = true; // Standbild bleibt markiert, auch wenn sequence Frames einfügt
+  // outfit.sequence: darf Zwischenframes einfügen (z. B. Angel ablegen), rebuild(f, extraOpt, ms) baut einen Frame mit geänderten Optionen neu
+  return o?.sequence ? o.sequence(frames, (f, extra, ms) => build(f.src[0], ms, { ...f.src[2], ...extra })) : frames;
 };
 /** Passt die Pose zum Outfit? (alle Ansichten der Pose haben Outfit-Layer; Frames mit eigener Figur, z. B. Liegen, brauchen outfit.figures) */
 export const fitsOutfit = (pose, outfit) => { const o = getOutfit(outfit); return !!o && pose.frames(LIB).every(f => f.figures.length ? f.figures.every(id => o.figures?.[id]) : o.layers[f.view]); };
+/** Passt die Pose zum Accessoire? (alle Ansichten der Pose haben Accessoire-Layer; eigene Figuren werden nicht unterstützt) */
+export const fitsAccessory = (pose, id) => { const a = getAccessory(id); return !!a && pose.frames(LIB).every(f => !f.figures.length && a.layers[f.view]); };

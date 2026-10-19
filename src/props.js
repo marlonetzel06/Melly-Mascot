@@ -110,9 +110,15 @@ export const carry = (p, S) => {
 export const tick = (x, y) => L([[x, y + 1, 'V'], [x + 1, y + 2, 'V'], [x + 2, y + 1, 'V'], [x + 3, y, 'V']]);
 const Z4 = ['####', '..#.', '.#..', '####'], Z5 = ['#####', '...#.', '..#..', '.#...', '#####'];
 const zs = rows => rows.map(r => r.replace(/#/g, 'Z'));
-const SLOTS = [[18, 1, Z4], [20, -3, Z4], [22, -7, Z5], [24, -12, Z5]];
-/** Z-Slot i (0 unten … 3 oben); mit Kopfbedeckung (outfit.hat) rücken die unteren Slots vom Schirm/Bommel weg nach rechts. */
-export const zSlot = (i, ox = 0, oy = 0) => (p, S, opt) => { const [x, y, m] = SLOTS[i], h = hatOn(opt) ? [4, 3, 2, 0][i] : 0, v = hatOn(opt) && i === 0 ? 3 : 0; sprite(zs(m), x + ox + h, y + oy + v)(p); };
+const SLOTS = [[18, 1, Z4], [20, -3, Z4]];
+/** Z-Slot i (0 unten, 1 darüber); mit Kopfbedeckung (outfit.hat) rücken die Slots vom Schirm/Bommel weg nach rechts.
+ *  Rückt nie über x 27 hinaus, damit die Kontur im Bild bleibt. */
+export const zSlot = (i, ox = 0, oy = 0) => (p, S, opt) => { const [x, y, m] = SLOTS[i], h = hatOn(opt) ? [4, 3][i] : 0, v = hatOn(opt) && i === 0 ? 3 : 0; sprite(zs(m), Math.min(x + ox + h, 28 - m[0].length - (opt?.dx || 0)), y + oy + v)(p); };
+const RISE = [[20, 4, Z4], [21, 0, Z4], [22, -4, Z5], [23, -9, Z5]];
+/** Mit Kopfbedeckung rechts neben Schirm/Bommel; Stufe 2 nur Z4, neben dem Bommel ist für Z5 kein Platz. */
+const RISE_HAT = [[24, 6, Z4], [23, 1, Z4], [24, -4, Z4], [23, -9, Z5]];
+/** Aufsteigende Z-Säule (Schlafen): Stufe i 0 unten … 3 oben, Kontur bleibt im Bild (Oberkante y −9, rechts x 27). */
+export const zRise = i => (p, S, opt) => { const [x, y, m] = (hatOn(opt) ? RISE_HAT : RISE)[i]; sprite(zs(m), x, y)(p); };
 export const heart = L([[20, 2, 'R'], [22, 2, 'R'], [19, 3, 'R'], [20, 3, 'R'], [21, 3, 'R'], [22, 3, 'R'], [23, 3, 'R'], [20, 4, 'R'], [21, 4, 'R'], [22, 4, 'R'], [21, 5, 'R']]);
 
 // Kopf-Rotfärbung für „Sauer“ (als frame-Option pal)
@@ -120,10 +126,10 @@ export const RED = [{ C: '#F4F2EC', c: '#D9D4C7' }, { C: '#F6D3C8', c: '#E0B4A6'
 
 // ---------- Schild (rechte Hand, Stange mittig) ----------
 export const sign = (lift, lines) => p => {
-  const top = -8 - lift, x0 = 15, x1 = 28;
+  const top = -8 - lift, x0 = 16, x1 = 27; // x1 27: Platz für die Kontur am rechten Rand
   for (let y = top; y <= top + 6; y++) for (let x = x0; x <= x1; x++) p(x, y, 'W');
   for (let x = x0 + 1; x <= x1; x++) p(x, top + 6, 'w'); for (let y = top + 1; y <= top + 6; y++) p(x1, y, 'w');
-  if (lines) { for (let x = x0 + 3; x <= x1 - 3; x++) p(x, top + 2, 'g'); for (let x = x0 + 5; x <= x1 - 5; x++) p(x, top + 4, 'g'); }
+  if (lines) { for (let x = x0 + 2; x <= x1 - 2; x++) p(x, top + 2, 'g'); for (let x = x0 + 4; x <= x1 - 4; x++) p(x, top + 4, 'g'); }
   for (let y = top + 7; y <= 5 - lift; y++) { p(21, y, 'G'); p(22, y, 'G'); }
 };
 
@@ -194,12 +200,13 @@ export const mug = (pos, steam) => (p, S) => {
 };
 
 // ---------- Glühbirne ----------
-/** Über dem Kopf; mit Kopfbedeckung (outfit.hat) links oben daneben, da über Mütze/Helm kein Platz bleibt (Oberkante y −10). */
+/** Über dem Kopf; mit Kopfbedeckung (outfit.hat) links oben daneben, da über Mütze/Helm kein Platz bleibt (Oberkante y −10).
+ *  Strahlen oben bei y −9 (Kontur bei −10); beim Hüpfen (dy < 0) entfallen sie, statt abgeschnitten zu werden. */
 export const bulb = (on) => (p, S, opt) => {
   const g = on ? 'Y' : 'w', o = hatOn(opt) ? -12 : 0, q = (x, y, c) => p(x + o, y, c);
-  ['.###.', '#####', '#####', '.###.'].forEach((r, j) => [...r].forEach((c, i) => { if (c === '#') q(8 + i, -8 + j, g); }));
-  q(9, -4, 'g'); q(10, -4, 'g'); q(11, -4, 'g'); q(10, -3, 'g');
-  if (on) { q(9, -7, 'X'); [[6, -7], [14, -7], [10, -10], [7, -10], [13, -10]].forEach(([x, y]) => q(x, y, 'Y')); }
+  ['.###.', '#####', '#####', '.###.'].forEach((r, j) => [...r].forEach((c, i) => { if (c === '#') q(8 + i, -7 + j, g); }));
+  q(9, -3, 'g'); q(10, -3, 'g'); q(11, -3, 'g');
+  if (on) { q(9, -6, 'X'); [[6, -6], [14, -6], [10, -9], [7, -9], [13, -9]].forEach(([x, y]) => { if (y + (opt?.dy || 0) >= -9) q(x, y, 'Y'); }); }
 };
 
 // ---------- Facepalm-Hand (Fäustling) & Gähn-Mund ----------
@@ -284,8 +291,8 @@ export const ball = (x, y, spin = 0) => sprite(BALLS[spin % 2], x, y);
 
 // ---------- Pfanne & Ei ----------
 export const pan = (tilt, side) => p => {
-  if (side === 'L') { clrL(p); L([[2, 10, 'N'], [1, 10, 'N'], [0, 10, 'C'], [0, 11, 'C']])(p); p(-1, 11 - tilt, 'k'); for (let x = -7; x <= -2; x++) { p(x, 11 - tilt, 'G'); p(x, 12 - tilt, 'G'); } return; }
-  clrR(p); L([[19, 10, 'N'], [20, 10, 'N'], [21, 10, 'C'], [21, 11, 'C']])(p); p(22, 11 - tilt, 'k'); for (let x = 23; x <= 28; x++) { p(x, 11 - tilt, 'G'); p(x, 12 - tilt, 'G'); }
+  if (side === 'L') { clrL(p); L([[2, 10, 'N'], [1, 10, 'N'], [0, 10, 'C'], [0, 11, 'C']])(p); p(-1, 11 - tilt, 'k'); for (let x = -6; x <= -2; x++) { p(x, 11 - tilt, 'G'); p(x, 12 - tilt, 'G'); } return; }
+  clrR(p); L([[19, 10, 'N'], [20, 10, 'N'], [21, 10, 'C'], [21, 11, 'C']])(p); p(22, 11 - tilt, 'k'); for (let x = 23; x <= 27; x++) { p(x, 11 - tilt, 'G'); p(x, 12 - tilt, 'G'); }
 };
 /** alt = [x, y] statt (x, y), wenn eine Kopfbedeckung (outfit.hat) die Flugbahn über dem Kopf belegt. */
 export const egg = (x, y, flip, alt) => (p, S, opt) => { const [ex, ey] = alt && hatOn(opt) ? alt : [x, y]; sprite(flip ? ['.WWW.', 'WWWWW', '.WWW.'] : ['.WWW.', 'WWYWW', '.WWW.'], ex, ey)(p); };

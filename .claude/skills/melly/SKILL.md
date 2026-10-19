@@ -49,7 +49,7 @@ Quelle der Wahrheit: das Repo (GitHub `marlonetzel06/Melly-Mascot`). Alle Befehl
 4. Export: `node tools/export.mjs all --combo none --outfit none --acc <id>`, danach `npm run catalog`. Commit/PR wie in B.
 
 ## Koordinaten & Eigenheiten
-- Figur 0..21 × 0..18, Arbeitsfläche erlaubt x −7..28 und y −10..21 (alles außerhalb wird abgeschnitten).
+- Figur 0..21 × 0..18, Arbeitsfläche x −7..28 und y −10..21 (alles außerhalb wird abgeschnitten). Pixel brauchen 1 px Platz für die Kontur: Inhalt nur in x −6..27, y −9..20 (inkl. `dy`/`dx` der Frames; Ausnahme: Figur läuft über den Rand ins Bild).
 - Augen: vorne x 7–8/13–14 · `Q` 9–10/14–15 · `QL` 6–7/11–12 · Profil `S` 14–15 (jeweils y 5–6). Brauen y 3–4 (`effort` vorne, `qEffort(left)` in 3/4).
 - Kopfschmuck: Kopf beginnt bei y 0; Mützen/Hüte liegen auf y −6..1 (höher nicht: `jubeln` springt mit `dy −3`, oberhalb y −9 wird abgeschnitten). Trennung zum Kopf: eine Zeile Abstand lassen (automatische Kontur) oder bei Krempe direkt auf dem Kopf (Pelzband) eine Zeile `O` setzen – sonst verschwimmt Weiß mit Creme.
 - Arme vorne x 2 und 19 (y 10–12), Hände y 13 · Schuhe y 17 · Sakko y 9–15.

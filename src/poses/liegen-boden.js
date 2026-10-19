@@ -6,5 +6,7 @@ export default {
   category: 'Alltag',
   desc: 'Liegt frontal auf der Seite direkt auf dem Boden, Augen zu, Z steigen über dem Kopf auf.',
   still: 1,
-  frames: ({ frame, lying, zSlot }) => [[[0], 520], [[0, 1], 700], [[1], 460], [[], 880]].map(([zs, ms]) => frame([lying(-1, 3, 'zu'), ...zs.map(s => zSlot(s, -10, -3))], ms, { view: '-' }))
+  // outfit.doff (Bauhelm): Helm steht links neben ihm (wie am Ende von „Hinlegen“), Figur 3 px weiter rechts.
+  frames: ({ frame, lying, zSlot, outfit }) => { const d = outfit?.doff ? 3 : 0, o = outfit?.doff ? { hut: [-8, 14, 'hinten'] } : {};
+    return [[[0], 520], [[0, 1], 700], [[1], 460], [[], 880]].map(([zs, ms]) => frame([lying(-1 + d, 3, 'zu'), ...zs.map(s => zSlot(s, -10 + d, -3))], ms, { view: '-', ...o })); }
 };

@@ -6,7 +6,8 @@
 
 import { GW, GH, OX, OY, HEAD, BODY, VIEWS } from './model.js';
 
-/** Baut einen Frame. opt: { view:'F'|'Q'|'QL'|'S'|'SL'|'QB'|'QBL'|'B'|'-' (ohne Figur), dx, dy, headDy, pal, outfit, … }
+/** Baut einen Frame. opt: { view:'F'|'Q'|'QL'|'S'|'SL'|'QB'|'QBL'|'B'|'-' (ohne Figur), dx, dy, headDy, pal, outfit, still, … }
+ *  still: true markiert das Standbild (überschreibt pose.still, z. B. in Outfit-Varianten mit anderer Frame-Folge).
  *  outfit (aus outfits.js) wird vor den Posen-Bausteinen gezeichnet; seine Farben liegen über der Kombi.
  *  Bausteine bekommen opt als dritten Parameter; Figuren-Bausteine (m.figure, z. B. Liegen) zeichnen darüber outfit.figures[id].
  *  outfit.after[view] läuft nach den Posen-Bausteinen; seine Bausteine lesen zusätzlich das Bild: (p, S, opt, get(x, y)).
@@ -29,7 +30,7 @@ export function frame(mods, ms, opt = {}) {
   (mods || []).forEach(m => m(put, S, opt));
   wear.forEach(w => (w.after?.[view] ? w.after[view](opt) : []).forEach(m => m(put, S, opt, get)));
   const outfitPal = wear.length ? Object.assign({}, ...wear.map(w => w.pal || {})) : undefined;
-  return { g, ms, view, pal: opt.pal, outfitPal, figures: (mods || []).filter(m => m.figure).map(m => m.figure) };
+  return { g, ms, view, still: !!opt.still, pal: opt.pal, outfitPal, figures: (mods || []).filter(m => m.figure).map(m => m.figure) };
 }
 
 export const n = [];
@@ -175,8 +176,8 @@ export const toeUp = p => { p(16, 17, '.'); p(17, 17, '.'); };
 export const tapMark = p => { p(19, 17, 'w'); p(20, 16, 'w'); };
 
 /** Lauf-Zyklus im Profil (rechts), 8 Phasen: Kontakt, halber Schritt, Passieren (hoch), halber Schritt, … – Arm pendelt gegenläufig im Bogen.
- *  Liefert n Frames, dx wächst pro Frame um step. frame = eigener Frame-Builder (buildFrames reicht so Outfit/Accessoires durch). */
-export function walkFrames(count, { x0 = 0, step = 2, ms = 130, frame: fr = frame } = {}) {
+ *  Liefert n Frames, dx wächst pro Frame um step. fr = Frame-Builder (registry.js reicht den mit Outfit herein). */
+export function walkFrames(count, { x0 = 0, step = 2, ms = 130 } = {}, fr = frame) {
   const seq = [['a', 2, 1, 0], ['a1', 1, 0, 0], ['pass', 0, 0, -1], ['b1', -1, 0, 0], ['b', -2, 1, 0], ['b1', -1, 0, 0], ['pass', 0, 0, -1], ['a1', 1, 0, 0]];
   return Array.from({ length: count }, (_, i) => { const [m, arm, lift, dy] = seq[i % 8]; return fr([sideFeet(m), sideArm(arm, lift)], ms, { view: 'S', dx: x0 + step * i, dy }); });
 }

@@ -2,18 +2,24 @@
 import { L, sprite, clrL, clrR, caret, limb, arm } from './core.js';
 
 // ---------- Effekte ----------
+/** Sitzt eine Kopfbedeckung (outfit.hat) auf dem Kopf? opt.hut = abgenommen (in der Hand oder abgestellt). */
+const hatOn = opt => !!opt?.outfit?.hat && !opt.hut;
 export const spark = (x, y, big) => p => { p(x, y, 'H'); if (big) { p(x - 1, y, 'H'); p(x + 1, y, 'H'); p(x, y - 1, 'H'); p(x, y + 1, 'H'); } };
 export const star = (x, y) => spark(x, y, true);
 export const dot = (x, y, s) => p => { for (let i = 0; i < s; i++) for (let j = 0; j < s; j++) p(x + i, y + j, 'C'); };
-export const puff = (x, y, c = 'Z') => L([[x, y, c], [x + 1, y, c], [x, y - 1, c]]);
+/** Dampfwölkchen; mit Kopfbedeckung (outfit.hat) 5 px nach außen und 1 höher, sonst verschmilzt die Kontur mit Krempe/Schirm. */
+export const puff = (x, y, c = 'Z') => (p, S, opt) => { const h = hatOn(opt), o = h ? (x < 11 ? -5 : 5) : 0, v = h ? -1 : 0; L([[x + o, y + v, c], [x + o + 1, y + v, c], [x + o, y + v - 1, c]])(p); };
 /** Staubwolke (3 breit, gewölbt): liest sich mit Kontur als Wolke statt als Strich. */
 export const cloud = (x, y, c = 'Z', flip = false) => L(flip
   ? [[x, y, c], [x + 1, y, c], [x + 2, y, c], [x + 1, y - 1, c], [x + 2, y - 1, c], [x + 1, y - 2, c]] // gespiegelt (rechte Seite)
   : [[x, y, c], [x + 1, y, c], [x + 2, y, c], [x, y - 1, c], [x + 1, y - 1, c], [x + 1, y - 2, c]]);
-export const sweat = L([[19, 2, 'B'], [19, 3, 'B'], [18, 3, 'B']]);
-export const sweatL = L([[2, 2, 'B'], [2, 3, 'B'], [3, 3, 'B']]);
+/** Schweißtropfen an der Schläfe; mit Kopfbedeckung (outfit.hat) unter die Schirmspitze gerückt. */
+const drop = (cells, dx) => (p, S, opt) => { const h = hatOn(opt); L(cells.map(([x, y, c]) => [x + (h ? dx : 0), y + (h ? 3 : 0), c]))(p); };
+export const sweat = drop([[19, 2, 'B'], [19, 3, 'B'], [18, 3, 'B']], 1);
+export const sweatL = drop([[2, 2, 'B'], [2, 3, 'B'], [3, 3, 'B']], -1);
 export const bang = L([[22, -3, 'A'], [22, -2, 'A'], [22, -1, 'A'], [22, 1, 'A']]);
-export const sBang = L([[15, -5, 'R'], [15, -4, 'R'], [15, -3, 'R'], [15, -1, 'R']]);
+/** Ausrufezeichen über dem Kopf (Profil); mit Kopfbedeckung (outfit.hat) vor die Stirn gerückt. */
+export const sBang = (p, S, opt) => { const x = hatOn(opt) ? 25 : 15; L([[x, -5, 'R'], [x, -4, 'R'], [x, -3, 'R'], [x, -1, 'R']])(p); };
 /** Musiknoten (Breite × 5): Viertel, Achtel, zwei Achtel mit Balken. */
 const NOTES = {
   viertel: ['.H', '.H', '.H', 'HH', 'HH'],
@@ -26,7 +32,7 @@ export const note = (type, x, y, c = 'H') => sprite(NOTES[type].map(r => r.repla
 /** Zauberstab in der rechten Hand, passend zur Armstellung: down (hängt), half (armHalfR), up (waveA), swing (waveB), point (point). */
 const WAND = {
   down: [[20, 12], [21, 11], [22, 10]], half: [[23, 9], [24, 8], [25, 7]], up: [[24, 5], [25, 4], [26, 3]],
-  swing: [[26, 6], [27, 5], [28, 4]], point: [[26, 10], [27, 10], [28, 11]]
+  swing: [[25, 6], [26, 5], [27, 4]], point: [[26, 10], [27, 10], [28, 11]]
 };
 export const wand = (pos) => p => WAND[pos].forEach(([x, y], i) => p(x, y, i === 2 ? 'h' : 'k'));
 /** Herbeigezaubertes Mini-Dashboard, schwebt über Mellys rechter Hand (Bildseite links, arm('L', 135, 135), Hand x −3..−2, y 6–7):
@@ -105,7 +111,8 @@ export const tick = (x, y) => L([[x, y + 1, 'V'], [x + 1, y + 2, 'V'], [x + 2, y
 const Z4 = ['####', '..#.', '.#..', '####'], Z5 = ['#####', '...#.', '..#..', '.#...', '#####'];
 const zs = rows => rows.map(r => r.replace(/#/g, 'Z'));
 const SLOTS = [[18, 1, Z4], [20, -3, Z4], [22, -7, Z5], [24, -12, Z5]];
-export const zSlot = (i, ox = 0, oy = 0) => { const [x, y, m] = SLOTS[i]; return sprite(zs(m), x + ox, y + oy); };
+/** Z-Slot i (0 unten … 3 oben); mit Kopfbedeckung (outfit.hat) rücken die unteren Slots vom Schirm/Bommel weg nach rechts. */
+export const zSlot = (i, ox = 0, oy = 0) => (p, S, opt) => { const [x, y, m] = SLOTS[i], h = hatOn(opt) ? [4, 3, 2, 0][i] : 0, v = hatOn(opt) && i === 0 ? 3 : 0; sprite(zs(m), x + ox + h, y + oy + v)(p); };
 export const heart = L([[20, 2, 'R'], [22, 2, 'R'], [19, 3, 'R'], [20, 3, 'R'], [21, 3, 'R'], [22, 3, 'R'], [23, 3, 'R'], [20, 4, 'R'], [21, 4, 'R'], [22, 4, 'R'], [21, 5, 'R']]);
 
 // Kopf-Rotfärbung für „Sauer“ (als frame-Option pal)
@@ -187,11 +194,12 @@ export const mug = (pos, steam) => (p, S) => {
 };
 
 // ---------- Glühbirne ----------
-export const bulb = (on) => p => {
-  const g = on ? 'Y' : 'w';
-  ['.###.', '#####', '#####', '.###.'].forEach((r, j) => [...r].forEach((c, i) => { if (c === '#') p(8 + i, -8 + j, g); }));
-  p(9, -4, 'g'); p(10, -4, 'g'); p(11, -4, 'g'); p(10, -3, 'g');
-  if (on) { p(9, -7, 'X'); [[6, -7], [14, -7], [10, -10], [7, -10], [13, -10]].forEach(([x, y]) => p(x, y, 'Y')); }
+/** Über dem Kopf; mit Kopfbedeckung (outfit.hat) links oben daneben, da über Mütze/Helm kein Platz bleibt (Oberkante y −10). */
+export const bulb = (on) => (p, S, opt) => {
+  const g = on ? 'Y' : 'w', o = hatOn(opt) ? -12 : 0, q = (x, y, c) => p(x + o, y, c);
+  ['.###.', '#####', '#####', '.###.'].forEach((r, j) => [...r].forEach((c, i) => { if (c === '#') q(8 + i, -8 + j, g); }));
+  q(9, -4, 'g'); q(10, -4, 'g'); q(11, -4, 'g'); q(10, -3, 'g');
+  if (on) { q(9, -7, 'X'); [[6, -7], [14, -7], [10, -10], [7, -10], [13, -10]].forEach(([x, y]) => q(x, y, 'Y')); }
 };
 
 // ---------- Facepalm-Hand (Fäustling) & Gähn-Mund ----------
@@ -279,7 +287,8 @@ export const pan = (tilt, side) => p => {
   if (side === 'L') { clrL(p); L([[2, 10, 'N'], [1, 10, 'N'], [0, 10, 'C'], [0, 11, 'C']])(p); p(-1, 11 - tilt, 'k'); for (let x = -7; x <= -2; x++) { p(x, 11 - tilt, 'G'); p(x, 12 - tilt, 'G'); } return; }
   clrR(p); L([[19, 10, 'N'], [20, 10, 'N'], [21, 10, 'C'], [21, 11, 'C']])(p); p(22, 11 - tilt, 'k'); for (let x = 23; x <= 28; x++) { p(x, 11 - tilt, 'G'); p(x, 12 - tilt, 'G'); }
 };
-export const egg = (x, y, flip) => sprite(flip ? ['.WWW.', 'WWWWW', '.WWW.'] : ['.WWW.', 'WWYWW', '.WWW.'], x, y);
+/** alt = [x, y] statt (x, y), wenn eine Kopfbedeckung (outfit.hat) die Flugbahn über dem Kopf belegt. */
+export const egg = (x, y, flip, alt) => (p, S, opt) => { const [ex, ey] = alt && hatOn(opt) ? alt : [x, y]; sprite(flip ? ['.WWW.', 'WWWWW', '.WWW.'] : ['.WWW.', 'WWYWW', '.WWW.'], ex, ey)(p); };
 export const splat = (x) => L([[x, 17, 'W'], [x + 1, 17, 'W'], [x + 2, 17, 'Y'], [x + 3, 17, 'W'], [x + 4, 17, 'W'], [x + 1, 16, 'W'], [x + 3, 16, 'W']]);
 export const panSteam = (k, side) => { const o = side === 'L' ? -30 : 0; return L(k ? [[24 + o, 8, 'g'], [25 + o, 7, 'g'], [24 + o, 6, 'g']] : [[27 + o, 8, 'g'], [26 + o, 7, 'g'], [27 + o, 6, 'g']]); };
 

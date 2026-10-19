@@ -61,19 +61,22 @@ export const CATEGORIES = ['Bewegung', 'Arbeit', 'Reaktion', 'Alltag', 'Kante', 
 export { OUTFITS, getOutfit, ACCESSORIES, getAccessory };
 export const getPose = id => POSES.find(p => p.id === id);
 
-/** Frames einer Pose. outfit: Outfit-ID, null = ohne Outfit, undefined = Outfit der Pose (pose.outfit).
+/** Frames einer Pose. outfit: Outfit-ID, null = ohne Outfit, undefined = Outfit der Pose (pose.outfit). Posen bekommen das Outfit als lib.outfit (z. B. Ablage-Variante bei outfit.doff).
  *  accessories: Accessoire-IDs, die zusätzlich getragen werden (die der Pose, pose.accessories, kommen immer dazu). */
 export const buildFrames = (pose, outfit, accessories = []) => {
   const o = getOutfit(outfit === undefined ? pose.outfit : outfit);
   const acc = [...new Set([...(pose.accessories || []), ...accessories])].map(getAccessory).filter(Boolean);
   if (!o && !acc.length) return pose.frames(LIB);
-  const build = (mods, ms, opt) => Object.assign(core.frame(mods, ms, { ...opt, outfit: o, accessories: acc }), { src: [mods, ms, opt] });
-  const frames = pose.frames({ ...LIB, frame: (mods, ms, opt = {}) => build(mods, ms, opt), walkFrames: (n, o = {}) => core.walkFrames(n, { ...o, frame: (mods, ms, opt = {}) => build(mods, ms, opt) }) });
-  if (frames[pose.still]) frames[pose.still].isStill = true; // Standbild bleibt markiert, auch wenn sequence Frames einfügt
-  // outfit.sequence: darf Zwischenframes einfügen (z. B. Angel ablegen), rebuild(f, extraOpt, ms) baut einen Frame mit geänderten Optionen neu
-  return o?.sequence ? o.sequence(frames, (f, extra, ms) => build(f.src[0], ms, { ...f.src[2], ...extra })) : frames;
+  const frame = (mods, ms, opt = {}) => Object.assign(core.frame(mods, ms, { ...opt, outfit: o, accessories: acc }), { src: [mods, ms, opt] });
+  const frames = pose.frames({ ...LIB, outfit: o, frame, walkFrames: (count, cfg) => core.walkFrames(count, cfg, frame) });
+  // outfit.sequence darf Zwischenframes einfügen (z. B. Angel ablegen): Standbild vorher markieren, rebuild(f, extraOpt, ms) baut einen Frame mit geänderten Optionen neu
+  if (!o?.sequence) return frames;
+  if (!frames.some(f => f.still) && frames[pose.still]) frames[pose.still].still = true;
+  return o.sequence(frames, (f, extra, ms) => frame(f.src[0], ms, { ...f.src[2], ...extra, still: false }));
 };
-/** Passt die Pose zum Outfit? (alle Ansichten der Pose haben Outfit-Layer; Frames mit eigener Figur, z. B. Liegen, brauchen outfit.figures) */
-export const fitsOutfit = (pose, outfit) => { const o = getOutfit(outfit); return !!o && pose.frames(LIB).every(f => f.figures.length ? f.figures.every(id => o.figures?.[id]) : o.layers[f.view]); };
+/** Passt die Pose zum Outfit? (pose.hat === false schließt Outfits mit Kopfbedeckung aus; alle Ansichten der Pose haben Outfit-Layer; Frames mit eigener Figur, z. B. Liegen, brauchen outfit.figures, außer die Kopfbedeckung wird abgenommen: outfit.doff) */
+export const fitsOutfit = (pose, outfit) => { const o = getOutfit(outfit); return !!o && !(o.hat && pose.hat === false) && pose.frames(LIB).every(f => f.figures.length ? o.doff || f.figures.every(id => o.figures?.[id]) : o.layers[f.view]); };
 /** Passt die Pose zum Accessoire? (alle Ansichten der Pose haben Accessoire-Layer; eigene Figuren werden nicht unterstützt) */
 export const fitsAccessory = (pose, id) => { const a = getAccessory(id); return !!a && pose.frames(LIB).every(f => !f.figures.length && a.layers[f.view]); };
+/** Index des Standbilds: per Frame-Option still markiert, sonst pose.still. */
+export const stillIndex = (pose, frames) => { const i = frames.findIndex(f => f.still); return i >= 0 ? i : pose.still; };

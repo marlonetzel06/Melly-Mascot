@@ -6,5 +6,7 @@ export default {
   category: 'Kante',
   desc: 'Liegt frontal auf der Seite auf einem Element, Augen zu, Z steigen über dem Kopf auf.',
   still: 1,
-  frames: ({ frame, lying, rect, zSlot }) => [[0], [0, 1], [1], []].map(zs => frame([rect(-5, 26, 16, 20), lying(-1, 1), ...zs.map(s => zSlot(s, -10, -5))], 600, { view: '-' }))
+  // outfit.doff (Bauhelm): Helm steht links neben ihm auf dem Element, Figur 3 px weiter rechts.
+  frames: ({ frame, lying, rect, zSlot, outfit }) => { const d = outfit?.doff ? 3 : 0, o = outfit?.doff ? { hut: [-8, 12, 'hinten'] } : {};
+    return [[0], [0, 1], [1], []].map(zs => frame([rect(-5, 26, 16, 20), lying(-1 + d, 1), ...zs.map(s => zSlot(s, -10 + d, -5))], 600, { view: '-', ...o })); }
 };

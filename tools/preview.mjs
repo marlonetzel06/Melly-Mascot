@@ -1,6 +1,6 @@
 // Kontaktbogen zur Selbstprüfung: alle Frames einer Pose, oben auf Weiß, unten auf Dunkelblau, mit Index + Dauer.
 // node tools/preview.mjs <pose-id|all> [--combo 0] [--outfit <id>|none] [--acc <id>[,<id>]] [--scale 6] [--out out/preview]
-import { POSES, getPose, buildFrames, fitsOutfit } from '../src/registry.js';
+import { POSES, getPose, buildFrames, fitsOutfit, fitsAccessory, stillIndex } from '../src/registry.js';
 import { COMBOS, slug } from '../src/model.js';
 import { renderRGBA, GW, GH } from '../src/render.js';
 import { image, blit, fillRect, text, writePNG, parseArgs } from './lib.mjs';
@@ -13,9 +13,10 @@ const scale = Number(args.scale || 6), out = args.out || 'out/preview';
 const poses = id === 'all' ? POSES : [getPose(id) || fail(`Unbekannte Pose '${id}'`)];
 
 for (const pose of poses) {
-  if (args.outfit && args.outfit !== 'none' && !fitsOutfit(pose, args.outfit)) console.warn(`Hinweis: '${pose.id}' nutzt Ansichten ohne Layer im Outfit '${args.outfit}' – dort fehlen die Accessoires (Export überspringt die Pose).`);
+  if (args.outfit && args.outfit !== 'none' && !fitsOutfit(pose, args.outfit)) console.warn(`Hinweis: '${pose.id}' passt nicht zum Outfit '${args.outfit}' (Ansichten ohne Layer oder pose.hat === false) – Export überspringt die Pose.`);
   const acc = args.acc ? String(args.acc).split(',') : [];
-  const frames = buildFrames(pose, args.outfit === undefined ? undefined : args.outfit === 'none' ? null : args.outfit, acc);
+  acc.filter(a => !fitsAccessory(pose, a)).forEach(a => console.warn(`Hinweis: '${pose.id}' nutzt Ansichten ohne Layer im Accessoire '${a}' – dort fehlt es (Export überspringt die Pose).`));
+  const frames = buildFrames(pose, args.outfit === undefined ? undefined : args.outfit === 'none' && !pose.outfit ? null : args.outfit === 'none' ? undefined : args.outfit, acc);
   const tw = GW * scale, th = GH * scale, gap = 6, label = 16;
   const sheet = image(frames.length * (tw + gap) + gap, 2 * th + label + 3 * gap, '#F5F3EE');
   frames.forEach((f, i) => {
@@ -25,7 +26,7 @@ for (const pose of poses) {
     const img = renderRGBA(f, { combo, scale });
     blit(sheet, img, x, gap);
     blit(sheet, img, x, gap * 2 + th + label);
-    if (f.isStill ?? i === pose.still) fillRect(sheet, x, gap + th + 1, tw, 2, '#E3A33B');
+    if (i === stillIndex(pose, frames)) fillRect(sheet, x, gap + th + 1, tw, 2, '#E3A33B');
     text(sheet, `${i} ${f.ms}`, x + 2, gap + th + 5);
   });
   const file = `${out}/${pose.id}${args.outfit && args.outfit !== 'none' ? '--' + args.outfit : ''}${acc.map(a => '--' + a).join('')}.png`;

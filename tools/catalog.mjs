@@ -30,7 +30,7 @@ let outfitsInner = `Kostüme, die über jede passende Pose gelegt werden (eigene
 for (const o of OUTFITS) {
   const own = POSES.filter(p => p.outfit === o.id);
   const picks = ['winken', 'jubeln', 'daumen-hoch', 'kaffee', 'schlafen'].map(i => POSES.find(p => p.id === i)).filter(p => p && fitsOutfit(p, o.id));
-  const fits = POSES.filter(p => (!p.outfit || p.outfit === o.id) && fitsOutfit(p, o.id)).length;
+  const fits = POSES.filter(p => (!p.outfit || p.outfit === o.id) && !p.accessories && fitsOutfit(p, o.id)).length;
   outfitsInner += `**${o.title}** (\`${o.id}\`) — ${o.desc} Läuft mit ${fits} Posen.\n\n`;
   outfitsInner += table([...own, ...picks].map(p => `${img(`${base}/outfit-${o.id}/gif/${p.id}.gif`, 144, p.title)}<br><b>${p.title}</b><br><code>${p.id}</code>`), 3) + '\n\n';
 }

@@ -1,0 +1,28 @@
+{
+ "pose": "schlafen",
+ "title": "Schlafen",
+ "frameWidth": 36,
+ "frameHeight": 32,
+ "frames": [
+  {
+   "x": 0,
+   "y": 0,
+   "ms": 500
+  },
+  {
+   "x": 36,
+   "y": 0,
+   "ms": 500
+  },
+  {
+   "x": 72,
+   "y": 0,
+   "ms": 500
+  },
+  {
+   "x": 108,
+   "y": 0,
+   "ms": 500
+  }
+ ]
+}

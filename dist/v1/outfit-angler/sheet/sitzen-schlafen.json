@@ -1,0 +1,28 @@
+{
+ "pose": "sitzen-schlafen",
+ "title": "Schlafen auf der Kante",
+ "frameWidth": 36,
+ "frameHeight": 32,
+ "frames": [
+  {
+   "x": 0,
+   "y": 0,
+   "ms": 600
+  },
+  {
+   "x": 36,
+   "y": 0,
+   "ms": 600
+  },
+  {
+   "x": 72,
+   "y": 0,
+   "ms": 600
+  },
+  {
+   "x": 108,
+   "y": 0,
+   "ms": 600
+  }
+ ]
+}

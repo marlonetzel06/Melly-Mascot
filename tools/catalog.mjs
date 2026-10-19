@@ -62,12 +62,12 @@ md += `## Nutzung
 | Zweck | Befehl |
 |---|---|
 | Galerie mit Kombi-Umschalter | \`npm run gallery\` → http://localhost:8777 |
-| Kontaktbogen einer Pose (Selbstprüfung) | \`node tools/preview.mjs <id> [--outfit <id>]\` |
-| Export (GIF, PNG, Sprite-Sheet) | \`node tools/export.mjs <id\\|all> [--combo <kombi>] [--outfit <id>]\` |
+| Kontaktbogen einer Pose (Selbstprüfung) | \`node tools/preview.mjs <id> [--outfit <id>] [--acc <id>,<id>]\` |
+| Export (GIF, PNG, Sprite-Sheet) | \`node tools/export.mjs <id\\|all> [--combo <kombi>] [--outfit <id>] [--acc <id>]\` |
 | Diesen Katalog aktualisieren | \`npm run catalog\` |
 
 Kombi-Ordner: ${COMBOS.map(c => `\`${slug(c[0])}\``).join(', ')}.
-Dateien: \`${base}/<kombi>/gif/<id>.gif\` · \`png/<id>.png\` (Standbild) · \`png/ansicht-*.png\` · \`png/mimik-*.png\` · \`sheet/<id>.png\` + \`.json\`. Outfits: \`${base}/outfit-<id>/…\` (gleiche Struktur).
+Dateien: \`${base}/<kombi>/gif/<id>.gif\` · \`png/<id>.png\` (Standbild) · \`png/ansicht-*.png\` · \`png/mimik-*.png\` · \`sheet/<id>.png\` + \`.json\`. Outfits: \`${base}/outfit-<id>/…\`, Accessoires: \`${base}/accessoire-<id>/…\` (gleiche Struktur).
 Neue Posen baut der Skill **melly** (\`.claude/skills/melly/SKILL.md\`); Regeln in \`BRAND.md\`.
 ${END}`;
 

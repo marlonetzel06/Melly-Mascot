@@ -1,9 +1,10 @@
 // Mod-Build: rendert Melly-Posen als SVG-Pfade für den Claude-Code-Mod (die Mod-Sandbox kann src/ nicht importieren).
 // node tools/mod-build.mjs [--poses a,b,…|mod|all] [--out mod/melly-mascot/hooks/frames.ts]
 // Format: FRAMES[<outfit|'-'>][<pose>] = [{ ms, p: [[token, pathData], …], pal? }]  (Farben als Token, Maße GW×GH Pixel)
+//         Frames je Outfit in frames/<outfit>.ts neben --out (die Mod-Engine liest Importe nur bis 1 MiB pro Datei).
 //         PAL[<kombi>][<outfit|'-'>] = { token: '#hex' }   (Anzug-Kombi und Outfit-Farben, getrennt von den Pfaden)
-import { writeFileSync, mkdirSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { POSES, OUTFITS, getPose, buildFrames, fitsOutfit } from '../src/registry.js';
 import { COMBOS } from '../src/model.js';
 import { outline, colorsFor, GW, GH } from '../src/render.js';
@@ -52,15 +53,25 @@ COMBOS.forEach((_, combo) => {
   for (const outfit of outfitIds) pal[combo][outfit] = colorsFor({ outfitPal: outfit === '-' ? undefined : OUTFITS.find(o => o.id === outfit).pal }, combo);
 });
 
-const body = `// Generiert von tools/mod-build.mjs – nicht von Hand bearbeiten.
-export const GW = ${GW}
+const head = '// Generiert von tools/mod-build.mjs – nicht von Hand bearbeiten.\n';
+const partName = outfit => (outfit === '-' ? 'basis' : outfit);
+const partsDir = join(dirname(out), 'frames');
+rmSync(partsDir, { recursive: true, force: true });
+mkdirSync(partsDir, { recursive: true });
+for (const outfit of outfitIds) {
+  writeFileSync(join(partsDir, `${partName(outfit)}.ts`), `${head}import type { MascotFrame } from '../frames'
+const frames: Record<string, MascotFrame[]> = ${JSON.stringify(frames[outfit])}
+export default frames
+`);
+}
+
+const body = `${head}${outfitIds.map((o, i) => `import f${i} from './frames/${partName(o)}'\n`).join('')}export const GW = ${GW}
 export const GH = ${GH}
 export type MascotFrame = { ms: number; p: [string, string][]; pal?: Record<string, string> }
 export const COMBO_NAMES: string[] = ${JSON.stringify(COMBOS.map(c => c[0]))}
 export const OUTFIT_NAMES: Record<string, string> = ${JSON.stringify({ '-': 'Kein Outfit', ...Object.fromEntries(OUTFITS.map(o => [o.id, o.title])) })}
 export const PAL: Record<string, Record<string, Record<string, string>>> = ${JSON.stringify(pal)}
-export const FRAMES: Record<string, Record<string, MascotFrame[]>> = ${JSON.stringify(frames)}
+export const FRAMES: Record<string, Record<string, MascotFrame[]>> = { ${outfitIds.map((o, i) => `${JSON.stringify(o)}: f${i}`).join(', ')} }
 `;
-mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, body);
-console.log(`${out}: ${(body.length / 1024).toFixed(0)} KB · ${poseIds.length} Posen · ${COMBOS.length} Kombis · Outfits ${outfitIds.join(',')}`);
+console.log(`${out} + ${partsDir}/: ${(JSON.stringify(frames).length / 1024).toFixed(0)} KB Frames · ${poseIds.length} Posen · ${COMBOS.length} Kombis · Outfits ${outfitIds.join(',')}`);

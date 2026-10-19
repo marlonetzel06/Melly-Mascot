@@ -46,62 +46,11 @@ Krawatte und Einstecktuch haben immer die Akzentfarbe.
 <details>
 <summary><b>Outfits</b> · 8</summary>
 
-Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoires). Ordner: `dist/v1/outfit-<id>/`.
-
-**Weihnachtsmann** (`weihnachten`) — Roter Anzug mit Gürtel und Pelzsaum, Weihnachtsmütze mit Bommel. Krawatte/Einstecktuch bleiben Messing. Läuft mit 41 Posen.
+Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoires). Vorschau frontal, alle Posen liegen in `dist/v1/outfit-<id>/`.
 
 <table>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/weihnachtsmann.gif" width="144" alt="Weihnachtsmann"><br><b>Weihnachtsmann</b><br><code>weihnachtsmann</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td></tr>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code></td></tr>
-</table>
-
-**Bauhelm** (`bauhelm`) — Gelber Bauarbeiterhelm mit Grat, Kopfband und zweistufigem Schirm (hinten mit Nackenband), in allen Ansichten; zum Hinlegen nimmt Melly ihn ab und stellt ihn neben sich. Anzug bleibt in der Kombi – Melly als Bauleiter. Läuft mit 67 Posen.
-
-<table>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td></tr>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code></td></tr>
-</table>
-
-**Angler** (`angler`) — Fischerhut mit Fliege, Wathose über dem Anzug, Gummistiefel, Angel mit Tabelle (liegt am Boden, wenn er den Arm braucht). Lakehouse-Bezug. Läuft mit 40 Posen.
-
-<table>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-angler/gif/angeln.gif" width="144" alt="Angeln auf der Kante"><br><b>Angeln auf der Kante</b><br><code>angeln</code></td><td align="center" valign="top"><img src="dist/v1/outfit-angler/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-angler/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td></tr>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-angler/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td><td align="center" valign="top"><img src="dist/v1/outfit-angler/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td><td align="center" valign="top"><img src="dist/v1/outfit-angler/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code></td></tr>
-</table>
-
-**Agent** (`agent`) — Fast schwarzer Anzug, dunkle Krawatte, Knopf im Ohr mit Spiralkabel. Wortspiel AI-Agent. Läuft mit 36 Posen.
-
-<table>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-agent/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-agent/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td><td align="center" valign="top"><img src="dist/v1/outfit-agent/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td></tr>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-agent/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td><td align="center" valign="top"><img src="dist/v1/outfit-agent/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code></td></tr>
-</table>
-
-**Lagerist** (`lagerist`) — Offene orange Warnweste mit Reflexstreifen über dem Anzug, gelber Bauhelm. Warehouse-Bezug. Läuft mit 42 Posen.
-
-<table>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-lagerist/gif/einsortieren.gif" width="144" alt="Kiste ins Regal"><br><b>Kiste ins Regal</b><br><code>einsortieren</code></td><td align="center" valign="top"><img src="dist/v1/outfit-lagerist/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-lagerist/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td></tr>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-lagerist/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td><td align="center" valign="top"><img src="dist/v1/outfit-lagerist/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td><td align="center" valign="top"><img src="dist/v1/outfit-lagerist/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code></td></tr>
-</table>
-
-**Zauberer** (`zauberer`) — Spitzer Hut mit Sternen, violette Robe mit Messing-Sternen. Läuft mit 37 Posen.
-
-<table>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-zauberer/gif/zaubern.gif" width="144" alt="Dashboard herbeizaubern"><br><b>Dashboard herbeizaubern</b><br><code>zaubern</code></td><td align="center" valign="top"><img src="dist/v1/outfit-zauberer/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-zauberer/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td></tr>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-zauberer/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td><td align="center" valign="top"><img src="dist/v1/outfit-zauberer/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td><td align="center" valign="top"><img src="dist/v1/outfit-zauberer/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code></td></tr>
-</table>
-
-**Koch** (`koch`) — Kochmütze mit Falten, graublaue Schürze. Läuft mit 41 Posen.
-
-<table>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-koch/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-koch/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td><td align="center" valign="top"><img src="dist/v1/outfit-koch/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td></tr>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-koch/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td><td align="center" valign="top"><img src="dist/v1/outfit-koch/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code></td></tr>
-</table>
-
-**Cowboy** (`cowboy`) — Cowboyhut mit Delle und hochgebogener Krempe. Läuft mit 36 Posen.
-
-<table>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-cowboy/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/outfit-cowboy/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code></td><td align="center" valign="top"><img src="dist/v1/outfit-cowboy/gif/daumen-hoch.gif" width="144" alt="Daumen hoch"><br><b>Daumen hoch</b><br><code>daumen-hoch</code></td></tr>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-cowboy/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td><td align="center" valign="top"><img src="dist/v1/outfit-cowboy/gif/schlafen.gif" width="144" alt="Schlafen"><br><b>Schlafen</b><br><code>schlafen</code></td></tr>
+<tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/png/ansicht-vorne.png" width="144" alt="Weihnachtsmann"><br><b>Weihnachtsmann</b><br><code>weihnachten</code><br><sub>Roter Anzug mit Gürtel und Pelzsaum, Weihnachtsmütze mit Bommel. Krawatte/Einstecktuch bleiben Messing. Läuft mit 41 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/png/ansicht-vorne.png" width="144" alt="Bauhelm"><br><b>Bauhelm</b><br><code>bauhelm</code><br><sub>Gelber Bauarbeiterhelm mit Grat, Kopfband und zweistufigem Schirm (hinten mit Nackenband), in allen Ansichten; zum Hinlegen nimmt Melly ihn ab und stellt ihn neben sich. Anzug bleibt in der Kombi – Melly als Bauleiter. Läuft mit 67 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-angler/png/ansicht-vorne.png" width="144" alt="Angler"><br><b>Angler</b><br><code>angler</code><br><sub>Fischerhut mit Fliege, Wathose über dem Anzug, Gummistiefel, Angel mit Tabelle (liegt am Boden, wenn er den Arm braucht). Lakehouse-Bezug. Läuft mit 40 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-agent/png/ansicht-vorne.png" width="144" alt="Agent"><br><b>Agent</b><br><code>agent</code><br><sub>Fast schwarzer Anzug, dunkle Krawatte, Knopf im Ohr mit Spiralkabel. Wortspiel AI-Agent. Läuft mit 36 Posen.</sub></td></tr>
+<tr><td align="center" valign="top"><img src="dist/v1/outfit-lagerist/png/ansicht-vorne.png" width="144" alt="Lagerist"><br><b>Lagerist</b><br><code>lagerist</code><br><sub>Offene orange Warnweste mit Reflexstreifen über dem Anzug, gelber Bauhelm. Warehouse-Bezug. Läuft mit 42 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-zauberer/png/ansicht-vorne.png" width="144" alt="Zauberer"><br><b>Zauberer</b><br><code>zauberer</code><br><sub>Spitzer Hut mit Sternen, violette Robe mit Messing-Sternen. Läuft mit 37 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-koch/png/ansicht-vorne.png" width="144" alt="Koch"><br><b>Koch</b><br><code>koch</code><br><sub>Kochmütze mit Falten, graublaue Schürze. Läuft mit 41 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-cowboy/png/ansicht-vorne.png" width="144" alt="Cowboy"><br><b>Cowboy</b><br><code>cowboy</code><br><sub>Cowboyhut mit Delle und hochgebogener Krempe. Läuft mit 36 Posen.</sub></td></tr>
 </table>
 </details>
 

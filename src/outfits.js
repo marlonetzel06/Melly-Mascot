@@ -296,9 +296,10 @@ const rod = (p, S, opt, get) => {
     [[20, 13], [21, 14], [22, 14], [23, 15], [24, 15], [25, 16], [26, 16]].forEach(([x, y]) => p(x, y, 'j'));
     catchAt(p, 24, 11);
   } else if (armRests(get)) {
-    for (let i = 0; i < 7; i++) p(20 + i, 12 - i, 'j');
-    for (let y = 7; y <= 10; y++) p(27, y, 'g');
-    catchAt(p, 24, 11);
+    const d = Math.max(0, opt.dx || 0); // Figur rückt nach rechts (z. B. Wackeln): Rute kürzer, damit die Tabelle im Bild bleibt
+    for (let i = 0; i < 7 - d; i++) p(20 + i, 12 - i, 'j');
+    for (let y = 7 + d; y <= 10; y++) p(27 - d, y, 'g');
+    catchAt(p, 24 - d, 11);
   } else {
     p(19, 17, 'k'); p(20, 17, 'k'); for (let x = 21; x <= 27; x++) p(x, 17, 'j');
     catchAt(p, 24, 13);

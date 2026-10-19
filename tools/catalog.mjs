@@ -26,15 +26,11 @@ md += `**Melly** ist ein Pixel-Maskottchen als Code: Creme-Blob im Einreiher, Na
 md += `## Katalog\nKomplette Figur-Referenz – zum Aufklappen.\n\n`;
 md += details(`<b>Anzug-Kombis</b> · ${COMBOS.length}`, `Krawatte und Einstecktuch haben immer die Akzentfarbe.\n\n` + table(COMBOS.map(c => `${img(`${base}/${slug(c[0])}/png/mimik-neutral.png`, 96, c[0])}<br><sub>${c[0].replace(' · ', '<br>')}</sub>`), 6));
 
-let outfitsInner = `Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoires). Ordner: \`${base}/outfit-<id>/\`.\n\n`;
-for (const o of OUTFITS) {
-  const own = POSES.filter(p => p.outfit === o.id);
-  const picks = ['winken', 'jubeln', 'daumen-hoch', 'kaffee', 'schlafen'].map(i => POSES.find(p => p.id === i)).filter(p => p && fitsOutfit(p, o.id));
+const outfitsInner = `Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoires). Vorschau frontal, alle Posen liegen in \`${base}/outfit-<id>/\`.\n\n` + table(OUTFITS.map(o => {
   const fits = POSES.filter(p => (!p.outfit || p.outfit === o.id) && !p.accessories && fitsOutfit(p, o.id)).length;
-  outfitsInner += `**${o.title}** (\`${o.id}\`) — ${o.desc} Läuft mit ${fits} Posen.\n\n`;
-  outfitsInner += table([...own, ...picks].map(p => `${img(`${base}/outfit-${o.id}/gif/${p.id}.gif`, 144, p.title)}<br><b>${p.title}</b><br><code>${p.id}</code>`), 3) + '\n\n';
-}
-md += details(`<b>Outfits</b> · ${OUTFITS.length}`, outfitsInner.trimEnd());
+  return `${img(`${base}/outfit-${o.id}/png/ansicht-vorne.png`, 144, o.title)}<br><b>${o.title}</b><br><code>${o.id}</code><br><sub>${o.desc} Läuft mit ${fits} Posen.</sub>`;
+}), 4);
+md += details(`<b>Outfits</b> · ${OUTFITS.length}`, outfitsInner);
 
 let accInner = `Kleine Extras zum An- und Abschalten, kombinierbar mit jeder Kombi und jedem Outfit. Ordner: \`${base}/accessoire-<id>/\` (Mittelblau).\n\n`;
 for (const a of ACCESSORIES) {

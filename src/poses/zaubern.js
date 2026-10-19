@@ -15,7 +15,7 @@ export default {
       frame([wand('down'), blink], 110),
       frame([armHalfR, wand('half')], 90, { headDy: 1 }),
       frame([waveA, wand('up'), look(1, -1), spark(27, 1)], 140),
-      frame([waveB, wand('swing'), look(1, -1), star(26, 1), spark(29, 6)], 80),
+      frame([waveB, wand('swing'), look(1, -1), star(26, 1), spark(27, 7)], 80),
       frame([waveA, wand('up'), lift, look(-1, -1), spark(21, -2), spark(2, -2)], 110),
       frame([...hold, palm, look(-1, -1), magicPuff, spark(1, 1)], 130),
       frame([...hold, palm, look(-1, -1), magicCard(1)], 90),

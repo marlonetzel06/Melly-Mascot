@@ -26,16 +26,16 @@ export default {
     return [
       ...idle,
       // Biss: Schwimmer taucht ab, Rute biegt sich, Tabelle wird herausgezogen
-      at('rest', { y: WATER + 2 }, [sSurprised], 160),
-      at('bend', { y: WATER + 2 }, [sSurprised], 110),
+      at('rest', { y: WATER + 1 }, [sSurprised], 160),
+      at('bend', { y: WATER + 1 }, [sSurprised], 110),
       at('pull', { y: 14, catch: true }, [happy], 90),
       at('pull', { y: 6, catch: true }, [happy], 110),
       at('pull', { y: 3, catch: true }, [happy], 900, [1, 0], [star(26, 1)]),
       // Fang verstaut, neu auswerfen. Ausholen: Rute hoch, Schnur steigt nach hinten und streckt sich lang und hoch hinter ihm.
-      fly('up', [[17, -5], [12, -6]], [up], 110),
-      fly('back', [[6, -6], [-1, -5]], [up], 240),
+      fly('up', [[17, -5], [12, -5]], [up], 110),
+      fly('back', [[6, -5], [-1, -4]], [up], 240),
       // Vorwärts: Rute schnellt vor, die Schnur rollt als Schlaufe über ihn nach vorn ab …
-      fly('up', [[14, -6], [5, -5]], [up], 70),
+      fly('up', [[14, -5], [5, -4]], [up], 70),
       fly('cast', [[29, 1], [31, -1]], [], 70),
       // … und fliegt im Bogen weit nach vorn, der Schwimmer landet draußen und wird dann etwas eingeholt.
       fly('rest', [[29, 1], [31, 6]], [], 90),

@@ -20,6 +20,93 @@ export const sweatL = drop([[2, 2, 'B'], [2, 3, 'B'], [3, 3, 'B']], -1);
 export const bang = L([[22, -3, 'A'], [22, -2, 'A'], [22, -1, 'A'], [22, 1, 'A']]);
 /** Ausrufezeichen über dem Kopf (Profil); mit Kopfbedeckung (outfit.hat) vor die Stirn gerückt. */
 export const sBang = (p, S, opt) => { const x = hatOn(opt) ? 25 : 15; L([[x, -5, 'R'], [x, -4, 'R'], [x, -3, 'R'], [x, -1, 'R']])(p); };
+/** Musiknoten (Breite × 5): Viertel, Achtel, zwei Achtel mit Balken. */
+const NOTES = {
+  viertel: ['.H', '.H', '.H', 'HH', 'HH'],
+  achtel: ['.HH', '.H.', '.H.', 'HH.', 'HH.'],
+  achtel2: ['.HHHH', '.H..H', '.H..H', 'HH.HH', 'HH.HH']
+};
+export const NOTE_W = Object.fromEntries(Object.entries(NOTES).map(([k, r]) => [k, r[0].length]));
+/** Note an (x, y) = obere linke Ecke, Farbe c (Messing H, verblassend h). */
+export const note = (type, x, y, c = 'H') => sprite(NOTES[type].map(r => r.replace(/H/g, c)), x, y);
+/** Zauberstab in der rechten Hand, passend zur Armstellung: down (hängt), half (armHalfR), up (waveA), swing (waveB), point (point). */
+const WAND = {
+  down: [[20, 12], [21, 11], [22, 10]], half: [[23, 9], [24, 8], [25, 7]], up: [[24, 5], [25, 4], [26, 3]],
+  swing: [[25, 6], [26, 5], [27, 4]], point: [[26, 10], [27, 10], [28, 11]]
+};
+export const wand = (pos) => p => WAND[pos].forEach(([x, y], i) => p(x, y, i === 2 ? 'h' : 'k'));
+/** Herbeigezaubertes Mini-Dashboard, schwebt über Mellys rechter Hand (Bildseite links, arm('L', 135, 135), Hand x −3..−2, y 6–7):
+ *  weiße Karte mit dunkler Kopfzeile, k = Anzahl sichtbarer Balken (dunkel, höchster Messing), bob hebt sie 1 px (Schweben). */
+export const magicCard = (k, bob = 0) => p => {
+  const y0 = -1 - bob, x0 = -6;
+  for (let x = 0; x < 7; x++) { p(x0 + x, y0, 'G'); for (let y = 1; y <= 5; y++) p(x0 + x, y0 + y, 'W'); }
+  [[1, 1, 'G'], [3, 2, 'G'], [5, 3, 'H']].slice(0, k).forEach(([c, h, t]) => { for (let j = 0; j < h; j++) p(x0 + c, y0 + 4 - j, t); });
+};
+/** Zauberwolke über der Hand, bevor das Dashboard erscheint. */
+export const magicPuff = p => { cloud(-6, 3)(p); cloud(-3, 3, 'Z', true)(p); };
+// ---------- Angeln im Profil (rechts), sitzend auf einer Kante: Sitzfläche y 16 bis x 13, Beine hängen davor ----------
+/** Beine in Wathose über die Kante: nahes Bein vorn (hell), fernes dahinter (dunkel); je Bein 0 = hängt, 1 = schwingt nach vorn. Stiefel t/k. */
+export const dangle = (near = 0, far = 0) => p => {
+  for (let x = 0; x < 22; x++) p(x, 17, '.');
+  const leg = (x0, s, c, boot) => {
+    const px = s ? [[x0 + 1, 16], [x0 + 2, 16], [x0 + 2, 17], [x0 + 3, 17]] : [[x0, 16], [x0 + 1, 16], [x0, 17], [x0 + 1, 17]];
+    px.forEach(([x, y]) => p(x, y, c));
+    const bx = s ? x0 + 3 : x0;
+    for (let i = 0; i < 3; i++) p(bx + i, 18, boot); p(bx + 3, 18, 't');
+  };
+  leg(12, far, 't', 'k');
+  leg(14, near, 'T', 't');
+};
+/** Angelrute in der vorgestreckten Hand (sArmFwd, Hand x 17, y 9–10). rest (45°, Spitze wippt mit bob), bend (Biss, Spitze tiefer), pull (steil). */
+export const RODS = {
+  rest: [[18, 8], [19, 7], [20, 6], [21, 5], [22, 4], [23, 3], [24, 2], [25, 1]],
+  bend: [[18, 8], [19, 7], [20, 6], [21, 5], [22, 5], [23, 4], [24, 4], [25, 4]],
+  pull: [[18, 8], [18, 7], [19, 6], [19, 5], [20, 4], [20, 3], [21, 2], [21, 1], [22, 0]],
+  // Auswerfen: senkrecht ausholen → über den Kopf nach hinten (Rute biegt sich) → nach vorn schnellen (flach)
+  up: [[18, 8], [19, 7], [19, 6], [19, 5], [19, 4], [19, 3], [19, 2], [19, 1], [19, 0], [19, -1], [19, -2], [18, -3]],
+  back: [[18, 8], [19, 7], [19, 6], [19, 5], [19, 4], [19, 3], [19, 2], [18, 1], [18, 0], [17, -1], [16, -2], [15, -3], [14, -3], [13, -4], [12, -4]],
+  cast: [[18, 8], [19, 8], [20, 7], [21, 7], [22, 7], [23, 6], [24, 6], [25, 6], [26, 5]]
+};
+export const fishRod = (mode, bob = 0) => p => {
+  const pts = RODS[mode].map(([x, y], i, a) => [x, i >= a.length - 2 ? y + bob : y]);
+  pts.forEach(([x, y], i) => p(x, y, i < 2 ? 'k' : 'j'));
+  p(18, 9, 'G');
+};
+/** Schnur von der Rutenspitze senkrecht bis y1, darunter Schwimmer (rot/weiß) oder die gefangene Tabelle (catch) mit Oberkante bei y1. */
+export const fishLine = (mode, y1, { bob = 0, catch: caught = false } = {}) => p => {
+  const [tx, ty] = RODS[mode].at(-1), x = tx + 1, top = ty + (mode === 'rest' ? bob : 0) + 1;
+  for (let y = top; y < y1; y++) p(x, y, 'G');
+  if (caught) ['kkkk', 'WgWW', 'gggg', 'WgWW'].forEach((r, j) => [...r].forEach((c, i) => p(x - 1 + i, y1 + j, c)));
+  else { p(x, y1, 'R'); p(x, y1 + 1, 'W'); }
+};
+/** Fliegende Schnur beim Auswerfen: Linienzug von der Rutenspitze (mode) über die Stützpunkte pts, Schwimmer am letzten Punkt
+ *  (rot oben, weiß unten). So bleibt die Schnur beim Ausholen lang und hoch hinter ihm und rollt beim Werfen nach vorn ab. */
+export const flyLine = (mode, pts) => p => {
+  const [tx, ty] = RODS[mode].at(-1), all = [[tx, ty], ...pts];
+  for (let k = 1; k < all.length; k++) {
+    const [x0, y0] = all[k - 1], [x1, y1] = all[k], n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+    for (let i = 1; i <= n; i++) p(Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n), 'G');
+  }
+  const [bx, by] = all.at(-1); p(bx, by, 'R'); p(bx, by + 1, 'W');
+};
+/** Spritzer, wo der Schwimmer (x, y) aufs Wasser trifft. */
+export const splash = (x, y) => L([[x - 2, y, 'B'], [x + 2, y, 'B'], [x - 1, y - 1, 'B'], [x + 1, y - 1, 'B']]);
+// ---------- Lager (vorne): Regal rechts, Kisten 6×4 aus Pappe (Jute-Töne) mit Klebeband und Etikett ----------
+const CRATE = ['JJhhJJ', 'JJJJJj', 'JWWWJj', 'JJJJjj'];
+/** Kiste mit linker oberer Ecke (x, y). */
+export const crate = (x, y) => sprite(CRATE, x, y);
+/** Regal rechts neben Melly: Pfosten x 21 und 28, Böden y 6 und 12, unten steht schon eine Kiste; top = oberes Fach belegt. */
+export const shelf = (top = false) => p => {
+  for (let y = 1; y <= 17; y++) { p(21, y, 'G'); p(28, y, 'G'); }
+  for (let x = 22; x <= 27; x++) { p(x, 6, 'g'); p(x, 12, 'g'); }
+  crate(22, 13)(p);
+  if (top) crate(22, 8)(p);
+};
+/** Beide Arme vor dem Bauch, Hände an den Seiten einer Kiste (x 8–13, y 11–14), die darüber gezeichnet wird. */
+export const carry = (p, S) => {
+  limb('L', [[2, 10, 'N'], [3, 10, 'N'], [3, 11, 'N'], [4, 11, 'N'], [5, 11, 'N'], [5, 12, 'N'], [6, 12, 'C'], [7, 12, 'C'], [6, 13, 'C'], [7, 13, 'C']])(p, S);
+  limb('R', [[19, 10, 'N'], [18, 10, 'N'], [18, 11, 'N'], [17, 11, 'N'], [16, 11, 'N'], [16, 12, 'N'], [15, 12, 'C'], [14, 12, 'C'], [15, 13, 'C'], [14, 13, 'C']])(p, S);
+};
 export const tick = (x, y) => L([[x, y + 1, 'V'], [x + 1, y + 2, 'V'], [x + 2, y + 1, 'V'], [x + 3, y, 'V']]);
 const Z4 = ['####', '..#.', '.#..', '####'], Z5 = ['#####', '...#.', '..#..', '.#...', '#####'];
 const zs = rows => rows.map(r => r.replace(/#/g, 'Z'));

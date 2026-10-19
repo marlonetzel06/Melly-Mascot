@@ -45,25 +45,38 @@ import p42 from './poses/blick-links.js';
 import p43 from './poses/blick-rechts.js';
 import p44 from './poses/hinsetzen.js';
 import p45 from './poses/aufstehen-sitz.js';
+import p46 from './poses/musik.js';
+import p47 from './poses/zaubern.js';
+import p48 from './poses/angeln.js';
+import p49 from './poses/einsortieren.js';
 import * as core from './core.js';
 import * as props from './props.js';
 import * as model from './model.js';
 import { OUTFITS, getOutfit } from './outfits.js';
+import { ACCESSORIES, getAccessory } from './accessories.js';
 
 export const LIB = { ...model, ...core, ...props };
-export const POSES = [p0, p1, p2, p3, p4, p5, p6, p7, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, ...zeigen];
+export const POSES = [p0, p1, p2, p3, p4, p5, p6, p7, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20, p21, p22, p23, p24, p25, p26, p27, p28, p29, p30, p31, p32, p33, p34, p35, p36, p37, p38, p39, p40, p41, p42, p43, p44, p45, p46, p47, p48, p49, ...zeigen];
 export const CATEGORIES = ['Bewegung', 'Arbeit', 'Reaktion', 'Alltag', 'Kante', 'Zeigen'];
-export { OUTFITS, getOutfit };
+export { OUTFITS, getOutfit, ACCESSORIES, getAccessory };
 export const getPose = id => POSES.find(p => p.id === id);
 
-/** Frames einer Pose. outfit: Outfit-ID, null = ohne Outfit, undefined = Outfit der Pose (pose.outfit). Posen bekommen das Outfit als lib.outfit (z. B. Ablage-Variante bei outfit.doff). */
-export const buildFrames = (pose, outfit) => {
+/** Frames einer Pose. outfit: Outfit-ID, null = ohne Outfit, undefined = Outfit der Pose (pose.outfit). Posen bekommen das Outfit als lib.outfit (z. B. Ablage-Variante bei outfit.doff).
+ *  accessories: Accessoire-IDs, die zusätzlich getragen werden (die der Pose, pose.accessories, kommen immer dazu). */
+export const buildFrames = (pose, outfit, accessories = []) => {
   const o = getOutfit(outfit === undefined ? pose.outfit : outfit);
-  if (!o) return pose.frames(LIB);
-  const frame = (mods, ms, opt = {}) => core.frame(mods, ms, { ...opt, outfit: o });
-  return pose.frames({ ...LIB, outfit: o, frame, walkFrames: (count, cfg) => core.walkFrames(count, cfg, frame) });
+  const acc = [...new Set([...(pose.accessories || []), ...accessories])].map(getAccessory).filter(Boolean);
+  if (!o && !acc.length) return pose.frames(LIB);
+  const frame = (mods, ms, opt = {}) => Object.assign(core.frame(mods, ms, { ...opt, outfit: o, accessories: acc }), { src: [mods, ms, opt] });
+  const frames = pose.frames({ ...LIB, outfit: o, frame, walkFrames: (count, cfg) => core.walkFrames(count, cfg, frame) });
+  // outfit.sequence darf Zwischenframes einfügen (z. B. Angel ablegen): Standbild vorher markieren, rebuild(f, extraOpt, ms) baut einen Frame mit geänderten Optionen neu
+  if (!o?.sequence) return frames;
+  if (!frames.some(f => f.still) && frames[pose.still]) frames[pose.still].still = true;
+  return o.sequence(frames, (f, extra, ms) => frame(f.src[0], ms, { ...f.src[2], ...extra, still: false }));
 };
 /** Passt die Pose zum Outfit? (pose.hat === false schließt Outfits mit Kopfbedeckung aus; alle Ansichten der Pose haben Outfit-Layer; Frames mit eigener Figur, z. B. Liegen, brauchen outfit.figures, außer die Kopfbedeckung wird abgenommen: outfit.doff) */
 export const fitsOutfit = (pose, outfit) => { const o = getOutfit(outfit); return !!o && !(o.hat && pose.hat === false) && pose.frames(LIB).every(f => f.figures.length ? o.doff || f.figures.every(id => o.figures?.[id]) : o.layers[f.view]); };
+/** Passt die Pose zum Accessoire? (alle Ansichten der Pose haben Accessoire-Layer; eigene Figuren werden nicht unterstützt) */
+export const fitsAccessory = (pose, id) => { const a = getAccessory(id); return !!a && pose.frames(LIB).every(f => !f.figures.length && a.layers[f.view]); };
 /** Index des Standbilds: per Frame-Option still markiert, sonst pose.still. */
 export const stillIndex = (pose, frames) => { const i = frames.findIndex(f => f.still); return i >= 0 ? i : pose.still; };

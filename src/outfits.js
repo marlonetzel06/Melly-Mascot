@@ -14,6 +14,7 @@
 // Eine Pose passt zu einem Outfit, wenn alle ihre Frames Ansichten nutzen, für die das Outfit layers hat (bzw. figures für ihre Figuren).
 
 import { sprite } from './core.js';
+import { OX, OY } from './model.js';
 
 // ---------- Weihnachtsmann ----------
 /** Gürtel (y 14) mit Messing-Schnalle + weißer Pelzsaum (y 15). */
@@ -222,6 +223,178 @@ const SANTA_FIG = {
   }
 };
 
+// ---------- Beruf + Klassiker (Ansicht vorne; Koch zusätzlich 3/4 für die Pose kochen) ----------
+/** Kopfschmuck als Sprite, der dem nickenden Kopf folgt. */
+const hatS = (rows, x0, y0) => (p, S) => sprite(rows, x0, y0)(S);
+/** Färbt die Sneaker zu Stiefeln: jedes Weiß/Schuh-Grau ab y 16 (wirkt auch bei Kick, Hocke, Sitzen). */
+const boots = (top, shade) => (p, S, opt, get) => {
+  for (let y = 16; y <= 21; y++) for (let x = -7; x <= 28; x++) { const c = get(x, y); if (c === 'W') p(x, y, top); else if (c === 'w' || c === 'x') p(x, y, shade); }
+};
+// Lagerist: offene Warnweste mit Reflexstreifen über dem Anzug (Anzug, Hemd und Krawatte bleiben in der Mitte sichtbar), Bauhelm.
+const VEST = [
+  '....TTTT......TTTt....',
+  '....TTTTT....TTTTt....',
+  '....TTTTT....TTAAt....',
+  '....TTTTT....TTTTt....',
+  '....TTTTT....TTTTt....',
+  '....TTTTT....TTTTt....',
+  '....TTTTT....TTTTt....'
+];
+const vest = sprite(VEST, 0, 9);
+/** 3/4-Ansicht rechts: V-Ausschnitt sitzt weiter rechts (Hemd x 10–14), Einstecktuch x 16; links (QL) gespiegelt. */
+const VEST_Q = [
+  '....TTTTT.......Tt....',
+  '....TTTTTT.....TTt....',
+  '....TTTTTT.....TAt....',
+  '....TTTTTT.....TTt....',
+  '....TTTTTT.....TTt....',
+  '....TTTTTT.....TTt....',
+  '....TTTTTT.....TTt....'
+];
+const vestQ = sprite(VEST_Q, 0, 9), vestQL = sprite(VEST_Q.map(r => [...r].reverse().join('')), 0, 9);
+const hiVisStripes = p => { [4, 5, 6, 7, 8, 13, 14, 15, 16, 17].forEach(x => p(x, 13, 'K')); for (let y = 9; y <= 12; y++) { p(5, y, 'K'); p(16, y, 'K'); } };
+const hiVisStripesQ = (left) => p => {
+  const m = x => left ? 21 - x : x;
+  [4, 5, 6, 7, 8, 9, 15, 16, 17].forEach(x => p(m(x), 13, 'K')); for (let y = 9; y <= 12; y++) { p(m(5), y, 'K'); if (y !== 11) p(m(16), y, 'K'); }
+};
+const hardHat = hatS([
+  '....IIIIii....',
+  '...IIIIIIii...',
+  '..IIIIIIIIii..',
+  '..IIIIIIIIii..',
+  'IIIIIIIIIIIIii',
+  '.OOOOOOOOOOOO.'], 4, -3);
+
+// Angler (Lakehouse): Fischerhut mit Fliege, Wathose mit Trägern über dem Anzug, Gummistiefel.
+const bucketHat = hatS([
+  '....UUUUUUuu....',
+  '...UUUUUUUUuuR..',
+  '...uuuuuuuuuuY..',
+  '.UUUUUUUUUUUUUu.',
+  'UU............uu'], 3, -2);
+const waders = p => {
+  for (let y = 9; y <= 11; y++) { p(7, y, 'T'); p(14, y, 'T'); }
+  for (let y = 12; y <= 13; y++) for (let x = 6; x <= 15; x++) p(x, y, x === 15 ? 't' : 'T');
+  p(7, 12, 'H'); p(14, 12, 'H');
+  for (let y = 14; y <= 15; y++) for (let x = 3; x <= 18; x++) p(x, y, x >= 17 ? 't' : 'T');
+  [4, 5, 6, 7, 14, 15, 16, 17].forEach(x => p(x, 16, x === 7 || x === 17 ? 't' : 'T'));
+};
+/** Wathose im Profil (für die Sitzpose angeln): Hose y 13–15, Latz vorn, Träger über die Schulter. Beine zeichnet die Pose. */
+const wadersS = p => {
+  for (let y = 13; y <= 15; y++) for (let x = 3; x <= 18; x++) p(x, y, x >= 17 ? 't' : 'T');
+  for (let y = 11; y <= 12; y++) for (let x = 13; x <= 17; x++) p(x, y, x === 17 ? 't' : 'T');
+  p(13, 10, 'T'); p(12, 9, 'T'); p(14, 11, 'H');
+};
+const CATCH = ['kkkk', 'WgWW', 'gggg', 'WgWW'];
+const catchAt = (p, x0, y0) => CATCH.forEach((r, j) => [...r].forEach((c, i) => p(x0 + i, y0 + j, c)));
+/** Hängt der rechte Arm in Ruhe (Hand x 19, y 13)? Dann hält Melly die Angel. */
+const armRests = get => get(19, 13) === 'C' && 'Nn'.includes(get(19, 12));
+/** Angel mit gefangener Tabelle: in der Hand, solange der rechte Arm hängt; braucht die Pose den Arm, liegt sie am Boden.
+ *  opt.rod = 'lower' (Zwischenframe aus anglerSequence): Rute schräg zum Boden, Tabelle setzt auf. */
+const rod = (p, S, opt, get) => {
+  if (opt.rod === 'lower') {
+    [[20, 13], [21, 14], [22, 14], [23, 15], [24, 15], [25, 16], [26, 16]].forEach(([x, y]) => p(x, y, 'j'));
+    catchAt(p, 24, 11);
+  } else if (armRests(get)) {
+    const d = Math.max(0, opt.dx || 0); // Figur rückt nach rechts (z. B. Wackeln): Rute kürzer, damit die Tabelle im Bild bleibt
+    for (let i = 0; i < 7 - d; i++) p(20 + i, 12 - i, 'j');
+    for (let y = 7 + d; y <= 10; y++) p(27 - d, y, 'g');
+    catchAt(p, 24 - d, 11);
+  } else {
+    p(19, 17, 'k'); p(20, 17, 'k'); for (let x = 21; x <= 27; x++) p(x, 17, 'j');
+    catchAt(p, 24, 13);
+  }
+};
+/** Übergang statt Sprung: wechselt die Angel zwischen Hand und Boden, kommt davor ein Zwischenframe mit gesenkter Rute
+ *  (beim Ablegen mit dem Arm des Vorframes, beim Aufheben mit dem Arm des Zielframes, der dann noch hängt). */
+const anglerSequence = (frames, rebuild) => {
+  const held = f => f.view === 'F' && armRests((x, y) => f.g[y + OY + (f.src[2].dy || 0)]?.[x + OX + (f.src[2].dx || 0)]);
+  if (frames.every(f => f.view !== 'F')) return frames;
+  return frames.flatMap((f, i) => {
+    const prev = frames[(i - 1 + frames.length) % frames.length];
+    if (f.view !== 'F' || prev.view !== 'F' || held(prev) === held(f)) return [f];
+    return [rebuild(held(prev) ? prev : f, { rod: 'lower' }, 110), f];
+  });
+};
+
+// Agent (AI-Agent): fast schwarzer Anzug (Navy-Kontrastgrenze), dunkle Krawatte, Knopf im Ohr mit Spiralkabel.
+const earpiece = (p, S) => { S(18, 5, 'g'); S(19, 6, 'w'); S(20, 7, 'w'); S(19, 8, 'w'); p(18, 9, 'w'); };
+
+// Zauberer: spitzer Hut mit umgeknickter Spitze und Sternen, Robe in Violett mit Messing-Sternen.
+const wizardHat = hatS([
+  '.........UUuu...',
+  '.......UUUu.....',
+  '......UUUUu.....',
+  '.....UUhUUu.....',
+  '....UUUUUUuu....',
+  '...UhUUUUUUuu...',
+  '...HHHHHHHHHH...',
+  'UUUUUUUUUUUUUUuu'], 3, -6);
+const robeStars = p => { p(5, 12, 'h'); p(15, 14, 'h'); p(7, 15, 'h'); };
+
+// Koch: Kochmütze mit Falten, Schürze in hellem Graublau (nicht weiß, sonst verschwimmt sie mit Hemd und Schuhen).
+const toque = hatS([
+  '..WWW.WWWW.WWW..',
+  '.WWWWWWWWWWWWWw.',
+  'WWWWWWWWWWWWWWww',
+  'WWWWWWWWWWWWWWww',
+  '.wwwwwwwwwwwwww.',
+  '..WWwWWwWWwWWw..',
+  '..WWwWWwWWwWWw..',
+  '..OOOOOOOOOOOO..'], 3, -5);
+const apron = p => {
+  p(4, 13, 'w'); p(17, 13, 'w');
+  for (let y = 13; y <= 16; y++) for (let x = y === 16 ? 8 : 5; x <= (y === 16 ? 13 : 16); x++) p(x, y, x === 16 ? 't' : 'T');
+};
+
+// Cowboy: nur der Hut (Delle oben, hochgebogene Krempe).
+const cowboyHat = hatS([
+  '.....UUU..Uuu.....',
+  '....UUUUUUUUuu....',
+  '....UUUUUUUUuu....',
+  'UU..kkkkkkkkkk..uu',
+  'UUUUUUUUUUUUUUUUuu'], 2, -3);
+
+const MORE_OUTFITS = [
+  {
+    id: 'angler', title: 'Angler', desc: 'Fischerhut mit Fliege, Wathose über dem Anzug, Gummistiefel, Angel mit Tabelle (liegt am Boden, wenn er den Arm braucht). Lakehouse-Bezug.',
+    hat: true,
+    pal: { U: '#A39A63', u: '#7A7246', T: '#55633A', t: '#3D4829' },
+    layers: { F: () => [bucketHat, waders], S: () => [bucketHat, wadersS] }, after: { F: () => [boots('t', 't'), rod], S: () => [boots('t', 't')] },
+    sequence: anglerSequence
+  },
+  {
+    id: 'agent', title: 'Agent', desc: 'Fast schwarzer Anzug, dunkle Krawatte, Knopf im Ohr mit Spiralkabel. Wortspiel AI-Agent.',
+    pal: { N: '#34373E', n: '#25282D', l: '#616369', A: '#1B1D21', a: '#0B0C0E' },
+    layers: { F: () => [earpiece] }
+  },
+  {
+    id: 'lagerist', title: 'Lagerist', desc: 'Offene orange Warnweste mit Reflexstreifen über dem Anzug, gelber Bauhelm. Warehouse-Bezug.',
+    hat: true,
+    pal: { T: '#F07C1E', t: '#C45F12', K: '#DCE1E5', I: '#F2C230', i: '#C99A1E' },
+    layers: { F: () => [vest, hiVisStripes, hardHat], Q: () => [vestQ, hiVisStripesQ(false), hardHat], QL: () => [vestQL, hiVisStripesQ(true), hardHat] }
+  },
+  {
+    id: 'zauberer', title: 'Zauberer', desc: 'Spitzer Hut mit Sternen, violette Robe mit Messing-Sternen.',
+    hat: true,
+    pal: { N: '#4A3A78', n: '#33285A', l: '#726596', A: '#E3A33B', a: '#A86F18', U: '#4A3A78', u: '#33285A' },
+    layers: { F: () => [wizardHat, robeStars] }
+  },
+  {
+    id: 'koch', title: 'Koch', desc: 'Kochmütze mit Falten, graublaue Schürze.',
+    hat: true,
+    pal: { T: '#A9BCCF', t: '#8399AF' },
+    layers: { F: () => [toque, apron], Q: () => [toque, apron], QL: () => [toque, apron] }
+  },
+  {
+    id: 'cowboy', title: 'Cowboy', desc: 'Cowboyhut mit Delle und hochgebogener Krempe.',
+    hat: true,
+    pal: { U: '#B07A3E', u: '#83582A' },
+    layers: { F: () => [cowboyHat] }
+  }
+];
+
+
 // ---------- Bauhelm ----------
 // Kopf-Umriss (y 0–4) ist in allen Ansichten gleich, der Helm sitzt daher überall gleich tief: Kalotte y −5..−1, Kopfband-Naht y 0,
 // Schirm y 1 (Oberseite T) + y 2 (Kante D, trennt zur Stirn statt einer Konturzeile). Grat I mit Schattenkante t (Relief), Glanz X/I links oben,
@@ -323,7 +496,8 @@ export const OUTFITS = [
     doff: true,
     layers: Object.fromEntries(['F', 'Q', 'QL', 'S', 'SL', 'QB', 'QBL', 'B'].map(v => [v, (opt) => !opt.hut ? [helmet(v)] : opt.hut[2] ? [] : [helmetOff(opt.hut)]])),
     after: Object.fromEntries(['F', 'Q', 'QL', 'S', 'SL', 'QB', 'QBL', 'B', '-'].map(v => [v, (opt) => opt.hut ? (opt.hut[2] ? [helmetOff(opt.hut)] : []) : v === '-' ? [] : [helmetOverBrows(v)]]))
-  }
+  },
+  ...MORE_OUTFITS
 ];
 
 export const getOutfit = id => OUTFITS.find(o => o.id === id);

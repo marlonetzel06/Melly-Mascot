@@ -9,6 +9,7 @@ Melly ist Marlons persönliches Pixel-Maskottchen: ein Creme-Blob im Einreiher. 
 - Kontur `O` wird automatisch gesetzt und ist **überall dunkel** – funktioniert auf Weiß, Papier, Dunkelblau, Schwarz, Cyan.
 - 6 Anzug-Kombis (`COMBOS`). Neue Kombi: Anzugfarbe muss sich vom Dunkelblau `#041C2C` abheben; Akzent kontrastiert zum Anzug.
 - **Outfits** (`src/outfits.js`) verkleiden Melly für Anlässe (z. B. Weihnachtsmann). Sie ändern Farben und legen Accessoires darüber, nie das Modell selbst. Augen, Kontur und Silhouette bleiben erkennbar Melly; Krawatte/Einstecktuch bleiben sichtbar. Outfit-Anzüge brauchen denselben Kontrast zu Navy wie Kombis: nicht dunkler als ca. `#34373E` (Schwarz → Anthrazit-Schwarz, sonst verschwinden die Ärmel auf Navy).
+- **Accessoires** (`src/accessories.js`) sind kleine Extras zum An- und Abschalten (Brille, Kopfhörer, Badge), kombinierbar mit jeder Kombi und jedem Outfit. Sie verdecken die Augen nicht.
 - Ansichten: `F` vorne, `Q`/`QL` 3/4, `S`/`SL` Profil, `QB`/`QBL` 3/4 hinten, `B` hinten.
 
 ## Checkliste für jede neue oder geänderte Pose

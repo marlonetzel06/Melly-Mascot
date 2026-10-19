@@ -1,6 +1,6 @@
 ---
 name: melly
-description: "Melly – Marlons Pixel-Maskottchen (Creme-Blob im Anzug). Liefert fertige Assets (GIF, PNG, Sprite-Sheet) in 6 Anzug-Kombis und Outfits (z. B. Weihnachtsmann), baut neue Posen und Outfits oder passt bestehende an – als Code, mit Render-Selbstprüfung und Feedback-Schleife. Auslöser: 'Melly', '/melly', 'Maskottchen für den Post', 'Melly winkend/jubelnd/…', 'neue Pose für Melly', 'Melly als Weihnachtsmann/…', 'neues Outfit', 'Melly anpassen', 'Melly exportieren'."
+description: "Melly – Marlons Pixel-Maskottchen (Creme-Blob im Anzug). Liefert fertige Assets (GIF, PNG, Sprite-Sheet) in 6 Anzug-Kombis, Outfits (z. B. Weihnachtsmann, Angler, Zauberer) und mit Accessoires (Brille, Kopfhörer, Badge), baut neue Posen, Outfits und Accessoires oder passt bestehende an – als Code, mit Render-Selbstprüfung und Feedback-Schleife. Auslöser: 'Melly', '/melly', 'Maskottchen für den Post', 'Melly winkend/jubelnd/…', 'neue Pose für Melly', 'Melly als Weihnachtsmann/…', 'neues Outfit', 'neues Accessoire', 'Melly anpassen', 'Melly exportieren'."
 ---
 
 # Melly
@@ -8,15 +8,15 @@ description: "Melly – Marlons Pixel-Maskottchen (Creme-Blob im Anzug). Liefert
 Quelle der Wahrheit: das Repo (GitHub `marlonetzel06/Melly-Mascot`). Alle Befehle im Repo-Root ausführen (bei Worktree/Klon: dessen Root). Vorher `BRAND.md` lesen – sie ist verbindlich.
 
 ## Begriffe
-- **Modell** = die Figur selbst (fix) · **Kombi** = Anzug- + Akzentfarbe (6 Stück) · **Outfit** = Kostüm über dem Modell (eigene Farben + Accessoires, z. B. `weihnachten`) · **Pose** = Animation.
-- Jede Pose läuft in jeder Kombi und in jedem Outfit, dessen Ansichten sie nutzt. Eine Pose mit `outfit: '<id>'` ist an dieses Outfit gebunden (z. B. `weihnachtsmann` mit Sack).
+- **Modell** = die Figur selbst (fix) · **Kombi** = Anzug- + Akzentfarbe (6 Stück) · **Outfit** = Kostüm über dem Modell (eigene Farben + Accessoires, z. B. `weihnachten`) · **Accessoire** = kleines Extra zum An- und Abschalten (Brille, Kopfhörer …), kombinierbar mit jeder Kombi und jedem Outfit · **Pose** = Animation.
+- Jede Pose läuft in jeder Kombi und in jedem Outfit/Accessoire, dessen Ansichten sie nutzt. Eine Pose mit `outfit: '<id>'` ist an dieses Outfit gebunden (z. B. `weihnachtsmann` mit Sack), eine mit `accessories: ['<id>']` an Accessoires (z. B. `musik` mit Kopfhörer).
 
 ## Aufbau
-- `src/model.js` Raster je Ansicht, Palette, `COMBOS` · `src/core.js` Frame-Builder + Bausteine (Augen, Arme, Füße, `walkFrames`) · `src/props.js` Objekte/Effekte · `src/outfits.js` Outfits
+- `src/model.js` Raster je Ansicht, Palette, `COMBOS` · `src/core.js` Frame-Builder + Bausteine (Augen, Arme, Füße, `walkFrames`) · `src/props.js` Objekte/Effekte · `src/outfits.js` Outfits · `src/accessories.js` Accessoires
 - `src/poses/<id>.js` eine Datei pro Animation: `{ id, title, category, desc, still, outfit?, frames: (lib) => [...] }` · `src/registry.js` Liste aller Posen
-- `node tools/preview.mjs <id|all> [--combo <n|slug>] [--outfit <id>|none]` → `out/preview/<id>.png` (alle Frames, Weiß + Navy, Index + ms; Standbild orange markiert)
-- `node tools/export.mjs <id|all> [--combo all|none|<n|slug>] [--outfit all|none|<id>] [--version v1]` → `dist/<version>/<kombi>/{gif,png,sheet}/` und `dist/<version>/outfit-<id>/…`
-- `npm run gallery` → http://localhost:8777 (Galerie, Kombi- und Outfit-Umschalter)
+- `node tools/preview.mjs <id|all> [--combo <n|slug>] [--outfit <id>|none] [--acc <id>[,<id>]]` → `out/preview/<id>.png` (alle Frames, Weiß + Navy, Index + ms; Standbild orange markiert)
+- `node tools/export.mjs <id|all> [--combo all|none|<n|slug>] [--outfit all|none|<id>] [--acc all|none|<id>] [--version v1]` → `dist/<version>/<kombi>/{gif,png,sheet}/`, `dist/<version>/outfit-<id>/…` und `dist/<version>/accessoire-<id>/…` (Mittelblau)
+- `npm run gallery` → http://localhost:8777 (Galerie, Kombi- und Outfit-Umschalter, Accessoires zum An- und Abschalten)
 
 ## A · Asset liefern
 1. Passende Pose in `src/registry.js`/Galerie suchen (Kategorien: Bewegung, Arbeit, Reaktion, Alltag).
@@ -38,8 +38,15 @@ Quelle der Wahrheit: das Repo (GitHub `marlonetzel06/Melly-Mascot`). Alle Befehl
    - `figures`: `{ <Figur-ID>: (opt) => [Bausteine] }` für eigene Figuren in Ansicht `-` (Liegen `lie`, Neigung `lean26/45/63` aus `props.js`), in Sprite-Koordinaten der Figur, gezeichnet direkt nach ihr. Mütze und Anzug je Stufe zeichnen; was der Schwerkraft folgt (Zipfel), nicht mitdrehen, sondern als Zustände anlegen, die die Pose per Frame-Option wählt (`opt.tip`, Beispiel `weihnachten`).
    - Eine Pose passt zum Outfit, wenn das Outfit für **alle** ihre Ansichten `layers` hat (Frames mit eigener Figur: `figures` für diese Figur). Erst `F` bauen; weitere Ansichten nur, wenn gewünscht.
 2. Selbstprüfung: `node tools/preview.mjs winken --outfit <id>` plus `jubeln` (Sprung, Höhe), `schulterzucken` (Nicken: Kopfschmuck muss mitgehen) und 1–2 Posen mit Armen/Objekten vor dem Körper (`kaffee`, `laptop`). Checkliste in `BRAND.md` gilt.
+   - `sequence`: optional `(frames, rebuild) => frames`, darf Zwischenframes einfügen; `rebuild(f, extraOpt, ms)` baut einen Frame mit zusätzlichen Optionen neu (Beispiel `angler`: Angel ablegen/aufnehmen, wenn eine Pose den Arm braucht).
 3. Optional eigene Pose mit `outfit: '<id>'` (wie `weihnachtsmann.js`), sonst reicht das Outfit.
 4. Export immer für alle passenden Posen: `node tools/export.mjs all --combo none --outfit <id>` → `dist/<version>/outfit-<id>/` (der Katalog verlinkt feste Beispielposen), danach `npm run catalog`. Commit/PR wie in B.
+
+## D · Neues Accessoire / Accessoire anpassen
+1. In `src/accessories.js` Eintrag anlegen: `{ id, title, desc, pal?, layers, after? }` wie ein Outfit, aber ohne Anzug-/Akzentfarben. Eigene Tokens (z. B. `M` fürs Badge-Band) dürfen in keinem Outfit vorkommen, sonst beißen sie sich beim Kombinieren. Accessoires liegen über dem Outfit.
+2. Mimik, die die Augenzone mit Creme überschreibt (Lachen, Zwinkern), reißt Gesichts-Accessoires auf → in `after` reparieren (Beispiel `glassesRepair`).
+3. Selbstprüfung: `node tools/preview.mjs winken --acc <id>` plus `zwinkern`, `schulterzucken`, `jubeln` und mit einem Outfit kombiniert (`--outfit koch --acc <id>`).
+4. Export: `node tools/export.mjs all --combo none --outfit none --acc <id>`, danach `npm run catalog`. Commit/PR wie in B.
 
 ## Koordinaten & Eigenheiten
 - Figur 0..21 × 0..18, Arbeitsfläche erlaubt x −7..28 und y −10..21 (alles außerhalb wird abgeschnitten).

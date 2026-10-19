@@ -10,7 +10,8 @@ import { GW, GH, OX, OY, HEAD, BODY, VIEWS } from './model.js';
  *  still: true markiert das Standbild (überschreibt pose.still, z. B. in Outfit-Varianten mit anderer Frame-Folge).
  *  outfit (aus outfits.js) wird vor den Posen-Bausteinen gezeichnet; seine Farben liegen über der Kombi.
  *  Bausteine bekommen opt als dritten Parameter; Figuren-Bausteine (m.figure, z. B. Liegen) zeichnen darüber outfit.figures[id].
- *  outfit.after[view] läuft nach den Posen-Bausteinen; seine Bausteine lesen zusätzlich das Bild: (p, S, opt, get(x, y)). */
+ *  outfit.after[view] läuft nach den Posen-Bausteinen; seine Bausteine lesen zusätzlich das Bild: (p, S, opt, get(x, y)).
+ *  accessories (aus accessories.js, Liste) liegen wie das Outfit vor bzw. nach den Posen-Bausteinen, jeweils über dem Outfit. */
 export function frame(mods, ms, opt = {}) {
   const g = Array.from({ length: GH }, () => Array(GW).fill('.'));
   const dy = opt.dy || 0, dx = opt.dx || 0, hd = opt.headDy || 0;
@@ -24,10 +25,12 @@ export function frame(mods, ms, opt = {}) {
   }
   const S = (x, y, c) => put(x, y + hd, c);
   const get = (x, y) => g[y + OY + dy]?.[x + OX + dx];
-  if (opt.outfit) (opt.outfit.layers[view] ? opt.outfit.layers[view](opt) : []).forEach(m => m(put, S));
+  const wear = [opt.outfit, ...(opt.accessories || [])].filter(Boolean);
+  wear.forEach(w => (w.layers[view] ? w.layers[view](opt) : []).forEach(m => m(put, S)));
   (mods || []).forEach(m => m(put, S, opt));
-  if (opt.outfit?.after?.[view]) opt.outfit.after[view](opt).forEach(m => m(put, S, opt, get));
-  return { g, ms, view, still: !!opt.still, pal: opt.pal, outfitPal: opt.outfit?.pal, figures: (mods || []).filter(m => m.figure).map(m => m.figure) };
+  wear.forEach(w => (w.after?.[view] ? w.after[view](opt) : []).forEach(m => m(put, S, opt, get)));
+  const outfitPal = wear.length ? Object.assign({}, ...wear.map(w => w.pal || {})) : undefined;
+  return { g, ms, view, still: !!opt.still, pal: opt.pal, outfitPal, figures: (mods || []).filter(m => m.figure).map(m => m.figure) };
 }
 
 export const n = [];

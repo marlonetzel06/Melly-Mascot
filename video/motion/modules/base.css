@@ -1,0 +1,17 @@
+#stage { --ground:#1E1B3E; --main:#FFB25B; --second:#FFF8EC; --accent:#FF7A59; color:var(--second); font-family:var(--sans, system-ui, sans-serif) }
+.ground { position:absolute; inset:0; background:var(--ground); overflow:hidden }
+.words { position:absolute; margin:0; display:flex; flex-direction:column; gap:20px } .words > * { margin:0 }
+.line { font-family:var(--display, var(--sans, system-ui, sans-serif)); font-size:96px; line-height:1.05; font-weight:700 } .sub { font-family:var(--mono, ui-monospace, monospace); font-size:34px; letter-spacing:.06em }
+.sky { position:absolute; left:0; top:0; width:1080px; height:1350px; image-rendering:pixelated }
+.spot { display:none }
+.shadow { position:absolute; left:340px; top:1046px; width:400px; height:26px; border-radius:50%; background:rgba(0,0,0,.25) }
+.melly { position:absolute; left:72px; top:302px; width:936px; height:832px; transform-origin:468px 756px }
+.title { left:0; right:0; top:130px; align-items:center; text-align:center }
+.title .line { font-size:160px; letter-spacing:.03em; color:var(--second); text-shadow:0 10px 0 color-mix(in srgb, var(--ground) 80%, transparent) }
+.title .sub { color:var(--second); text-shadow:0 4px 0 color-mix(in srgb, var(--ground) 75%, transparent) }
+.tag { left:0; right:0; top:1140px; align-items:center; text-align:center }
+.tag .sub { color:var(--ground); font-size:38px; font-weight:700 }
+.title.day .line { color:var(--ground); text-shadow:0 10px 0 color-mix(in srgb, var(--second) 75%, transparent) }
+.title.day .sub { color:var(--ground); font-weight:700; text-shadow:none }
+.mark { width:132px; height:12px; background:var(--accent); align-self:center; box-shadow:0 6px 0 color-mix(in srgb, var(--ground) 70%, transparent) }
+.ring { position:absolute; left:540px; top:780px; width:10px; height:10px; margin:-5px; border-radius:50%; border:6px solid var(--main) }

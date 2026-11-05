@@ -2,15 +2,16 @@
 
 **Melly** ist ein Pixel-Maskottchen, das komplett aus Code besteht: ein Creme-Blob im Einreiher. Ein Nebenprojekt, in dem ich ausprobiere, wie weit man Figur, Animationen und Tooling agentisch mit KI-Unterstützung bauen kann.
 
-<p align="center"><img src="dist/video/melly-intro.gif" width="360" alt="Meet Melly – Intro-Clip mit Posen und Anzug-Kombis"></p>
+<p align="center"><img src="dist/video/melly-intro-motion.gif" width="360" alt="Melly auf der Dachterrasse – Intro mit Anzug-Kombis, Fußball und Laptop, von Tag bis Nacht"></p>
 
-<p align="center"><sub>Intro „Meet Melly“ · <a href="dist/video/melly-intro.mp4">MP4 in voller Auflösung</a> (4:5, 1080×1350)</sub></p>
+<p align="center"><sub>Intro als Claude-Motion-Film · <a href="dist/video/melly-intro-motion.mp4">MP4 mit Ton</a> (4:5, 1080×1350) · <a href="dist/video/melly-intro.mp4">erstes Intro „Meet Melly“</a></sub></p>
 
 ## Was drin steckt
 - **Modell und Posen als Code** (`src/`): Raster, Paletten, Bausteine und alle Animationen als JavaScript. Keine Handzeichnungen, jede Pose ist reproduzierbar.
 - **Renderer und Export** (`tools/`): GIF, PNG und Sprite-Sheets in 6 Anzug-Kombis und mit Outfits, dazu Kontaktbögen zur Selbstprüfung.
 - **Galerie** (`index.html`): lokale Übersicht mit Kombi-Umschalter.
 - **Intro-Video** (`video/`): ein durchgehender 4:5-Clip (für LinkedIn oder eine Maskottchen-Präsentation), der Melly und alle 6 Anzug-Kombis am Stück vorstellt – aus den echten Posen-Frames über Chrome-headless und ffmpeg zu MP4.
+- **Motion-Film** (`video/motion/`): das Intro als Claude-Motion-Film. Melly auf einer Dachterrasse, der Himmel läuft von Tag zur Nacht, dazu Fußball, Laptop und generierte Musik. Der Ordner ist ein Abzug der Film-Module, `melly.json` wird aus `src/` gebaut.
 - **Claude-Code-Skill** (`.claude/skills/melly/`): ein Agent baut damit neue Posen und Outfits nach festen Regeln (`BRAND.md`).
 - **Claude-Code-Mod** (`mod/melly-mascot/`): Melly lebt über der Prompt-Leiste und reagiert auf Claude, Tippen und Inaktivität.
 
@@ -19,6 +20,7 @@
 npm install
 npm run gallery   # Galerie auf http://localhost:8777
 npm run video     # Intro-Video → dist/video/melly-intro-4x5.mp4 (braucht Chrome + ffmpeg)
+npm run motion    # Frame-Daten für den Motion-Film → video/motion/modules/melly.json
 ```
 
 > **Source available, nicht Open Source.** © 2026 Marlon Etzel, alle Rechte vorbehalten. Der Code und die Figur „Melly“ sind nur zur Ansicht veröffentlicht; Kopieren, Weiterverwenden oder KI-Training ohne schriftliche Genehmigung ist nicht gestattet. Siehe [LICENSE](LICENSE).

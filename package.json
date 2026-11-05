@@ -10,7 +10,8 @@
     "preview": "node tools/preview.mjs",
     "export": "node tools/export.mjs",
     "catalog": "node tools/catalog.mjs",
-    "video": "node video/build-frames.mjs && node video/render.mjs"
+    "video": "node video/build-frames.mjs && node video/render.mjs",
+    "motion": "node video/build-frames.mjs && node video/motion/build-data.mjs"
   },
   "dependencies": {
     "gifenc": "^1.0.3",

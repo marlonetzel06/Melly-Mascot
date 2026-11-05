@@ -1,0 +1,62 @@
+{
+  "v": 1,
+  "stage": "final",
+  "look": "Dachterrasse: Pixel-Skyline mit Parallax, Himmel läuft von Tag über Sonnenuntergang zur Nacht, Laternen am Geländer, klare Pixel-Typo mit Schlagschatten",
+  "palettes": [
+    [
+      "#1E1B3E",
+      "#FFB25B",
+      "#FFF8EC",
+      "#FF7A59"
+    ]
+  ],
+  "theirs": 1,
+  "width": 1080,
+  "height": 1350,
+  "fps": 60,
+  "background": "#1E1B3E",
+  "fonts": {
+    "display": {
+      "family": "Pixelify Sans",
+      "or": "departure-mono",
+      "weights": [
+        400,
+        700
+      ]
+    },
+    "sans": "space-grotesk",
+    "mono": "departure-mono"
+  },
+  "scenes": [
+    {
+      "id": "hallo",
+      "name": "Hallo",
+      "dur": 4.6,
+      "desc": "Melly läuft von außerhalb ins Bild und winkt, der Name setzt sich."
+    },
+    {
+      "id": "karussell",
+      "name": "Anzug-Karussell",
+      "dur": 6.25,
+      "desc": "Melly jubelt und wechselt pro Sprung die Anzug-Kombi."
+    },
+    {
+      "id": "fussball",
+      "name": "Fußball",
+      "dur": 5.74,
+      "desc": "Melly jongliert einen Ball, der Ball fliegt flüssig, am Ende wird er weggekickt."
+    },
+    {
+      "id": "laptop",
+      "name": "Am Laptop",
+      "dur": 5.6,
+      "desc": "Laptop raus, tippen, zuklappen; mit dem Feierabend wird es dunkel. Daumen hoch."
+    },
+    {
+      "id": "tschuess",
+      "name": "Tschüss",
+      "dur": 6,
+      "desc": "Melly winkt und läuft aus dem Bild, Endkarte unter Sternen."
+    }
+  ]
+}

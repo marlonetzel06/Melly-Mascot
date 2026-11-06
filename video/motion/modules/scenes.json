@@ -1,7 +1,7 @@
 {
   "v": 1,
   "stage": "final",
-  "look": "Dachterrasse: Pixel-Skyline mit Parallax, Himmel läuft von Tag über Sonnenuntergang zur Nacht, Laternen am Geländer, klare Pixel-Typo mit Schlagschatten",
+  "look": "Dachterrasse: Pixel-Skyline, Himmel läuft von Tag über Sonnenuntergang zur Nacht, halb Tag halb Nacht, Laternen am Geländer, klare Pixel-Typo mit Schlagschatten",
   "palettes": [
     [
       "#1E1B3E",
@@ -37,20 +37,20 @@
     {
       "id": "karussell",
       "name": "Anzug-Karussell",
-      "dur": 6.25,
+      "dur": 6,
       "desc": "Melly jubelt und wechselt pro Sprung die Anzug-Kombi."
     },
     {
       "id": "fussball",
       "name": "Fußball",
       "dur": 5.74,
-      "desc": "Melly jongliert einen Ball, der Ball fliegt flüssig, am Ende wird er weggekickt."
+      "desc": "Melly jongliert in den Sonnenuntergang, am Ende wird der Ball weggekickt."
     },
     {
       "id": "laptop",
       "name": "Am Laptop",
       "dur": 5.6,
-      "desc": "Laptop raus, tippen, zuklappen; mit dem Feierabend wird es dunkel. Daumen hoch."
+      "desc": "Laptop raus, tippen, zuklappen unter Sternen. Daumen hoch."
     },
     {
       "id": "tschuess",

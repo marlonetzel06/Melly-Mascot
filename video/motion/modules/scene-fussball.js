@@ -1,7 +1,7 @@
 const { seg, eo, eio, lerp } = kit;
 // Melly-Frames ohne Ball. Der Ball fliegt zwischen den Berührungen (rechter Fuß, linker Fuß, Kopf) auf echten
 // Wurfparabeln mit Schwerkraft: harter Richtungswechsel am Fuß, kurzes Stauchen beim Kontakt, Drall.
-const LOOPS = 3, S = 26, SP = 1.64 / 1.62, G = 265;
+const LOOPS = 3, S = 26, SP = 1.64 / 1.62, G = 265, LEAD = 0.41;
 // Ball 7×7: runde Form, Mittelfleck + 5 Randflecken, Schatten unten rechts; 4 Drehstufen.
 const ROWS = [3, 5, 7, 7, 7, 5, 3];
 const inBall = (x, y) => y >= 0 && y < 7 && Math.abs(x - 3) <= (ROWS[y] - 1) / 2;
@@ -24,9 +24,10 @@ kit.scene('fussball', {
     const g = MELLY.stage(kit);
     kit.stage.append(g);
     this.m = MELLY.mount(kit, g);
-    const list = [];
+    // Halber Takt Anlauf: Melly schaut nach oben, der Ball fällt von oben auf den rechten Fuß.
+    const list = [{ pose: 'fussball', combo: 5, idx: [9], speed: LEAD / 0.15, glide: false }];
     for (let k = 0; k < LOOPS; k++) list.push({ pose: 'fussball', combo: 5, speed: SP });
-    list.push({ pose: 'fussball', combo: 5, idx: [0], speed: 4 });
+    list.push({ pose: 'fussball', combo: 5, idx: [0], speed: LEAD / 0.17 });
     this.q = MELLY.seq(list);
     this.L = 1.62 * SP;
     // Berührungen je Runde: Zeit (s) und Ball-Position (linke obere Ecke, Raster)
@@ -36,10 +37,12 @@ kit.scene('fussball', {
     this.m.el.append(cv);
     this.ctx = cv.getContext('2d');
   },
-  ballAt(t) {
+  ballAt(tt) {
     const L = this.L;
+    if (tt < LEAD) { const vy = 35 / LEAD - 0.5 * G * LEAD, tau = Math.max(0, tt); return { x: 30 - 4 * tau / LEAD, y: -16 + vy * tau + 0.5 * G * tau * tau, vx: -1, since: 1 }; }
+    const t = tt - LEAD;
     if (t >= LOOPS * L) {
-      const u = Math.min(1, (t - LOOPS * L) / 0.6);
+      const u = Math.min(1, (t - LOOPS * L) / 0.4);
       return { x: 26 + 24 * u, y: 19 - 36 * eo(u), vx: 1, since: t - LOOPS * L };
     }
     const tl = Math.max(0, t) % L, C = this.C;

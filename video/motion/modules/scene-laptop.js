@@ -14,7 +14,7 @@ kit.scene('laptop', {
   },
   render(t) {
     MELLY.draw(this.m, MELLY.at(this.q, t));
-    this.m.el.style.transform = 'scale(' + lerp(1.07, 1.03, eio(seg(t, 0, 5.6))) + ')';
+    this.m.el.style.transform = 'scale(' + (1.03 + 0.01 * Math.sin(Math.PI * seg(t, 0, 5.6))) + ')';
     this.spot.transform = 'scale(' + lerp(1.06, 1.0, eio(seg(t, 0, 5.6))) + ')';
   },
 });

@@ -5,7 +5,7 @@ kit.scene('karussell', {
     g.append(kit.h('<div class="ring karussell-ring"></div>'));
     kit.stage.append(g);
     this.m = MELLY.mount(kit, g);
-    const list = [{ pose: 'jubeln', combo: 0, idx: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }];
+    const list = [{ pose: 'jubeln', combo: 0, idx: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], speed: 1.08 / 1.03 }];
     for (let c = 1; c < 6; c++) list.push({ pose: 'jubeln', combo: c, idx: [3, 4, 5, 6, 7, 8, 9, 10] });
     list.push({ pose: 'jubeln', combo: 5, idx: [14, 16, 18] });
     this.q = MELLY.seq(list);

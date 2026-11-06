@@ -11,7 +11,7 @@
 - **Renderer und Export** (`tools/`): GIF, PNG und Sprite-Sheets in 6 Anzug-Kombis und mit Outfits, dazu Kontaktbögen zur Selbstprüfung.
 - **Galerie** (`index.html`): lokale Übersicht mit Kombi-Umschalter.
 - **Intro-Video** (`video/`): ein durchgehender 4:5-Clip (für LinkedIn oder eine Maskottchen-Präsentation), der Melly und alle 6 Anzug-Kombis am Stück vorstellt – aus den echten Posen-Frames über Chrome-headless und ffmpeg zu MP4.
-- **Motion-Film** (`video/motion/`): das Intro als Claude-Motion-Film. Melly auf einer Dachterrasse, der Himmel läuft von Tag zur Nacht, dazu Fußball, Laptop und generierte Musik. Der Ordner ist ein Abzug der Film-Module, `melly.json` wird aus `src/` gebaut.
+- **Motion-Film** (`video/motion/`): das Intro als Claude-Motion-Film. Melly auf einer Dachterrasse, der Himmel läuft von Tag zur Nacht, dazu Fußball, Laptop und generierte Musik. Der Ordner ist ein Abzug der Film-Module, `melly.json` wird aus `src/` gebaut. Schrift: [Pixelify Sans](fonts/pixelify-sans/) (SIL Open Font License, siehe `fonts/pixelify-sans/OFL.txt`).
 - **Claude-Code-Skill** (`.claude/skills/melly/`): ein Agent baut damit neue Posen und Outfits nach festen Regeln (`BRAND.md`).
 - **Claude-Code-Mod** (`mod/melly-mascot/`): Melly lebt über der Prompt-Leiste und reagiert auf Claude, Tippen und Inaktivität.
 

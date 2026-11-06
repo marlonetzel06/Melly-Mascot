@@ -12,8 +12,8 @@ const LW = 180, LH = 225, DECK = 176;
 const hx = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 const mix = (a, b, p) => [a[0] + (b[0] - a[0]) * p, a[1] + (b[1] - a[1]) * p, a[2] + (b[2] - a[2]) * p];
 const css = (c, al) => 'rgba(' + (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0) + ',' + (al == null ? 1 : al) + ')';
-// Tag bis zum Fußball, Nachmittag am Laptop, Sonnenuntergang beim Zuklappen, danach Nacht.
-const KEYS = [[0, '#5FB4E0', '#C4EAF4'], [10.85, '#5FB4E0', '#C4EAF4'], [16.59, '#5FA6D6', '#F3DDB0'], [19.2, '#5B5C9E', '#F6A27A'], [20.4, '#3B3573', '#E57F6C'], [21.7, '#1E1B3E', '#3D3163'], [999, '#1E1B3E', '#3D3163']].map(k => [k[0], hx(k[1]), hx(k[2])]);
+// Tag, goldene Stunde, Sonnenuntergang beim Jonglieren, Dämmerung, blaue Stunde, Nacht. Je Stufe: oben, Mitte, Horizont.
+const KEYS = [[0, '#4FA8DC', '#86C6EA', '#C9EAF4'], [8, '#4FA8DC', '#86C6EA', '#C9EAF4'], [10.5, '#5A9FD2', '#9CC2DE', '#F2D9A8'], [12.5, '#4D5C9C', '#B07A9A', '#F6A35E'], [14.0, '#2E2C66', '#714C86', '#E3806A'], [15.4, '#211E48', '#3A3068', '#7A4C78'], [17.0, '#1E1B3E', '#2C2652', '#3D3163'], [999, '#1E1B3E', '#2C2652', '#3D3163']].map(k => [k[0], hx(k[1]), hx(k[2]), hx(k[3])]);
 function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const SPAN = 380;
 function city(seed, wMin, wMax, hMin, hMax) {
@@ -31,18 +31,28 @@ const C = {
   winD: hx('#B8D2EE'), lit: hx('#FFD27A'), sunD: hx('#FFE9A3'), sunS: hx('#FF9E5E'), moon: hx('#F3EBD2'),
   railD: hx('#4A4458'), railN: hx('#2A2440'), deckD: hx('#B3A194'), deckN: hx('#4A3F52'), edgeD: hx('#D2C2B4'), edgeN: hx('#64566E'), plank: hx('#000000'),
 };
-function skyAt(T) { let i = 0; while (T >= KEYS[i + 1][0]) i++; const a = KEYS[i], b = KEYS[i + 1]; const p = sst(0, 1, (T - a[0]) / (b[0] - a[0])); return [mix(a[1], b[1], p), mix(a[2], b[2], p)]; }
+function skyAt(T) { let i = 0; while (T >= KEYS[i + 1][0]) i++; const a = KEYS[i], b = KEYS[i + 1]; const p = sst(0, 1, (T - a[0]) / (b[0] - a[0])); return [mix(a[1], b[1], p), mix(a[2], b[2], p), mix(a[3], b[3], p)]; }
 function disc(ctx, cx, cy, r) { for (let y = -r; y <= r; y++) { const w = Math.floor(Math.sqrt(r * r - y * y)); ctx.fillRect(Math.round(cx - w), Math.round(cy + y), 2 * w + 1, 1); } }
 window.SKY = {
   draw(ctx, T) {
-    const [top, bot] = skyAt(T), n = sst(19.3, 21.7, T), dusk = sst(15.9, 19.8, T) * (1 - sst(20.6, 22.0, T));
-    for (let y = 0; y < DECK; y++) { ctx.fillStyle = css(mix(top, bot, y / DECK)); ctx.fillRect(0, y, LW, 1); }
+    const [top, mid, bot] = skyAt(T), n = sst(13.4, 16.2, T), dusk = sst(9.5, 12.8, T) * (1 - sst(14.6, 16.4, T));
+    const nl = sst(13.2, 14.8, T); // Laternen und Fenster: ab der Dämmerung voll an
+    const skyRow = y => { const p = y / DECK; return p < 0.55 ? mix(top, mid, p / 0.55) : mix(mid, bot, (p - 0.55) / 0.45); };
+    for (let y = 0; y < DECK; y++) { ctx.fillStyle = css(skyRow(y)); ctx.fillRect(0, y, LW, 1); }
+    // Glut am Horizont auf der Sonnenseite: breit und warm, bleibt nach dem Untergang noch kurz stehen
+    const glow = sst(9.5, 12.5, T) * (1 - sst(14.2, 16.0, T));
+    if (glow > 0) { const gx = 150, gy = DECK - 10, g = ctx.createRadialGradient(gx, gy, 0, gx, gy, 120); g.addColorStop(0, css(hx('#FFB067'), 0.55 * glow)); g.addColorStop(0.45, css(hx('#F3896A'), 0.25 * glow)); g.addColorStop(1, css(hx('#F3896A'), 0)); ctx.fillStyle = g; ctx.fillRect(0, 0, LW, DECK); }
     // Sterne
     if (n > 0) for (const s of STARS) { const tw = 0.55 + 0.45 * Math.sin(T * 1.6 + s[2]); ctx.fillStyle = css([255, 248, 230], n * tw * (s[3] ? 1 : 0.7)); ctx.fillRect(s[0], s[1], s[3] ? 2 : 1, s[3] ? 2 : 1); }
     // Sonne sinkt hinter die Skyline, Mond kommt
-    const sp = clamp01(T / 20.2);
-    if (sp < 1) { const sc = mix(C.sunD, C.sunS, sst(14.4, 19.4, T)); ctx.fillStyle = css(sc, 0.25); disc(ctx, 150 - 30 * sp, 34 + 150 * ei(sp), 14); ctx.fillStyle = css(sc); disc(ctx, 150 - 30 * sp, 34 + 150 * ei(sp), 9); }
-    if (n > 0) { const mx = 34 + 4 * sst(19.9, 28.2, T), my = 70 - 22 * sst(19.9, 28.2, T); ctx.fillStyle = css(C.moon, n); disc(ctx, mx, my, 7); ctx.fillStyle = css(mix(top, bot, my / DECK), n); disc(ctx, mx + 4, my - 2, 6); }
+    // Sonne sinkt rechts sichtbar hinter die Skyline, danach steigt links der Mond dahinter auf (beide voll deckend, kein Einblenden).
+    if (T < 15) { const sd = sst(3, 13.2, T), sx = 150 + 6 * sst(3, 14.6, T), sy = 34 + 76 * Math.pow(sd, 1.3) + 66 * sst(13.2, 14.6, T), sc = mix(C.sunD, C.sunS, sst(8.5, 13.1, T));
+      ctx.fillStyle = css(sc, 0.25); disc(ctx, sx, sy, 14); ctx.fillStyle = css(sc); disc(ctx, sx, sy, 9); }
+    if (T > 13.4) { const mr = sst(13.8, 17.6, T), mx = Math.round(30 + 6 * mr + 3 * sst(17.6, 28.2, T)), my = Math.round(150 - 100 * mr - 6 * sst(17.6, 28.2, T));
+      // Sichel pixelweise: in der Mondscheibe, aber nicht in der versetzten Scheibe; schwacher Schein nur außen herum
+      for (let y = -10; y <= 10; y++) for (let x = -10; x <= 10; x++) { const r2 = x * x + y * y, c2 = (x - 4) * (x - 4) + (y + 2) * (y + 2);
+        if (r2 <= 49 && c2 > 36) { ctx.fillStyle = css(C.moon); ctx.fillRect(mx + x, my + y, 1, 1); }
+        else if (r2 > 49 && r2 <= 100 && c2 > 64) { ctx.fillStyle = css(C.moon, 0.10 * (1 - (r2 - 49) / 51)); ctx.fillRect(mx + x, my + y, 1, 1); } } }
     // Wolken ziehen
     const cl = 1 - n * 0.75; const cc = mix([255, 255, 255], [255, 190, 170], dusk);
     for (const c of CLOUDS) { const x = ((c[0] + T * 2.4 * c[2]) % 420) - 60, y = c[1]; ctx.fillStyle = css(cc, 0.85 * cl); ctx.fillRect(x, y + 2, 22, 4); ctx.fillRect(x + 4, y, 10, 2); ctx.fillRect(x + 12, y + 1, 6, 1); ctx.fillRect(x + 2, y + 6, 16, 1); }
@@ -52,7 +62,7 @@ window.SKY = {
       for (const b of bs) { const x = (((b.x - off) % SPAN) + SPAN) % SPAN - 24; if (x > LW || x + b.w < 0) continue;
         const y0 = base - b.h; ctx.fillStyle = css(bc); ctx.fillRect(x, y0, b.w, b.h);
         if (b.ant) { ctx.fillRect(x + (b.w >> 1), y0 - 6, 1, 6); ctx.fillStyle = css([255, 90, 80], 0.35 + 0.65 * n * (0.5 + 0.5 * Math.sin(T * 3))); ctx.fillRect(x + (b.w >> 1), y0 - 7, 1, 1); }
-        for (const w of b.win) { const lit = w[2] && w[3] < n * 1.15; const col = lit ? C.lit : mix(mix(dC, C.winD, 0.55), mix(nC, [60, 55, 95], 0.6), n); ctx.fillStyle = css(col, lit ? 1 : 0.9); ctx.fillRect(x + w[0], y0 + w[1], 1, winBig ? 2 : 1); } }
+        for (const w of b.win) { const lit = w[2] && w[3] < nl * 1.15; const col = lit ? C.lit : mix(mix(dC, C.winD, 0.55), mix(nC, [60, 55, 95], 0.6), n); ctx.fillStyle = css(col, lit ? 1 : 0.9); ctx.fillRect(x + w[0], y0 + w[1], 1, winBig ? 2 : 1); } }
     };
     layer(FAR, 0, DECK - 6, C.farD, C.farN, false);
     layer(NEAR, 0, DECK, C.nearD, C.nearN, true);
@@ -64,10 +74,10 @@ window.SKY = {
     for (let x = 6; x < LW; x += 20) { ctx.fillStyle = css(rail); ctx.fillRect(x, RAIL, 2, P - RAIL); ctx.fillStyle = css(railHi); ctx.fillRect(x, RAIL, 1, P - RAIL); }
     // Laternen an jedem zweiten Pfosten: Glas leuchtet nachts, Lichtkegel auf Brüstung und Boden
     for (let x = 6; x < LW; x += 40) {
-      if (n > 0) { ctx.fillStyle = css(C.lit, 0.10 * n); ctx.fillRect(x - 9, RAIL - 12, 20, 34); ctx.fillStyle = css(C.lit, 0.12 * n); ctx.fillRect(x - 5, RAIL - 8, 12, 20); }
+      if (nl > 0) { ctx.fillStyle = css(C.lit, 0.10 * nl); ctx.fillRect(x - 9, RAIL - 12, 20, 34); ctx.fillStyle = css(C.lit, 0.12 * nl); ctx.fillRect(x - 5, RAIL - 8, 12, 20); }
       ctx.fillStyle = css(mix(hx('#2E2A38'), hx('#4A3E52'), n)); ctx.fillRect(x - 1, RAIL - 7, 4, 1); ctx.fillRect(x - 1, RAIL - 1, 4, 1);
-      ctx.fillStyle = css(mix(hx('#E9E2D0'), C.lit, n)); ctx.fillRect(x - 1, RAIL - 6, 4, 5);
-      ctx.fillStyle = css([255, 255, 255], 0.5 * (1 - n)); ctx.fillRect(x - 1, RAIL - 6, 1, 2);
+      ctx.fillStyle = css(mix(hx('#E9E2D0'), C.lit, nl)); ctx.fillRect(x - 1, RAIL - 6, 4, 5);
+      ctx.fillStyle = css([255, 255, 255], 0.5 * (1 - nl)); ctx.fillRect(x - 1, RAIL - 6, 1, 2);
     }
     // Ziegel-Brüstung mit Abdeckung
     const brick = mix(mix(hx('#C0705A'), hx('#D07A5A'), dusk), hx('#55304A'), n), cap = mix(hx('#E8C3A8'), hx('#7A5872'), n);
@@ -75,7 +85,7 @@ window.SKY = {
     ctx.fillStyle = css(cap); ctx.fillRect(0, P - 2, LW, 2);
     ctx.fillStyle = css([0, 0, 0], 0.16); ctx.fillRect(0, P, LW, 1);
     for (let y = P + 3, r = 0; y < DECK; y += 4, r++) { ctx.fillStyle = css([0, 0, 0], 0.14); ctx.fillRect(0, y, LW, 1); for (let x = (r % 2) * 5; x < LW; x += 10) ctx.fillRect(x, y - 3, 1, 3); }
-    for (let x = 6; x < LW; x += 40) if (n > 0) { ctx.fillStyle = css(C.lit, 0.14 * n); ctx.fillRect(x - 8, P, 18, DECK - P); }
+    for (let x = 6; x < LW; x += 40) if (nl > 0) { ctx.fillStyle = css(C.lit, 0.14 * nl); ctx.fillRect(x - 8, P, 18, DECK - P); }
     // Pflanzkübel links und rechts
     const leaf = mix(mix(hx('#5FA35A'), hx('#7A9A50'), dusk), hx('#2C4A48'), n), leafHi = mix(hx('#8CCB6E'), hx('#4A6E5E'), n), box = mix(hx('#7A5A48'), hx('#3A2C3E'), n);
     const planter = (x0, w) => {
@@ -89,7 +99,7 @@ window.SKY = {
     ctx.fillStyle = css(mix(hx('#E4D5C4'), hx('#62546E'), n)); ctx.fillRect(0, DECK, LW, 2);
     ctx.fillStyle = css([0, 0, 0], 0.1);
     for (let y = DECK + 6, h = 7, r = 0; y < LH; y += h, h += 2, r++) { ctx.fillRect(0, y, LW, 1); for (let x = (r % 2) * 9; x < LW; x += 18) ctx.fillRect(x, y - h + 2, 1, h - 2); }
-    for (let x = 6; x < LW; x += 40) if (n > 0) { ctx.fillStyle = css(C.lit, 0.10 * n); ctx.fillRect(x - 12, DECK, 26, 8); }
+    for (let x = 6; x < LW; x += 40) if (nl > 0) { ctx.fillStyle = css(C.lit, 0.10 * nl); ctx.fillRect(x - 12, DECK, 26, 8); }
   },
 };
 

@@ -31,7 +31,7 @@ npm run motion    # Frame-Daten für den Motion-Film → video/motion/modules/me
 
 <p align="center"><img src="dist/v1/mittelblau-messing/gif/winken.gif" width="288" alt="Melly winkt"></p>
 
-**Melly** ist ein Pixel-Maskottchen als Code: Creme-Blob im Einreiher, Name aus dem Kürzel MEL. 73 Posen · 6 Anzug-Kombis · 8 Outfit(s) · 4 Accessoires · 8 Ansichten · 10 Gesichtsausdrücke. Asset-Stand: `v1`.
+**Melly** ist ein Pixel-Maskottchen als Code: Creme-Blob im Einreiher, Name aus dem Kürzel MEL. 76 Posen · 6 Anzug-Kombis · 9 Outfit(s) · 4 Accessoires · 8 Ansichten · 10 Gesichtsausdrücke. Asset-Stand: `v1`.
 
 ## Katalog
 Komplette Figur-Referenz – zum Aufklappen.
@@ -47,13 +47,14 @@ Krawatte und Einstecktuch haben immer die Akzentfarbe.
 </details>
 
 <details>
-<summary><b>Outfits</b> · 8</summary>
+<summary><b>Outfits</b> · 9</summary>
 
 Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoires). Vorschau frontal, alle Posen liegen in `dist/v1/outfit-<id>/`.
 
 <table>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/png/ansicht-vorne.png" width="144" alt="Weihnachtsmann"><br><b>Weihnachtsmann</b><br><code>weihnachten</code><br><sub>Roter Anzug mit Gürtel und Pelzsaum, Weihnachtsmütze mit Bommel. Krawatte/Einstecktuch bleiben Messing. Läuft mit 41 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/png/ansicht-vorne.png" width="144" alt="Bauhelm"><br><b>Bauhelm</b><br><code>bauhelm</code><br><sub>Gelber Bauarbeiterhelm mit Grat, Kopfband und zweistufigem Schirm (hinten mit Nackenband), in allen Ansichten; zum Hinlegen nimmt Melly ihn ab und stellt ihn neben sich. Anzug bleibt in der Kombi – Melly als Bauleiter. Läuft mit 67 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-angler/png/ansicht-vorne.png" width="144" alt="Angler"><br><b>Angler</b><br><code>angler</code><br><sub>Fischerhut mit Fliege, Wathose über dem Anzug, Gummistiefel, Angel mit Tabelle (liegt am Boden, wenn er den Arm braucht). Lakehouse-Bezug. Läuft mit 40 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-agent/png/ansicht-vorne.png" width="144" alt="Agent"><br><b>Agent</b><br><code>agent</code><br><sub>Fast schwarzer Anzug, dunkle Krawatte, Knopf im Ohr mit Spiralkabel. Wortspiel AI-Agent. Läuft mit 36 Posen.</sub></td></tr>
-<tr><td align="center" valign="top"><img src="dist/v1/outfit-lagerist/png/ansicht-vorne.png" width="144" alt="Lagerist"><br><b>Lagerist</b><br><code>lagerist</code><br><sub>Offene orange Warnweste mit Reflexstreifen über dem Anzug, gelber Bauhelm. Warehouse-Bezug. Läuft mit 42 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-zauberer/png/ansicht-vorne.png" width="144" alt="Zauberer"><br><b>Zauberer</b><br><code>zauberer</code><br><sub>Spitzer Hut mit Sternen, violette Robe mit Messing-Sternen. Läuft mit 37 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-koch/png/ansicht-vorne.png" width="144" alt="Koch"><br><b>Koch</b><br><code>koch</code><br><sub>Kochmütze mit Falten, graublaue Schürze. Läuft mit 41 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-cowboy/png/ansicht-vorne.png" width="144" alt="Cowboy"><br><b>Cowboy</b><br><code>cowboy</code><br><sub>Cowboyhut mit Delle und hochgebogener Krempe. Läuft mit 36 Posen.</sub></td></tr>
+<tr><td align="center" valign="top"><img src="dist/v1/outfit-weihnachten/png/ansicht-vorne.png" width="144" alt="Weihnachtsmann"><br><b>Weihnachtsmann</b><br><code>weihnachten</code><br><sub>Roter Anzug mit Gürtel und Pelzsaum, Weihnachtsmütze mit Bommel. Krawatte/Einstecktuch bleiben Messing. Läuft mit 43 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-bauhelm/png/ansicht-vorne.png" width="144" alt="Bauhelm"><br><b>Bauhelm</b><br><code>bauhelm</code><br><sub>Gelber Bauarbeiterhelm mit Grat, Kopfband und zweistufigem Schirm (hinten mit Nackenband), in allen Ansichten; zum Hinlegen nimmt Melly ihn ab und stellt ihn neben sich. Anzug bleibt in der Kombi – Melly als Bauleiter. Läuft mit 70 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-karneval/png/ansicht-vorne.png" width="144" alt="Karneval"><br><b>Karneval</b><br><code>karneval</code><br><sub>Narrenkappe mit drei Zipfeln und Messing-Schellen, Narrenanzug halb gelb, halb rot (Mi-parti, gespiegelt zur Kappe), blaue Krawatte. In allen Ansichten, die Farben wechseln beim Drehen die Seite. Läuft mit 66 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-angler/png/ansicht-vorne.png" width="144" alt="Angler"><br><b>Angler</b><br><code>angler</code><br><sub>Fischerhut mit Fliege, Wathose über dem Anzug, Gummistiefel, Angel mit Tabelle (liegt am Boden, wenn er den Arm braucht). Lakehouse-Bezug. Läuft mit 42 Posen.</sub></td></tr>
+<tr><td align="center" valign="top"><img src="dist/v1/outfit-agent/png/ansicht-vorne.png" width="144" alt="Agent"><br><b>Agent</b><br><code>agent</code><br><sub>Fast schwarzer Anzug, dunkle Krawatte, Knopf im Ohr mit Spiralkabel. Wortspiel AI-Agent. Läuft mit 38 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-lagerist/png/ansicht-vorne.png" width="144" alt="Lagerist"><br><b>Lagerist</b><br><code>lagerist</code><br><sub>Offene orange Warnweste mit Reflexstreifen über dem Anzug, gelber Bauhelm. Warehouse-Bezug. Läuft mit 44 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-zauberer/png/ansicht-vorne.png" width="144" alt="Zauberer"><br><b>Zauberer</b><br><code>zauberer</code><br><sub>Spitzer Hut mit Sternen, violette Robe mit Messing-Sternen. Läuft mit 39 Posen.</sub></td><td align="center" valign="top"><img src="dist/v1/outfit-koch/png/ansicht-vorne.png" width="144" alt="Koch"><br><b>Koch</b><br><code>koch</code><br><sub>Kochmütze mit Falten, graublaue Schürze. Läuft mit 43 Posen.</sub></td></tr>
+<tr><td align="center" valign="top"><img src="dist/v1/outfit-cowboy/png/ansicht-vorne.png" width="144" alt="Cowboy"><br><b>Cowboy</b><br><code>cowboy</code><br><sub>Cowboyhut mit Delle und hochgebogener Krempe. Läuft mit 38 Posen.</sub></td></tr>
 </table>
 </details>
 
@@ -62,25 +63,25 @@ Kostüme, die über jede passende Pose gelegt werden (eigene Farben + Accessoire
 
 Kleine Extras zum An- und Abschalten, kombinierbar mit jeder Kombi und jedem Outfit. Ordner: `dist/v1/accessoire-<id>/` (Mittelblau).
 
-**Brille** (`brille`) — Klassische schwarze Brille mit runden Gläsern. Läuft mit 36 Posen.
+**Brille** (`brille`) — Klassische schwarze Brille mit runden Gläsern. Läuft mit 38 Posen.
 
 <table>
 <tr><td align="center" valign="top"><img src="dist/v1/accessoire-brille/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/accessoire-brille/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td></tr>
 </table>
 
-**Nerd-Brille** (`nerdbrille`) — Schwarze Brille mit Tape am Steg. Läuft mit 36 Posen.
+**Nerd-Brille** (`nerdbrille`) — Schwarze Brille mit Tape am Steg. Läuft mit 38 Posen.
 
 <table>
 <tr><td align="center" valign="top"><img src="dist/v1/accessoire-nerdbrille/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/accessoire-nerdbrille/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td></tr>
 </table>
 
-**Kopfhörer** (`kopfhoerer`) — Over-Ear-Kopfhörer, Fokus-Modus. Läuft mit 37 Posen.
+**Kopfhörer** (`kopfhoerer`) — Over-Ear-Kopfhörer, Fokus-Modus. Läuft mit 39 Posen.
 
 <table>
 <tr><td align="center" valign="top"><img src="dist/v1/accessoire-kopfhoerer/gif/musik.gif" width="144" alt="Musik hören"><br><b>Musik hören</b><br><code>musik</code></td><td align="center" valign="top"><img src="dist/v1/accessoire-kopfhoerer/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/accessoire-kopfhoerer/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td></tr>
 </table>
 
-**Konferenz-Badge** (`badge`) — Namensschild am Band in Event-Farbe, für Konferenz- und Meetup-Posts. Läuft mit 36 Posen.
+**Konferenz-Badge** (`badge`) — Namensschild am Band in Event-Farbe, für Konferenz- und Meetup-Posts. Läuft mit 38 Posen.
 
 <table>
 <tr><td align="center" valign="top"><img src="dist/v1/accessoire-badge/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code></td><td align="center" valign="top"><img src="dist/v1/accessoire-badge/gif/kaffee.gif" width="144" alt="Kaffee"><br><b>Kaffee</b><br><code>kaffee</code></td></tr>
@@ -105,7 +106,7 @@ Kleine Extras zum An- und Abschalten, kombinierbar mit jeder Kombi und jedem Out
 </details>
 
 <details>
-<summary><b>Posen &amp; Animationen</b> · 73</summary>
+<summary><b>Posen &amp; Animationen</b> · 76</summary>
 
 Alle als animiertes GIF (transparent), Standbild-PNG und Sprite-Sheet in jeder Kombi. Gezeigt: Mittelblau · Messing.
 
@@ -114,7 +115,8 @@ Alle als animiertes GIF (transparent), Standbild-PNG und Sprite-Sheet in jeder K
 <tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/idle.gif" width="144" alt="Idle"><br><b>Idle</b><br><code>idle</code><br><sub>Blinzelt unregelmäßig, schaut sich kurz um. Körper bleibt ruhig.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/umschauen.gif" width="144" alt="Umschauen"><br><b>Umschauen</b><br><code>umschauen</code><br><sub>Dreht sich in die 3/4-Ansicht nach links und rechts, blinzelt dabei.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/drehung.gif" width="144" alt="Drehung 360°"><br><b>Drehung 360°</b><br><code>drehung</code><br><sub>vorne → 3/4 → Profil → hinten → zurück, kurzer Halt vorne.</sub></td></tr>
 <tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/laufen.gif" width="144" alt="Laufen (Profil)"><br><b>Laufen (Profil)</b><br><code>laufen</code><br><sub>Lauf-Zyklus auf der Stelle in 8 Phasen: Füße mit halbem Schritt dazwischen, Arm pendelt gegenläufig im Bogen, Körper wippt beim Passieren.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/reinlaufen-hallo.gif" width="144" alt="Reinlaufen & Hallo"><br><b>Reinlaufen & Hallo</b><br><code>reinlaufen-hallo</code><br><sub>Läuft von links ins Bild, dreht sich über 3/4 zur Kamera und winkt.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/tschuess.gif" width="144" alt="Tschüss"><br><b>Tschüss</b><br><code>tschuess</code><br><sub>Winkt, dreht sich über 3/4 ins Profil und läuft aus dem Bild.</sub></td></tr>
 <tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/winken.gif" width="144" alt="Winken"><br><b>Winken</b><br><code>winken</code><br><sub>Anheben über Zwischenposition, 3× Pendeln zwischen 45° und 30°, zurück.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/jubeln.gif" width="144" alt="Jubeln"><br><b>Jubeln</b><br><code>jubeln</code><br><sub>Holt Schwung (Kopf sinkt ein), Arme schwingen im Bogen hoch, Sprung, Landung mit Nachfedern, Arme pumpen abwechselnd, Funken blinken, Arme schwingen zurück.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/blick-links.gif" width="144" alt="Blick links"><br><b>Blick links</b><br><code>blick-links</code><br><sub>Standbild: schaut nach links (für Cursor-Verfolgung).</sub></td></tr>
-<tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/blick-rechts.gif" width="144" alt="Blick rechts"><br><b>Blick rechts</b><br><code>blick-rechts</code><br><sub>Standbild: schaut nach rechts (für Cursor-Verfolgung).</sub></td></tr>
+<tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/blick-rechts.gif" width="144" alt="Blick rechts"><br><b>Blick rechts</b><br><code>blick-rechts</code><br><sub>Standbild: schaut nach rechts (für Cursor-Verfolgung).</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/schunkeln.gif" width="144" alt="Schunkeln"><br><b>Schunkeln</b><br><code>schunkeln</code><br><sub>Arme seitlich eingehakt, neigt sich im Dreivierteltakt über die Arme nach rechts und links (die eigentliche Schaukelbewegung kommt im Film als weiche Drehung um die Füße), singt mit (Noten), hängt die Arme wieder aus.</sub></td><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/kamelle-werfen.gif" width="144" alt="Kamelle werfen"><br><b>Kamelle werfen</b><br><code>kamelle-werfen</code><br><sub>Holt ein Bonbon hoch, holt über dem Kopf aus (Kopf sinkt ein), wirft es nach rechts ins Publikum, Arm schwingt nach und sinkt.</sub></td></tr>
+<tr><td align="center" valign="top"><img src="dist/v1/mittelblau-messing/gif/jubel-drehung.gif" width="144" alt="Jubel-Drehung"><br><b>Jubel-Drehung</b><br><code>jubel-drehung</code><br><sub>Holt Schwung, springt mit Armen hoch, dreht sich in der Luft einmal um sich selbst (alle Ansichten), landet federnd und reißt die Arme hoch.</sub></td></tr>
 </table>
 
 #### Arbeit

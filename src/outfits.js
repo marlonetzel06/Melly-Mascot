@@ -355,7 +355,35 @@ const cowboyHat = hatS([
   'UU..kkkkkkkkkk..uu',
   'UUUUUUUUUUUUUUUUuu'], 2, -3);
 
+// Karneval: Narrenkappe mit drei Zipfeln und Messing-Schellen, Narrenanzug halb gelb, halb rot (Mi-parti), in allen Ansichten.
+// Kappe: Seite von Mellys rechter Hand gelb (vorne Bildseite rechts – gespiegelt zum Anzug), von hinten vertauscht.
+const JESTER = [
+  '.........hh.........',
+  '.........HH.........',
+  '...UUU...UT...TTT...',
+  '.UUUUUU.UUTt.TTTTTt.',
+  'UUu..UUUUUTTTTt..TTt',
+  'Uu....UUUUTTTt....Tt',
+  'hh....UUUUTTTTt...hh',
+  'HH....TUTUTUTUT...HH'];
+const swapUT = rows => rows.map(r => r.replace(/[UuTt]/g, c => ({ U: 'T', u: 't', T: 'U', t: 'u' })[c]));
+const jesterHat = (back = false) => hatS(back ? swapUT(JESTER) : JESTER, 1, -6);
+/** Mi-parti je Ansicht: welche Spalten gelb werden (Mellys rechte Körperhälfte). Vorne/3/4: links der Krawatte, Profil rechts: ganz,
+ *  Profil links: gar nicht, hinten: rechts der Rückennaht. */
+const YELLOW = { F: x => x <= 10, Q: x => x <= 10, QL: x => x <= 7, S: () => true, SL: () => false, QB: x => x >= 10, QBL: x => x >= 12, B: x => x >= 11 };
+const harlequin = (view) => (p, S, opt, get) => {
+  const yel = YELLOW[view];
+  for (let y = 9; y <= 16; y++) for (let x = -7; x <= 28; x++) { if (!yel(x)) continue; const c = get(x, y); if (c === 'N') p(x, y, 'T'); else if (c === 'n') p(x, y, 't'); else if (c === 'l') p(x, y, 'I'); }
+};
+
 const MORE_OUTFITS = [
+  {
+    id: 'karneval', title: 'Karneval', desc: 'Narrenkappe mit drei Zipfeln und Messing-Schellen, Narrenanzug halb gelb, halb rot (Mi-parti, gespiegelt zur Kappe), blaue Krawatte. In allen Ansichten, die Farben wechseln beim Drehen die Seite.',
+    hat: true,
+    pal: { N: '#C8343A', n: '#962530', l: '#DA6A6E', A: '#2E5A8A', a: '#1F4168', U: '#C8343A', u: '#962530', T: '#F2C230', t: '#C99A1C', I: '#F5CB45' },
+    layers: Object.fromEntries(['F', 'Q', 'QL', 'S', 'SL', 'QB', 'QBL', 'B'].map(v => [v, () => [jesterHat(['QB', 'QBL', 'B'].includes(v))]])),
+    after: Object.fromEntries(['F', 'Q', 'QL', 'S', 'SL', 'QB', 'QBL', 'B'].map(v => [v, () => [harlequin(v)]]))
+  },
   {
     id: 'angler', title: 'Angler', desc: 'Fischerhut mit Fliege, Wathose über dem Anzug, Gummistiefel, Angel mit Tabelle (liegt am Boden, wenn er den Arm braucht). Lakehouse-Bezug.',
     hat: true,

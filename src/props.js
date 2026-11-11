@@ -442,3 +442,6 @@ const CROSS = [
   '.OWWWwnnnnOnnnnnWWWwO.'
 ];
 export const crossLegs = p => { for (let x = 0; x < 22; x++) p(x, 17, '.'); CROSS.forEach((r, j) => [...r].forEach((c, i) => { if (c !== '.') p(i, 13 + j, c); })); };
+
+/** Kamelle (eingewickeltes Bonbon): 4×2, Körper rot, gedrehte Enden weiß; (x, y) = obere linke Ecke. */
+export const bonbon = (x, y) => sprite(['WRRW', 'wRRw'], x, y);

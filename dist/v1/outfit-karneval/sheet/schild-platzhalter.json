@@ -1,0 +1,13 @@
+{
+ "pose": "schild-platzhalter",
+ "title": "Schild mit Platzhalter",
+ "frameWidth": 36,
+ "frameHeight": 32,
+ "frames": [
+  {
+   "x": 0,
+   "y": 0,
+   "ms": 2000
+  }
+ ]
+}

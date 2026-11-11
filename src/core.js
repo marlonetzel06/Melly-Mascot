@@ -123,6 +123,15 @@ export const arm = (side, a1, a2 = a1, opt = {}) => (p, S) => {
   drawLimb([...px].map(([k, c]) => [...k.split(',').map(Number), c, put]), view, (x, y) => x === sx && y >= 9 && y <= 13);
 };
 
+/** Linke obere Ecke der 2×2-Hand, die arm(side, a1, a2, opt) zeichnet – für Objekte in der Hand. */
+export const handAt = (side, a1, a2 = a1, opt = {}) => {
+  const { up = 2, fore = 2, sh = 0 } = opt, sgn = side === 'R' ? 1 : -1;
+  const dir = a => [sgn * Math.sin(a * Math.PI / 180), Math.cos(a * Math.PI / 180)];
+  const [ux, uy] = dir(a1), [fx, fy] = dir(a2);
+  const hx = SHOULDER[side] + ux * up + fx * fore + fx, hy = 10 - sh + uy * up + fy * fore + fy;
+  return [Math.round(hx - .5), Math.round(hy - .5)];
+};
+
 // Gliedmaße aus Pixeln [x, y, Token, zeichner?] (zeichner p oder S, Standard p). Liegt ein Pixel vor Körper/Kopf:
 // Ärmel N/n → l und eigene Kontur O zu den Figur-Pixeln (Auto-Kontur umrandet nur leere Pixel); am Kopf (y ≤ 8) immer Kontur.
 function drawLimb(cells, view, outside = () => false) {
